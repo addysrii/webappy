@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Download, Award, QrCode, Eye, RefreshCw } from 'lucide-react';
+import html2canvas from 'html2canvas';
+
 
 const QRCertificateGenerator = () => {
   const [formData, setFormData] = useState({
@@ -65,20 +67,42 @@ const QRCertificateGenerator = () => {
       [e.target.name]: e.target.value
     });
   };
+/*
+  // const downloadCertificate = () => {
+  //   if (certificateRef.current) {
+  //     const canvas = document.createElement('canvas');
+  //     const ctx = canvas.getContext('2d');
+  //     const cert = certificateRef.current;
+      
+  //     canvas.width = cert.offsetWidth * 2;
+  //     canvas.height = cert.offsetHeight * 2;
+      
+  //     // Create a simple certificate download (in a real app, you'd use html2canvas or similar)
+  //     alert('Certificate download feature would be implemented with html2canvas or similar library');
+  //   }
+  // };*/
 
-  const downloadCertificate = () => {
-    if (certificateRef.current) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const cert = certificateRef.current;
-      
-      canvas.width = cert.offsetWidth * 2;
-      canvas.height = cert.offsetHeight * 2;
-      
-      // Create a simple certificate download (in a real app, you'd use html2canvas or similar)
-      alert('Certificate download feature would be implemented with html2canvas or similar library');
+  const downloadCertificate = async () => {
+  if (certificateRef.current) {
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2, // higher resolution
+        useCORS: true // enable if images from another domain
+      });
+      const dataURL = canvas.toDataURL('image/png');
+
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `${formData.recipientName || 'certificate'}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download the certificate');
     }
-  };
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">

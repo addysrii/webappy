@@ -1,91 +1,184 @@
-import { useState, useEffect } from 'react';
-import { Search, Calendar, MapPin, Filter, ArrowUpDown, Users, Tag } from 'lucide-react';
-import eventService from '../services/eventService';
-import { Link } from 'react-router-dom';
-import Sidebar from '../components/common/Navbar'; // Import the Sidebar component
+import { useState, useEffect } from "react";
+import {
+  Search,
+  Calendar,
+  MapPin,
+  Filter,
+  ArrowUpDown,
+  Users,
+  Tag,
+  ChevronLeft,
+  ChevronRight,
+  PlusCircle,
+} from "lucide-react";
+import eventService from "../services/eventService";
+import { Link } from "react-router-dom";
+import Sidebar from "../components/common/Navbar";
+import { FooterBlock } from "./BhoomiLandingPage/sections/FooterBlock";
 
 const EventCard = ({ event }) => {
-  // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return "Date TBA";
-    
+    if (!dateString) return "Date TBA";pul
+
     try {
-      const options = { weekday: 'short', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString('en-US', options);
+      const options = { weekday: "short", month: "short", day: "numeric" };
+      return new Date(dateString).toLocaleDateString("en-US", options);
     } catch (err) {
       console.error("Date formatting error:", err);
       return "Invalid date";
     }
   };
-  
-  // Safely get the attendee count
+
   const getAttendeeCount = (attendeeCounts, type) => {
     if (!attendeeCounts) return 0;
-    
+
     const count = attendeeCounts[type];
-    
-    if (typeof count === 'number') {
+
+    if (typeof count === "number") {
       return count;
     }
-    
-    if (count && typeof count === 'object' && count.count !== undefined) {
+
+    if (count && typeof count === "object" && count.count !== undefined) {
       return count.count;
     }
-    
+
     return 0;
   };
 
-  // Get the going count
-  const goingCount = getAttendeeCount(event.attendeeCounts, 'going');
-  
+  const goingCount = getAttendeeCount(event.attendeeCounts, "going");
+
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-orange-100">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border">
       <div className="relative">
-        <img 
-          src={event.coverImage?.url || "/api/placeholder/400/200"} 
+        <img
+          src={event.coverImage?.url || "/api/placeholder/400/200"}
           alt={event.name || "Event"}
           className="w-full h-48 object-cover"
         />
         {event.category && (
-          <span className="absolute top-4 right-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-            {typeof event.category === 'string' ? event.category : 'Other'}
+          <span className="absolute top-3 right-3 bg-black bg-opacity-70 text-white text-xs font-bold px-2 py-1 rounded-full">
+            {typeof event.category === "string" ? event.category : "Other"}
           </span>
         )}
-      </div>
-      
-      <div className="p-5">
-        <h3 className="text-lg font-bold text-gray-900 mb-2">{event.name || "Untitled Event"}</h3>
-        
-        <div className="flex items-center text-gray-600 mb-2">
-          <Calendar className="w-4 h-4 mr-2 text-orange-500" />
-          <span className="text-sm">{formatDate(event.startDateTime)}</span>
+        <div className="absolute bottom-3 left-3 bg-white bg-opacity-90 backdrop-blur-sm rounded-lg px-2 py-1">
+          <p className="text-xs font-semibold text-gray-800">
+            {formatDate(event.startDateTime)}
+          </p>
         </div>
-        
-        <div className="flex items-center text-gray-600 mb-4">
-          <MapPin className="w-4 h-4 mr-2 text-orange-500" />
-          <span className="text-sm">
-            {event.virtual 
-              ? "Virtual Event" 
-              : (event.location?.name || "Location TBA")}
+      </div>
+
+      <div className="p-4">
+        <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2">
+          {event.name || "Untitled Event"}
+        </h3>
+
+        <div className="flex items-center text-gray-600 mb-3">
+          <MapPin className="w-4 h-4 mr-1 text-blue-500" />
+          <span className="text-sm truncate">
+            {event.virtual
+              ? "Virtual Event"
+              : event.location?.name || "Location TBA"}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-1">
-            <div className="flex -space-x-2">
-              {[...Array(Math.min(3, goingCount))].map((_, i) => (
-                <div key={`avatar-${i}-${event._id || event.id}`} className="w-6 h-6 rounded-full bg-orange-200 border-2 border-white flex items-center justify-center">
-                  <span className="text-xs text-orange-600 font-medium">U</span>
+            <div className="flex -space-x-1">
+              {[
+                ...Array(
+                  Math.min(
+                    3,
+                    goingCount > 0
+                      ? Math.max(1, Math.floor(goingCount / 20))
+                      : 1
+                  )
+                ),
+              ].map((_, i) => (
+                <div
+                  key={`avatar-${i}-${event._id || event.id}`}
+                  className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 border-2 border-white flex items-center justify-center"
+                >
+                  <span className="text-xs text-white font-medium">
+                    {String.fromCharCode(65 + i)}
+                  </span>
                 </div>
               ))}
             </div>
-            <span className="text-xs text-gray-600 ml-1">
-              {goingCount} attending
+            <span className="text-xs text-gray-600 ml-2">
+              {goingCount || 0} attending
             </span>
           </div>
           <Link to={`/events/${event._id || event.id}`}>
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
               View
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CarouselCard = ({ event }) => {
+  const truncateDescription = (text, maxLength = 80) => {
+    if (!text) return "Join us for an amazing experience";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + "...";
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date TBA";
+    try {
+      const options = { weekday: "long", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString("en-US", options);
+    } catch (err) {
+      return "Date TBA";
+    }
+  };
+
+  return (
+    <div className="relative min-w-full h-80 rounded-2xl overflow-hidden shadow-lg">
+      <img
+        src={event.coverImage?.url || "/api/placeholder/800/320"}
+        alt={event.name || "Featured Event"}
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+      <div className="absolute bottom-6 left-6 right-6 text-white">
+        <div className="flex items-center space-x-2 mb-2">
+          <Calendar className="w-4 h-4" />
+          <span className="text-sm font-medium">
+            {formatDate(event.startDateTime)}
+          </span>
+        </div>
+        <h2 className="text-2xl font-bold mb-2 line-clamp-2">
+          {event.name || "Featured Event"}
+        </h2>
+        <p className="text-sm opacity-90 mb-4 line-clamp-2">
+          {truncateDescription(event.description)}
+        </p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <MapPin className="w-4 h-4" />
+              <span className="text-sm">
+                {event.virtual
+                  ? "Virtual"
+                  : event.location?.name || "Location TBA"}
+              </span>
+            </div>
+            {event.attendeeCounts?.going > 0 && (
+              <div className="flex items-center space-x-1">
+                <Users className="w-4 h-4" />
+                <span className="text-sm">
+                  {event.attendeeCounts.going} attending
+                </span>
+              </div>
+            )}
+          </div>
+          <Link to={`/events/${event._id || event.id}`}>
+            <button className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+              View Event
             </button>
           </Link>
         </div>
@@ -98,9 +191,9 @@ const EventListingPage = ({ user, onLogout }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('upcoming');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [filter, setFilter] = useState("upcoming");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [categories, setCategories] = useState([
     "All",
     "Business",
@@ -109,171 +202,333 @@ const EventListingPage = ({ user, onLogout }) => {
     "Education",
     "Entertainment",
     "Health",
-    "Other"
+    "Other",
   ]);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        // Define API filters based on selected filter
         const apiFilters = {};
-        
-        // Add time-based filters
-        if (filter === 'upcoming') {
-          apiFilters.filter = 'upcoming';
-        } else if (filter === 'past') {
-          apiFilters.filter = 'past';
+
+        if (filter === "upcoming") {
+          apiFilters.filter = "upcoming";
+        } else if (filter === "past") {
+          apiFilters.filter = "past";
         }
-        
-        // Add category filter if selected (and not "All")
-        if (categoryFilter && categoryFilter !== 'All') {
+
+        if (categoryFilter && categoryFilter !== "All") {
           apiFilters.category = categoryFilter.toLowerCase();
         }
-        
-        // Add search query if present
+
         if (searchQuery) {
           apiFilters.search = searchQuery;
         }
-        
-        // Call the event service to get events
+
         const response = await eventService.getEvents(apiFilters);
-        
-        // Update categories if available from API
+
         if (response.categories && response.categories.length > 0) {
-          // Extract category names from the API response
-          const extractedCategories = ['All', ...response.categories.map(cat => 
-            typeof cat === 'string' ? cat : (cat._id || 'Other')
-          )];
+          const extractedCategories = [
+            "All",
+            ...response.categories.map((cat) =>
+              typeof cat === "string" ? cat : cat._id || "Other"
+            ),
+          ];
           setCategories(extractedCategories);
         }
-        
-        // Get events from response
+
         const eventsData = response.events || response.data || [];
-        
+
         setEvents(eventsData);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching events:', err);
-        setError('Failed to load events. Please try again later.');
+        console.error("Error fetching events:", err);
+        setError("Failed to load events. Please try again later.");
         setLoading(false);
       }
     };
-    
+
     fetchEvents();
   }, [filter, categoryFilter, searchQuery]);
 
-  // Handle search submission
   const handleSearch = (e) => {
     e.preventDefault();
-    // The useEffect will trigger a new API call
   };
 
-  // Filter events client-side if search is changed without submitting
-  const filteredEvents = events.filter(event => {
-    const eventName = event.name || '';
-    const matchesSearch = searchQuery === '' || 
+  const filteredEvents = events.filter((event) => {
+    const eventName = event.name || "";
+    const matchesSearch =
+      searchQuery === "" ||
       eventName.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return matchesSearch;
   });
 
+  const featuredEvents = filteredEvents.slice(0, 3);
+
+  const categorizedEvents = {
+    recommended: filteredEvents.slice(0, 4),
+    hackathons: filteredEvents
+      .filter(
+        (event) =>
+          event.category?.toLowerCase().includes("hackathon") ||
+          event.name?.toLowerCase().includes("hack")
+      )
+      .slice(0, 4),
+    network: filteredEvents
+      .filter(
+        (event) =>
+          event.category?.toLowerCase().includes("network") ||
+          event.category?.toLowerCase().includes("business") ||
+          event.name?.toLowerCase().includes("network")
+      )
+      .slice(0, 4),
+    live: filteredEvents
+      .filter(
+        (event) =>
+          event.category?.toLowerCase().includes("entertainment") ||
+          event.name?.toLowerCase().includes("live") ||
+          event.name?.toLowerCase().includes("show")
+      )
+      .slice(0, 4),
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % Math.max(1, featuredEvents.length));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(
+      (prev) =>
+        (prev - 1 + Math.max(1, featuredEvents.length)) %
+        Math.max(1, featuredEvents.length)
+    );
+  };
+
+  useEffect(() => {
+    if (featuredEvents.length > 1) {
+      const interval = setInterval(nextSlide, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [featuredEvents.length]);
+
+  const EventSection = ({ title, events, showSeeAll = true }) => {
+    if (!events || events.length === 0) return null;
+
+    return (
+      <div className="mb-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          {showSeeAll && (
+            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
+              See All →
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {events.map((event) => (
+            <EventCard
+              key={event._id || event.id || `event-${Math.random()}`}
+              event={event}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <div className="z-20 relative">
         <Sidebar user={user} onLogout={onLogout} />
       </div>
-      
-      {/* Main content */}
-      <div className="flex-1 overflow-y-auto bg-orange-50">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-orange-600 to-orange-500 py-16 px-4 sm:px-6 lg:px-8 mb-8">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-6">Find Your Next Event</h1>
-            <p className="text-lg sm:text-xl text-orange-100 mb-8">Discover events that match your interests</p>
-            
-            {/* Search Bar */}
-            <div className="max-w-3xl mx-auto">
-              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center bg-white p-2 rounded-lg shadow-md">
-                <div className="flex items-center flex-1 w-full">
-                  <Search className="h-5 w-5 text-orange-400 ml-2" />
+
+      <div className="flex-1 overflow-y-auto bg-gray-50">
+        <header className="bg-white shadow-sm border-b sticky top-0 z-10 backdrop-blur-lg bg-white/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Meetkats
+                  </span>
+                </div>
+                <nav className="hidden md:flex space-x-8">
+                  <a
+                    href="#"
+                    className="text-gray-900 font-medium hover:text-blue-600 transition-colors duration-200"
+                  >
+                    Home
+                  </a>
+                  <a
+                    href="#"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    Network
+                  </a>
+                  <a
+                    href="#"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    Discover
+                  </a>
+                  <a
+                    href="#"
+                    className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    Events
+                  </a>
+                  <a
+                    href="#"
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    Profile
+                  </a>
+                </nav>
+              </div>
+              <div className="flex items-center space-x-4">
+                <form onSubmit={handleSearch} className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
                     placeholder="Search events..."
-                    className="flex-1 p-2 ml-2 focus:outline-none w-full"
+                    className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 transition-all duration-200 hover:border-gray-300 shadow-sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                </div>
-                <button 
-                  type="submit"
-                  className="mt-3 sm:mt-0 w-full sm:w-auto px-6 py-3 bg-orange-600 text-white font-medium rounded-md hover:bg-orange-700 transition duration-300 ease-in-out"
-                >
-                  Search
-                </button>
-              </form>
+                </form>
+                <Link to="/events/new">
+                  <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-xl">
+                    <PlusCircle className="w-5 h-5" />
+                    <span className="font-medium">Host Event</span>
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {featuredEvents.length > 0 && (
+            <div className="relative mb-16">
+              <div className="overflow-hidden rounded-3xl shadow-xl">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {featuredEvents.map((event, index) => (
+                    <CarouselCard
+                      key={event._id || event.id || index}
+                      event={event}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {featuredEvents.length > 1 && (
+                <>
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all hover:scale-110"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-gray-700" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all hover:scale-110"
+                  >
+                    <ChevronRight className="w-6 h-6 text-gray-700" />
+                  </button>
+
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {featuredEvents.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentSlide(index)}
+                        className={`w-3 h-3 rounded-full transition-all ${
+                          currentSlide === index
+                            ? "bg-white scale-125"
+                            : "bg-white/50 hover:bg-white/75"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 space-y-4 md:space-y-0">
             <div className="flex space-x-4">
-              <button 
-                className={`px-4 py-2 rounded-full ${filter === 'upcoming' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
-                onClick={() => setFilter('upcoming')}
+              <button
+                className={`px-5 py-2.5 rounded-xl ${
+                  filter === "upcoming"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                    : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                } transition-all duration-200 font-medium`}
+                onClick={() => setFilter("upcoming")}
               >
                 Upcoming
               </button>
-              <button 
-                className={`px-4 py-2 rounded-full ${filter === 'all' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
-                onClick={() => setFilter('all')}
+              <button
+                className={`px-5 py-2.5 rounded-xl ${
+                  filter === "all"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                    : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                } transition-all duration-200 font-medium`}
+                onClick={() => setFilter("all")}
               >
                 All Events
               </button>
-              <button 
-                className={`px-4 py-2 rounded-full ${filter === 'past' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
-                onClick={() => setFilter('past')}
+              <button
+                className={`px-5 py-2.5 rounded-xl ${
+                  filter === "past"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                    : "bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                } transition-all duration-200 font-medium`}
+                onClick={() => setFilter("past")}
               >
                 Past
               </button>
             </div>
-            
+
             <div className="flex space-x-3">
               <div className="relative">
                 <select
-                  className="appearance-none bg-white border border-orange-200 rounded-md pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                  className="appearance-none bg-white border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 hover:border-gray-300 shadow-sm"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
                   <option value="">Category</option>
                   {categories.map((category, index) => (
-                    <option key={`category-${index}`} value={category}>{category}</option>
+                    <option key={`category-${index}`} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
-                <Filter className="absolute right-3 top-2.5 h-5 w-5 text-orange-400 pointer-events-none" />
+                <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
               </div>
-              
-              <button className="flex items-center space-x-2 bg-white border border-orange-200 rounded-md px-4 py-2 hover:bg-orange-50 transition">
-                <ArrowUpDown className="h-4 w-4 text-orange-500" />
-                <span>Sort</span>
+
+              <button className="flex items-center space-x-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm">
+                <ArrowUpDown className="h-4 w-4 text-gray-500" />
+                <span className="font-medium">Sort</span>
               </button>
             </div>
           </div>
-          
-          {/* Events Grid */}
+
           {loading ? (
             <div className="text-center py-20">
-              <div className="w-16 h-16 border-t-4 border-orange-500 border-solid rounded-full animate-spin mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading events...</p>
+              <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto"></div>
+              <p className="mt-4 text-gray-600 font-medium">
+                Loading events...
+              </p>
             </div>
           ) : error ? (
             <div className="text-center py-20">
-              <p className="text-red-500">{error}</p>
-              <button 
-                className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition"
+              <p className="text-red-500 font-medium">{error}</p>
+              <button
+                className="mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
                 onClick={() => window.location.reload()}
               >
                 Try Again
@@ -281,13 +536,15 @@ const EventListingPage = ({ user, onLogout }) => {
             </div>
           ) : filteredEvents.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-600">No events found matching your criteria.</p>
+              <p className="text-gray-600 font-medium">
+                No events found matching your criteria.
+              </p>
               {(searchQuery || categoryFilter) && (
-                <button 
-                  className="mt-4 px-4 py-2 bg-orange-200 hover:bg-orange-300 rounded-md transition"
+                <button
+                  className="mt-4 px-6 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium"
                   onClick={() => {
-                    setSearchQuery('');
-                    setCategoryFilter('');
+                    setSearchQuery("");
+                    setCategoryFilter("");
                   }}
                 >
                   Clear Filters
@@ -295,22 +552,84 @@ const EventListingPage = ({ user, onLogout }) => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map((event) => (
-                <EventCard 
-                  key={event._id || event.id || `event-${Math.random()}`} 
-                  event={event} 
-                />
-              ))}
-            </div>
+            <>
+              <EventSection
+                title="Recommended"
+                events={categorizedEvents.recommended}
+              />
+              <EventSection
+                title="Hackathons"
+                events={categorizedEvents.hackathons}
+              />
+              <EventSection
+                title="Network Events"
+                events={categorizedEvents.network}
+              />
+              <EventSection
+                title="The best of live events"
+                events={categorizedEvents.live}
+              />
+
+              {!categorizedEvents.recommended.length &&
+                !categorizedEvents.hackathons.length &&
+                !categorizedEvents.network.length &&
+                !categorizedEvents.live.length && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredEvents.map((event) => (
+                      <EventCard
+                        key={event._id || event.id || `event-${Math.random()}`}
+                        event={event}
+                      />
+                    ))}
+                  </div>
+                )}
+
+              {/* Category Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+                {[
+                  {
+                    title: "Comedy Shows",
+                    color: "from-pink-500 to-purple-600",
+                    icon: "🎭",
+                  },
+                  {
+                    title: "Theatre Shows",
+                    color: "from-blue-500 to-cyan-600",
+                    icon: "🎪",
+                  },
+                  {
+                    title: "Workshops & More",
+                    color: "from-red-500 to-pink-600",
+                    icon: "🛠️",
+                  },
+                  {
+                    title: "Upskill & Training",
+                    color: "from-orange-500 to-yellow-600",
+                    icon: "📚",
+                  },
+                ].map((category, index) => (
+                  <div
+                    key={index}
+                    className={`bg-gradient-to-br ${category.color} rounded-2xl p-8 text-white cursor-pointer hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group`}
+                  >
+                    <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
+                      {category.icon}
+                    </div>
+                    <h3 className="font-bold text-xl">{category.title}</h3>
+                  </div>
+                ))}
+              </div>
+
+              <footer className="mt-12">
+                <FooterBlock />
+              </footer>
+            </>
           )}
-          
+
           {/* Create Event Button - Fixed at bottom right */}
-          <Link to="/events/new" className="fixed bottom-6 right-6">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+          <Link to="/events/new" className="fixed bottom-8 right-8">
+            <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-full p-4 shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 transform hover:scale-110">
+              <PlusCircle className="h-6 w-6" />
             </button>
           </Link>
         </div>

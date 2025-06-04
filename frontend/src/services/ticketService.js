@@ -148,6 +148,8 @@ const ticketService = {
         // First try the public endpoint without authentication
         const response = await api.get(`/api/bookings/events/${eventId}/ticket-types`, { params });
         console.log(`Successfully fetched ${response.data?.length || 0} ticket types from public endpoint`);
+        console.log(response.data);
+        
         
         // Return the normalized data directly, not wrapped in an object
         return {

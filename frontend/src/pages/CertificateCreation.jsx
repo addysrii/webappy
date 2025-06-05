@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Download, Award, QrCode, Eye, RefreshCw, Upload, Image, Move, RotateCcw, Trash2 } from 'lucide-react';
 import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
 
 const QRCertificateGenerator = () => {
   const [formData, setFormData] = useState({
@@ -125,8 +126,26 @@ const QRCertificateGenerator = () => {
     }
   };
 
-  const downloadCertificate = () => {
-    alert('Certificate download feature would be implemented with html2canvas or fabric.js for production use');
+  const downloadCertificate = async () => {
+    if (certificateRef.current) {
+      try {
+        const canvas = await html2canvas(certificateRef.current, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff"
+        });
+        const dataURL = canvas.toDataURL('image/png');
+  
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = `${formData.recipientName || 'certificate'}.png`;
+        link.rel = 'noopener noreferrer';
+        link.click();
+      } catch (error) {
+        console.error('Download error:', error);
+        alert('Failed to download the certificate');
+      }
+    }
   };
 
   const resetDesign = () => {

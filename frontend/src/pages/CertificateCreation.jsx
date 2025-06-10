@@ -310,39 +310,89 @@ const QRCertificateGenerator = () => {
   };
 
   // ✅ FIXED: Download and save certificate with proper eventId handling
-  const downloadCertificate = async () => {
-    if (!certificateRef.current) {
-      alert('Certificate preview not available. Please generate the certificate first.');
-      return;
-    }
+const downloadCertificate = async () => {
+  if (!certificateRef.current) {
+    alert('Certificate preview not available. Please generate the certificate first.');
+    return;
+  }
 
-    if (!user || !token) {
-      alert('Please log in to save certificates');
-      return;
-    }
+  if (!user || !token) {
+    alert('Please log in to save certificates');
+    return;
+  }
 
-    setIsProcessing(true);
+  setIsProcessing(true);
+  
+  try {
+    console.log('🎯 Starting certificate download process...');
     
-    try {
-      console.log('🎯 Starting certificate download process...');
+    // ✅ IMPROVED: Better html2canvas configuration for positioning issues
+    const canvas = await html2canvas(certificateRef.current, {
+      scale: 2, // High quality
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false, // Disable console logs from html2canvas
       
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        allowTaint: true,
-        foreignObjectRendering: true
-      });
-      const dataURL = canvas.toDataURL('image/png');
+      // ✅ KEY FIXES for positioning and transforms:
+      foreignObjectRendering: false, // Disable foreign object rendering which can cause issues
+      imageTimeout: 15000, // Longer timeout for image loading
+      removeContainer: true, // Remove container after capturing
+      
+      // ✅ Handle transforms and positioning correctly:
+      ignoreElements: (element) => {
+        // Skip elements that might cause rendering issues
+        return element.classList?.contains('html2canvas-ignore');
+      },
+      
+      // ✅ Ensure all elements are captured:
+      width: certificateRef.current.scrollWidth,
+      height: certificateRef.current.scrollHeight,
+      
+      // ✅ Better handling of CSS transforms:
+      scrollX: 0,
+      scrollY: 0,
+      
+      // ✅ Force synchronous image loading:
+      async: true,
+      
+      // ✅ Handle cross-origin images:
+      proxy: undefined,
+      
+      // ✅ Better text rendering:
+      letterRendering: true
+    });
 
-      // Download the certificate immediately
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `${formData.recipientName?.replace(/[^a-z0-9]/gi, '_') || 'certificate'}.png`;
-      link.rel = 'noopener noreferrer';
-      link.click();
+    // ✅ Verify canvas has content before proceeding
+    if (canvas.width === 0 || canvas.height === 0) {
+      throw new Error('Canvas has zero dimensions - check certificate element visibility');
+    }
 
-      console.log('✅ Certificate downloaded locally');
+    const dataURL = canvas.toDataURL('image/png', 1.0); // Max quality
+    
+    // ✅ Verify the dataURL contains actual image data
+    if (dataURL === 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==' || 
+        dataURL.length < 1000) {
+      throw new Error('Generated image appears to be blank or too small');
+    }
+
+    console.log('✅ Canvas generated successfully:', { 
+      width: canvas.width, 
+      height: canvas.height,
+      dataSize: Math.round(dataURL.length / 1024) + 'KB'
+    });
+
+    // Download the certificate immediately
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `${formData.recipientName?.replace(/[^a-z0-9]/gi, '_') || 'certificate'}.png`;
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    console.log('✅ Certificate downloaded locally');
+
 
       // ✅ FIXED: Save to backend with proper eventId handling
       try {

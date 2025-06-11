@@ -10,12 +10,16 @@ import api, { testConnection, checkServerConnection, API_URL } from '../services
 const QRCertificateGenerator = () => {
   const { user, token } = useAuth();
   
+  const { user, token } = useAuth();
+  
   const [formData, setFormData] = useState({
     recipientName: '',
     courseName: '',
     completionDate: '',
     issuerName: '',
     certificateId: '',
+    description: '',
+    eventId: ''
     description: '',
     eventId: ''
   });
@@ -35,6 +39,7 @@ const QRCertificateGenerator = () => {
     x: 85,
     y: 15,
     size: 120,
+    size: 120,
     color: '#000000'
   });
 
@@ -42,6 +47,9 @@ const QRCertificateGenerator = () => {
   const [qrData, setQrData] = useState('');
   const [dragElement, setDragElement] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('unknown');
+  
   const [isProcessing, setIsProcessing] = useState(false);
   const [backendStatus, setBackendStatus] = useState('unknown');
   
@@ -110,7 +118,14 @@ const QRCertificateGenerator = () => {
     const timestamp = Date.now();
     const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
     const id = `CERT-${timestamp}-${randomPart}`;
+    const timestamp = Date.now();
+    const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
+    const id = `CERT-${timestamp}-${randomPart}`;
     setFormData({ ...formData, certificateId: id });
+    return id;
+  };
+
+  // Handle input changes
     return id;
   };
 
@@ -627,6 +642,7 @@ const QRCertificateGenerator = () => {
     setShowPreview(false);
     setQrData('');
     setBackendStatus('unknown');
+    setBackendStatus('unknown');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -1102,15 +1118,20 @@ const QRCertificateGenerator = () => {
           <div className="flex items-center justify-center mb-4">
             <Upload className="w-12 h-12 mr-4" />
             <h1 className="text-4xl md:text-5xl font-bold">Certificate Generator</h1>
+            <h1 className="text-4xl md:text-5xl font-bold">Certificate Generator</h1>
           </div>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
             Create professional PDF certificates with scannable QR codes for verification
           </p>
           <StatusIndicator />
+          <StatusIndicator />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Authentication Status */}
+        <AuthenticationStatus />
+
         {/* Authentication Status */}
         <AuthenticationStatus />
 
@@ -1156,6 +1177,7 @@ const QRCertificateGenerator = () => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Upload Design Tab */}
+            {/* Upload Design Tab */}
             {activeTab === 'upload' && (
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="flex items-center justify-between mb-8">
@@ -1167,6 +1189,8 @@ const QRCertificateGenerator = () => {
                     onClick={resetDesign}
                     disabled={isProcessing}
                     className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors text-sm flex items-center disabled:opacity-50"
+                    disabled={isProcessing}
+                    className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors text-sm flex items-center disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Clear
@@ -1175,10 +1199,13 @@ const QRCertificateGenerator = () => {
 
                 <FormValidationIndicator />
 
+                <FormValidationIndicator />
+
                 <div className="space-y-6">
                   {/* File Upload Area */}
                   <div 
                     className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                    onClick={() => !isProcessing && fileInputRef.current?.click()}
                     onClick={() => !isProcessing && fileInputRef.current?.click()}
                   >
                     <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -1197,6 +1224,7 @@ const QRCertificateGenerator = () => {
                       accept="image/*"
                       onChange={handleFileUpload}
                       disabled={isProcessing}
+                      disabled={isProcessing}
                       className="hidden"
                     />
                   </div>
@@ -1204,8 +1232,13 @@ const QRCertificateGenerator = () => {
                   {/* Design Tips */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
                     <h4 className="font-semibold text-blue-800 mb-3">Design Tips for Better QR Scanning:</h4>
+                    <h4 className="font-semibold text-blue-800 mb-3">Design Tips for Better QR Scanning:</h4>
                     <ul className="space-y-2 text-blue-700 text-sm">
                       <li>• Use high-resolution images (300 DPI recommended)</li>
+                      <li>• Leave adequate white space around QR code area</li>
+                      <li>• Ensure QR code area has good contrast (white background recommended)</li>
+                      <li>• QR code should be at least 1cm x 1cm when printed</li>
+                      <li>• Test QR code scanning before finalizing design</li>
                       <li>• Leave adequate white space around QR code area</li>
                       <li>• Ensure QR code area has good contrast (white background recommended)</li>
                       <li>• QR code should be at least 1cm x 1cm when printed</li>
@@ -1217,6 +1250,7 @@ const QRCertificateGenerator = () => {
             )}
 
             {/* Certificate Content Tab */}
+            {/* Certificate Content Tab */}
             {activeTab === 'content' && (
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="flex items-center mb-8">
@@ -1226,7 +1260,11 @@ const QRCertificateGenerator = () => {
 
                 <FormValidationIndicator />
 
+                <FormValidationIndicator />
+
                 <div className="grid md:grid-cols-2 gap-6">
+                  <EventIdInput />
+
                   <EventIdInput />
 
                   <div>
@@ -1238,6 +1276,8 @@ const QRCertificateGenerator = () => {
                       name="recipientName"
                       value={formData.recipientName}
                       onChange={handleInputChange}
+                      disabled={isProcessing}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder="Enter recipient's full name"
@@ -1272,6 +1312,8 @@ const QRCertificateGenerator = () => {
                       onChange={handleInputChange}
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
+                      disabled={isProcessing}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                     />
                   </div>
 
@@ -1284,6 +1326,9 @@ const QRCertificateGenerator = () => {
                       name="issuerName"
                       value={formData.issuerName}
                       onChange={handleInputChange}
+                      disabled={isProcessing}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
+                      placeholder={user ? `Default: ${user.firstName} ${user.lastName}` : "Your organization name"}
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder={user ? `Default: ${user.firstName} ${user.lastName}` : "Your organization name"}
@@ -1302,10 +1347,14 @@ const QRCertificateGenerator = () => {
                         onChange={handleInputChange}
                         disabled={isProcessing}
                         className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
+                        disabled={isProcessing}
+                        className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                         placeholder="Auto-generated if empty"
                       />
                       <button
                         onClick={generateCertificateId}
+                        disabled={isProcessing}
+                        className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
                         disabled={isProcessing}
                         className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
                         title="Generate Random ID"
@@ -1324,7 +1373,9 @@ const QRCertificateGenerator = () => {
                       value={formData.description}
                       onChange={handleInputChange}
                       disabled={isProcessing}
+                      disabled={isProcessing}
                       rows="3"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                       placeholder="Additional details about the achievement..."
                     />
@@ -1333,6 +1384,7 @@ const QRCertificateGenerator = () => {
               </div>
             )}
 
+            {/* Position Elements Tab */}
             {/* Position Elements Tab */}
             {activeTab === 'position' && (
               <div className="space-y-6">
@@ -1357,6 +1409,7 @@ const QRCertificateGenerator = () => {
                               value={element.x}
                               onChange={(e) => updateTextElement(element.id, 'x', parseInt(e.target.value))}
                               disabled={isProcessing}
+                              disabled={isProcessing}
                               className="w-full"
                             />
                             <span className="text-xs text-gray-500">{element.x}%</span>
@@ -1369,6 +1422,7 @@ const QRCertificateGenerator = () => {
                               max="100"
                               value={element.y}
                               onChange={(e) => updateTextElement(element.id, 'y', parseInt(e.target.value))}
+                              disabled={isProcessing}
                               disabled={isProcessing}
                               className="w-full"
                             />
@@ -1383,6 +1437,7 @@ const QRCertificateGenerator = () => {
                               value={element.fontSize}
                               onChange={(e) => updateTextElement(element.id, 'fontSize', parseInt(e.target.value))}
                               disabled={isProcessing}
+                              disabled={isProcessing}
                               className="w-full"
                             />
                             <span className="text-xs text-gray-500">{element.fontSize}px</span>
@@ -1394,6 +1449,7 @@ const QRCertificateGenerator = () => {
                               value={element.color}
                               onChange={(e) => updateTextElement(element.id, 'color', e.target.value)}
                               disabled={isProcessing}
+                              disabled={isProcessing}
                               className="w-full h-8 border border-gray-300 rounded"
                             />
                           </div>
@@ -1402,6 +1458,7 @@ const QRCertificateGenerator = () => {
                           <select
                             value={element.textAlign}
                             onChange={(e) => updateTextElement(element.id, 'textAlign', e.target.value)}
+                            disabled={isProcessing}
                             disabled={isProcessing}
                             className="px-3 py-1 border border-gray-300 rounded text-sm"
                           >
@@ -1412,6 +1469,7 @@ const QRCertificateGenerator = () => {
                           <select
                             value={element.fontWeight}
                             onChange={(e) => updateTextElement(element.id, 'fontWeight', e.target.value)}
+                            disabled={isProcessing}
                             disabled={isProcessing}
                             className="px-3 py-1 border border-gray-300 rounded text-sm"
                           >
@@ -1429,8 +1487,10 @@ const QRCertificateGenerator = () => {
                   <div className="flex items-center mb-6">
                     <QrCode className="w-6 h-6 text-blue-600 mr-3" />
                     <h3 className="text-xl font-bold text-gray-800">QR Code Positioning & Testing</h3>
+                    <h3 className="text-xl font-bold text-gray-800">QR Code Positioning & Testing</h3>
                   </div>
                   
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-2">X Position (%)</label>
@@ -1440,6 +1500,7 @@ const QRCertificateGenerator = () => {
                         max="100"
                         value={qrSettings.x}
                         onChange={(e) => updateQRSettings('x', parseInt(e.target.value))}
+                        disabled={isProcessing}
                         disabled={isProcessing}
                         className="w-full"
                       />
@@ -1454,6 +1515,7 @@ const QRCertificateGenerator = () => {
                         value={qrSettings.y}
                         onChange={(e) => updateQRSettings('y', parseInt(e.target.value))}
                         disabled={isProcessing}
+                        disabled={isProcessing}
                         className="w-full"
                       />
                       <span className="text-sm text-gray-500">{qrSettings.y}%</span>
@@ -1464,8 +1526,11 @@ const QRCertificateGenerator = () => {
                         type="range"
                         min="60"
                         max="200"
+                        min="60"
+                        max="200"
                         value={qrSettings.size}
                         onChange={(e) => updateQRSettings('size', parseInt(e.target.value))}
+                        disabled={isProcessing}
                         disabled={isProcessing}
                         className="w-full"
                       />
@@ -1478,8 +1543,38 @@ const QRCertificateGenerator = () => {
                         value={qrSettings.color}
                         onChange={(e) => updateQRSettings('color', e.target.value)}
                         disabled={isProcessing}
+                        disabled={isProcessing}
                         className="w-full h-10 border border-gray-300 rounded"
                       />
+                    </div>
+                  </div>
+
+                  {/* QR Code Testing */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                    <h4 className="font-semibold text-amber-800 mb-3">QR Code Testing:</h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-amber-700 text-sm mb-3">
+                          Current QR Code URL: <span className="font-mono bg-white px-2 py-1 rounded text-xs break-all">{qrData || 'Generate certificate first'}</span>
+                        </p>
+                        <ul className="text-amber-700 text-sm space-y-1">
+                          <li>• Size should be at least 100px for good scanning</li>
+                          <li>• Use black (#000000) for best contrast</li>
+                          <li>• Ensure white background around QR code</li>
+                          <li>• Test with multiple camera apps</li>
+                        </ul>
+                      </div>
+                      <div className="text-center">
+                        <button
+                          onClick={testQRCode}
+                          disabled={!qrData || isProcessing}
+                          className="bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium flex items-center mx-auto transition-colors"
+                        >
+                          <TestTube className="w-4 h-4 mr-2" />
+                          Test QR Code
+                        </button>
+                        <p className="text-xs text-amber-600 mt-2">Opens test window with QR details</p>
+                      </div>
                     </div>
                   </div>
 
@@ -1517,6 +1612,9 @@ const QRCertificateGenerator = () => {
 
             {/* Enhanced Debug Panel */}
             <EnhancedDebugPanel />
+
+            {/* Enhanced Debug Panel */}
+            <EnhancedDebugPanel />
           </div>
 
           {/* Right Panel - Preview */}
@@ -1528,7 +1626,21 @@ const QRCertificateGenerator = () => {
                   <button
                     onClick={generateCertificate}
                     disabled={!designImage || isProcessing || !user}
+                    disabled={!designImage || isProcessing || !user}
                     className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium flex items-center transition-colors text-sm"
+                    title={!user ? "Login required" : ""}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 mr-1" />
+                        Update
+                      </>
+                    )}
                     title={!user ? "Login required" : ""}
                   >
                     {isProcessing ? (
@@ -1566,6 +1678,7 @@ const QRCertificateGenerator = () => {
                     <p className="text-sm text-gray-600 mb-2">
                       <strong>Design Status:</strong> {designImage ? 'Uploaded ✓' : 'Not uploaded'}
                     </p>
+                    <p className="text-sm text-gray-600 mb-2">
                     <p className="text-sm text-gray-600 mb-2">
                       <strong>QR Code:</strong> {qrData ? 'Generated ✓' : 'Click Update to generate'}
                     </p>
@@ -1697,6 +1810,7 @@ const QRCertificateGenerator = () => {
         </div>
 
         {/* Features Section */}
+        <div className="mt-16 grid md:grid-cols-4 gap-8">
         <div className="mt-16 grid md:grid-cols-4 gap-8">
           <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <User className="w-12 h-12 text-blue-600 mb-4" />

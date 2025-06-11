@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext';
 // Pages
 import AuthPage from './pages/AuthPage';
 import ChildAbuse from './pages/ChildAbuse';
+import CertificateVerificationPage from './pages/CertificateVerificationPage.jsx';
 import Discover from './pages/DiscoverPage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import Dashboard from './pages/Dashboard';
@@ -291,7 +292,7 @@ const App = () => {
               <EventCreationPage />
             </ProtectedRoute>
           } />
-          
+          <Route path="/certificates/:certificateId" element={<CertificateVerificationPage />} />
           <Route path="/events/:eventId" element={
             <ProtectedRoute>
               <WithAuth>

@@ -18,7 +18,7 @@ import {
   Building
 } from 'lucide-react';
 import certificateService from '../services/certificateService.js';
-import { API_URL } from '../services/api.js';
+
 const CertificateVerificationPage = () => {
   const { certificateId } = useParams();
   const navigate = useNavigate();

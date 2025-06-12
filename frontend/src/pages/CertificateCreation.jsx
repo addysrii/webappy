@@ -1049,6 +1049,7 @@ const CertificatePreview = () => {
       </div>
     );
   };// Part 6: Debug Panel and Main Component Render
+  };// Part 6: Debug Panel and Main Component Render
 
   // ✅ Enhanced Debug Panel with auth and API service info
   const EnhancedDebugPanel = () => {
@@ -1703,6 +1704,7 @@ const CertificatePreview = () => {
           </div>
         </div>
 
+        {/* QR Code Scanning Tips */}
         {/* QR Code Scanning Tips */}
         {qrData && (
           <div className="mt-12 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-8 border border-green-200">

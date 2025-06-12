@@ -5,11 +5,11 @@ import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf'; // ✅ NEW: PDF generation
 import { useAuth } from '../context/AuthContext';
-import api, { testConnection, checkServerConnection, API_URL } from '../services/api';
+import api, { testConnection, checkServerConnection  } from '../services/api';
 
 const QRCertificateGenerator = () => {
   const { user, token } = useAuth();
-  
+  const API_URL ='https://new-backend-w86d.onrender.com';
   const [formData, setFormData] = useState({
     recipientName: '',
     courseName: '',

@@ -1049,7 +1049,7 @@ const CertificatePreview = () => {
       </div>
     );
   };// Part 6: Debug Panel and Main Component Render
-  };// Part 6: Debug Panel and Main Component Render
+  ;// Part 6: Debug Panel and Main Component Render
 
   // ✅ Enhanced Debug Panel with auth and API service info
   const EnhancedDebugPanel = () => {

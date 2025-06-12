@@ -28,11 +28,20 @@ const CertificateVerificationPage = () => {
   const [debugMode, setDebugMode] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    if (certificateId) {
-      verifyCertificate();
-    }
-  }, [certificateId]);
+ useEffect(() => {
+  if (certificateId) {
+    // Add debug logging
+    console.log('🔍 Certificate verification page loaded');
+    console.log('📋 Certificate ID from URL:', certificateId);
+    console.log('🌐 API URL:', API_URL);
+    
+    verifyCertificate();
+  } else {
+    console.error('❌ No certificate ID provided in URL');
+    setError('No certificate ID provided in the URL');
+    setLoading(false);
+  }
+}, [certificateId]);
 
   const verifyCertificate = async () => {
     try {

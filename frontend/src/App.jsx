@@ -292,7 +292,11 @@ const App = () => {
               <EventCreationPage />
             </ProtectedRoute>
           } />
-          <Route path="/certificates/:certificateId" element={<CertificateVerificationPage />} />
+         <Route 
+  path="/certificates/:certificateId" 
+  element={<CertificateVerificationPage />} 
+/>
+
           <Route path="/events/:eventId" element={
             <ProtectedRoute>
               <WithAuth>

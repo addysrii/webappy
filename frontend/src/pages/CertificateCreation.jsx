@@ -10,16 +10,12 @@ import api, { testConnection, checkServerConnection, API_URL } from '../services
 const QRCertificateGenerator = () => {
   const { user, token } = useAuth();
   
-  const { user, token } = useAuth();
-  
   const [formData, setFormData] = useState({
     recipientName: '',
     courseName: '',
     completionDate: '',
     issuerName: '',
     certificateId: '',
-    description: '',
-    eventId: ''
     description: '',
     eventId: ''
   });
@@ -39,7 +35,6 @@ const QRCertificateGenerator = () => {
     x: 85,
     y: 15,
     size: 120,
-    size: 120,
     color: '#000000'
   });
 
@@ -47,9 +42,6 @@ const QRCertificateGenerator = () => {
   const [qrData, setQrData] = useState('');
   const [dragElement, setDragElement] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [backendStatus, setBackendStatus] = useState('unknown');
-  
   const [isProcessing, setIsProcessing] = useState(false);
   const [backendStatus, setBackendStatus] = useState('unknown');
   
@@ -118,14 +110,7 @@ const QRCertificateGenerator = () => {
     const timestamp = Date.now();
     const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
     const id = `CERT-${timestamp}-${randomPart}`;
-    const timestamp = Date.now();
-    const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
-    const id = `CERT-${timestamp}-${randomPart}`;
     setFormData({ ...formData, certificateId: id });
-    return id;
-  };
-
-  // Handle input changes
     return id;
   };
 
@@ -171,61 +156,64 @@ const QRCertificateGenerator = () => {
 
   // ✅ FIXED: Enhanced validation without auto-filling unwanted defaults
   const validateAndFixFormData = () => {
-    console.log('🔍 Validating form data...');
-    
-    const errors = [];
-    const fixes = [];
-    
-    if (!formData.recipientName?.trim()) {
-      errors.push('Recipient name is required');
-    }
-    
-    if (!formData.courseName?.trim()) {
-      errors.push('Course/Achievement name is required');
-    }
-    
-    if (!designImage) {
-      errors.push('Please upload a certificate design');
-    }
-    
-    // Check for invalid eventId format
-    if (formData.eventId === 'manual-certificate') {
-      setFormData(prev => ({ ...prev, eventId: '' }));
-      fixes.push('Cleared invalid eventId format');
-    }
-    
-    // Only generate ID if really needed
-    if (!formData.certificateId?.trim()) {
-      const newId = generateCertificateId();
-      fixes.push(`Generated certificate ID: ${newId}`);
-    }
-    
-    // Only set issuer if not already provided by user
-    if (!formData.issuerName?.trim() && user) {
-      const defaultIssuer = user.firstName && user.lastName 
-        ? `${user.firstName} ${user.lastName}` 
-        : user.email || '';
-      setFormData(prev => ({ ...prev, issuerName: defaultIssuer }));
-      fixes.push(`Set issuer to authenticated user: ${defaultIssuer}`);
-    }
-    
-    if (!formData.completionDate) {
-      const today = new Date().toISOString().split('T')[0];
-      setFormData(prev => ({ ...prev, completionDate: today }));
-      fixes.push(`Set completion date to today: ${today}`);
-    }
-    
-    if (fixes.length > 0) {
-      console.log('🔧 Auto-fixes applied:', fixes);
-    }
-    
-    if (errors.length > 0) {
-      alert('Please fix the following errors:\n' + errors.join('\n'));
-      return false;
-    }
-    
-    return true;
-  };
+  console.log('🔍 Validating form data...');
+  
+  const errors = [];
+  const fixes = [];
+  
+  // ✅ ONLY recipientName is required
+  if (!formData.recipientName?.trim()) {
+    errors.push('Recipient name is required');
+  }
+  
+  if (!designImage) {
+    errors.push('Please upload a certificate design');
+  }
+  
+  // ✅ Auto-fix optional fields ONLY if they're empty
+  if (formData.eventId === 'manual-certificate') {
+    setFormData(prev => ({ ...prev, eventId: '' }));
+    fixes.push('Cleared invalid eventId format');
+  }
+  
+  if (!formData.certificateId?.trim()) {
+    const newId = generateCertificateId();
+    fixes.push(`Generated certificate ID: ${newId}`);
+  }
+  
+  // ✅ Set default course name only if empty
+  if (!formData.courseName?.trim()) {
+    const defaultCourse = 'Certificate of Achievement';
+    setFormData(prev => ({ ...prev, courseName: defaultCourse }));
+    fixes.push(`Set default course name: ${defaultCourse}`);
+  }
+  
+  // ✅ Set default issuer only if empty and user is authenticated
+  if (!formData.issuerName?.trim() && user) {
+    const defaultIssuer = user.firstName && user.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user.email || 'MeetKats Certificates';
+    setFormData(prev => ({ ...prev, issuerName: defaultIssuer }));
+    fixes.push(`Set default issuer: ${defaultIssuer}`);
+  }
+  
+  if (!formData.completionDate) {
+    const today = new Date().toISOString().split('T')[0];
+    setFormData(prev => ({ ...prev, completionDate: today }));
+    fixes.push(`Set completion date to today: ${today}`);
+  }
+  
+  if (fixes.length > 0) {
+    console.log('🔧 Auto-fixes applied:', fixes);
+  }
+  
+  if (errors.length > 0) {
+    alert('Please fix the following errors:\n' + errors.join('\n'));
+    return false;
+  }
+  
+  return true;
+};
 
   // ✅ Test backend connection using API service
   const testBackendConnection = async () => {
@@ -302,155 +290,224 @@ const QRCertificateGenerator = () => {
   };
 
   // ✅ COMPLETELY REWRITTEN: Download function with PDF support
-  const downloadCertificate = async () => {
-    if (!certificateRef.current) {
-      alert('Certificate preview not available. Please generate the certificate first.');
-      return;
-    }
+ const downloadCertificate = async () => {
+  if (!certificateRef.current) {
+    alert('Certificate preview not available. Please generate the certificate first.');
+    return;
+  }
 
-    if (!user || !token) {
-      alert('Please log in to save certificates');
-      return;
-    }
+  if (!user || !token) {
+    alert('Please log in to save certificates');
+    return;
+  }
 
-    if (!validateAndFixFormData()) {
-      return;
-    }
+  if (!validateAndFixFormData()) {
+    return;
+  }
 
-    setIsProcessing(true);
+  setIsProcessing(true);
+  
+  try {
+    console.log('🎯 Starting certificate download process...');
     
-    try {
-      console.log('🎯 Starting certificate download process...');
+    // ✅ CRITICAL: Force QR code to render properly before capture
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Increased wait time
+    
+    // ✅ Force QR code re-render
+    const qrElements = certificateRef.current.querySelectorAll('svg[style*="display: block"]');
+    qrElements.forEach(svg => {
+      svg.style.display = 'block';
+      svg.style.visibility = 'visible';
+      svg.style.opacity = '1';
+    });
+    
+    const element = certificateRef.current;
+    const rect = element.getBoundingClientRect();
+    
+    console.log('📐 Element dimensions:', {
+      width: rect.width,
+      height: rect.height,
+      scrollWidth: element.scrollWidth,
+      scrollHeight: element.scrollHeight
+    });
+    
+    // ✅ COMPLETELY REWRITTEN: Better canvas capture for QR codes
+    const canvas = await html2canvas(element, {
+      scale: 3, // ✅ INCREASED: Higher scale for better QR quality
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false,
       
-      // Wait for all elements to render properly
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // ✅ FIXED: Better dimensions
+      width: Math.max(element.scrollWidth, rect.width, 1200), // Increased minimum width
+      height: Math.max(element.scrollHeight, rect.height, 900), // Increased minimum height
       
-      const element = certificateRef.current;
-      const rect = element.getBoundingClientRect();
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
       
-      console.log('📐 Element dimensions:', {
-        width: rect.width,
-        height: rect.height,
-        scrollWidth: element.scrollWidth,
-        scrollHeight: element.scrollHeight
-      });
+      // ✅ CRITICAL: Better QR code rendering
+      foreignObjectRendering: false,
+      removeContainer: false, // ✅ CHANGED: Keep container for better QR rendering
+      imageTimeout: 30000, // Increased timeout
+      async: true,
+      letterRendering: true,
       
-      // ✅ Enhanced html2canvas configuration
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        logging: false,
+      // ✅ CRITICAL: QR code specific fixes
+      onclone: (clonedDoc, element) => {
+        console.log('🔍 Processing cloned document...');
         
-        // ✅ CRITICAL FIXES for content visibility:
-        width: Math.max(element.scrollWidth, rect.width, 800),
-        height: Math.max(element.scrollHeight, rect.height, 600),
-        
-        x: 0,
-        y: 0,
-        scrollX: 0,
-        scrollY: 0,
-        
-        foreignObjectRendering: false,
-        removeContainer: true,
-        imageTimeout: 15000,
-        async: true,
-        letterRendering: true,
-        
-        ignoreElements: (element) => {
-          return element.classList?.contains('html2canvas-ignore');
-        },
-        
-        // ✅ CRITICAL: Ensure all elements are visible
-        onclone: (clonedDoc, element) => {
-          const textElements = clonedDoc.querySelectorAll('[style*="position: absolute"]');
-          textElements.forEach(el => {
-            el.style.visibility = 'visible';
-            el.style.opacity = '1';
+        // ✅ CRITICAL: Force all QR SVG elements to be visible
+        const svgElements = clonedDoc.querySelectorAll('svg');
+        svgElements.forEach((svg, index) => {
+          console.log(`Processing SVG ${index}:`, svg);
+          svg.style.display = 'block !important';
+          svg.style.visibility = 'visible !important';
+          svg.style.opacity = '1 !important';
+          svg.style.position = 'relative';
+          svg.style.zIndex = '1000';
+          
+          // ✅ Fix SVG paths for QR codes
+          const paths = svg.querySelectorAll('path');
+          paths.forEach(path => {
+            path.style.fill = '#000000';
+            path.style.opacity = '1';
           });
           
-          const qrElements = clonedDoc.querySelectorAll('svg, canvas');
-          qrElements.forEach(el => {
-            el.style.visibility = 'visible';
-            el.style.opacity = '1';
+          // ✅ Fix SVG rects for QR codes
+          const rects = svg.querySelectorAll('rect');
+          rects.forEach(rect => {
+            if (rect.getAttribute('fill') === '#000000' || rect.getAttribute('fill') === 'black') {
+              rect.style.fill = '#000000';
+              rect.style.opacity = '1';
+            }
           });
-        }
-      });
-
-      if (canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Canvas has zero dimensions - check certificate element visibility');
+        });
+        
+        // ✅ Force all text elements to be visible
+        const textElements = clonedDoc.querySelectorAll('[style*="position: absolute"]');
+        textElements.forEach(el => {
+          el.style.visibility = 'visible !important';
+          el.style.opacity = '1 !important';
+          el.style.display = 'block !important';
+        });
+        
+        // ✅ Force QR container to be visible
+        const qrContainers = clonedDoc.querySelectorAll('div[style*="transform: translate(-50%, -50%)"]');
+        qrContainers.forEach(container => {
+          container.style.visibility = 'visible !important';
+          container.style.opacity = '1 !important';
+          container.style.display = 'block !important';
+          container.style.zIndex = '1000';
+        });
       }
+    });
 
-      console.log('✅ Canvas generated successfully:', { 
-        width: canvas.width, 
-        height: canvas.height,
-        dataSize: Math.round(canvas.toDataURL('image/jpeg', 0.8).length / 1024) + 'KB'
-      });
-
-      // ✅ Generate compressed image
-      const imageDataURL = await compressImage(canvas, 2048, 'image/jpeg');
-      
-      // ✅ NEW: Generate PDF
-      const pdf = new jsPDF({
-        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Calculate dimensions to fit A4
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const aspectRatio = canvas.width / canvas.height;
-      
-      let imgWidth = pdfWidth - 20;
-      let imgHeight = imgWidth / aspectRatio;
-      
-      if (imgHeight > pdfHeight - 20) {
-        imgHeight = pdfHeight - 20;
-        imgWidth = imgHeight * aspectRatio;
-      }
-      
-      const x = (pdfWidth - imgWidth) / 2;
-      const y = (pdfHeight - imgHeight) / 2;
-      
-      pdf.addImage(imageDataURL, 'JPEG', x, y, imgWidth, imgHeight);
-      
-      // ✅ Download PDF
-      const fileName = formData.recipientName?.replace(/[^a-z0-9]/gi, '_') || 'certificate';
-      const pdfBlob = pdf.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const pdfLink = document.createElement('a');
-      pdfLink.href = pdfUrl;
-      pdfLink.download = `${fileName}_certificate.pdf`;
-      document.body.appendChild(pdfLink);
-      pdfLink.click();
-      document.body.removeChild(pdfLink);
-      URL.revokeObjectURL(pdfUrl);
-      
-      console.log('✅ Certificate PDF downloaded successfully');
-
-      // ✅ Also download as image
-      const imageLink = document.createElement('a');
-      imageLink.href = imageDataURL;
-      imageLink.download = `${fileName}_certificate.jpg`;
-      imageLink.rel = 'noopener noreferrer';
-      document.body.appendChild(imageLink);
-      imageLink.click();
-      document.body.removeChild(imageLink);
-      
-      console.log('✅ Certificate image downloaded successfully');
-
-      // Continue with backend save...
-      await saveCertificateToBackend(imageDataURL);
-      
-    } catch (error) {
-      console.error('❌ Download error:', error);
-      alert(`Failed to generate certificate. Error: ${error.message}\n\nPlease try:\n1. Generating the certificate preview first\n2. Ensuring all required fields are filled\n3. Refreshing the page and trying again`);
-    } finally {
-      setIsProcessing(false);
+    // ✅ Verify canvas content
+    if (canvas.width === 0 || canvas.height === 0) {
+      throw new Error('Canvas has zero dimensions - check certificate element visibility');
     }
-  };
+
+    // ✅ Check if canvas is mostly empty (QR code missing indicator)
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    let nonWhitePixels = 0;
+    
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255) {
+        nonWhitePixels++;
+      }
+    }
+    
+    const totalPixels = canvas.width * canvas.height;
+    const contentRatio = nonWhitePixels / totalPixels;
+    
+    console.log('📊 Canvas analysis:', {
+      width: canvas.width,
+      height: canvas.height,
+      totalPixels,
+      nonWhitePixels,
+      contentRatio: (contentRatio * 100).toFixed(2) + '%'
+    });
+    
+    if (contentRatio < 0.01) { // Less than 1% content
+      console.warn('⚠️ Canvas appears to be mostly empty - QR code may not be captured');
+    }
+
+    console.log('✅ Canvas generated successfully:', { 
+      width: canvas.width, 
+      height: canvas.height,
+      contentRatio: (contentRatio * 100).toFixed(2) + '%'
+    });
+
+    // ✅ IMPROVED: Better compression with quality preservation
+    const imageDataURL = await compressImage(canvas, 4096, 'image/jpeg'); // Increased to 4MB limit
+    
+    // ✅ Generate PDF with better quality
+    const pdf = new jsPDF({
+      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+    
+    // Calculate dimensions to fit A4 with better quality
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const aspectRatio = canvas.width / canvas.height;
+    
+    let imgWidth = pdfWidth - 10; // Smaller margins for larger image
+    let imgHeight = imgWidth / aspectRatio;
+    
+    if (imgHeight > pdfHeight - 10) {
+      imgHeight = pdfHeight - 10;
+      imgWidth = imgHeight * aspectRatio;
+    }
+    
+    const x = (pdfWidth - imgWidth) / 2;
+    const y = (pdfHeight - imgHeight) / 2;
+    
+    // ✅ Add image with better quality settings
+    pdf.addImage(imageDataURL, 'JPEG', x, y, imgWidth, imgHeight, undefined, 'FAST');
+    
+    // ✅ Download PDF
+    const fileName = formData.recipientName?.replace(/[^a-z0-9]/gi, '_') || 'certificate';
+    const pdfBlob = pdf.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    const pdfLink = document.createElement('a');
+    pdfLink.href = pdfUrl;
+    pdfLink.download = `${fileName}_certificate.pdf`;
+    document.body.appendChild(pdfLink);
+    pdfLink.click();
+    document.body.removeChild(pdfLink);
+    URL.revokeObjectURL(pdfUrl);
+    
+    console.log('✅ Certificate PDF downloaded successfully');
+
+    // ✅ Also download high-quality image
+    const imageLink = document.createElement('a');
+    imageLink.href = imageDataURL;
+    imageLink.download = `${fileName}_certificate.jpg`;
+    imageLink.rel = 'noopener noreferrer';
+    document.body.appendChild(imageLink);
+    imageLink.click();
+    document.body.removeChild(imageLink);
+    
+    console.log('✅ Certificate image downloaded successfully');
+
+    // Continue with backend save...
+    await saveCertificateToBackend(imageDataURL);
+    
+  } catch (error) {
+    console.error('❌ Download error:', error);
+    alert(`Failed to generate certificate. Error: ${error.message}\n\nPlease try:\n1. Ensuring QR code is visible in preview\n2. Waiting for QR code to fully load\n3. Refreshing the page and trying again`);
+  } finally {
+    setIsProcessing(false);
+  }
+};
   // Part 4: Backend Save Functions and Helper Components
 
   // ✅ Backend save function
@@ -642,7 +699,6 @@ const QRCertificateGenerator = () => {
     setShowPreview(false);
     setQrData('');
     setBackendStatus('unknown');
-    setBackendStatus('unknown');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -650,129 +706,160 @@ const QRCertificateGenerator = () => {
   // Part 5: Component UI Elements
 
   // ✅ QR Code component
-  const QRCodeDisplay = ({ data, size, color }) => {
-    const [qrError, setQrError] = useState(false);
-    
-    if (!data) {
-      return (
-        <div className="bg-gray-100 p-3 rounded-lg shadow-lg flex items-center justify-center" style={{ width: size, height: size }}>
-          <span className="text-gray-500 text-sm">No QR Data</span>
-        </div>
-      );
-    }
-
-    if (qrError) {
-      return (
-        <div className="bg-red-100 p-3 rounded-lg shadow-lg flex items-center justify-center" style={{ width: size, height: size }}>
-          <span className="text-red-500 text-sm">QR Error</span>
-        </div>
-      );
-    }
-
+ const QRCodeDisplay = ({ data, size, color }) => {
+  const [qrError, setQrError] = useState(false);
+  const [qrLoaded, setQrLoaded] = useState(false);
+  
+  if (!data) {
     return (
-      <div className="bg-white p-4 rounded-lg shadow-lg" style={{ display: 'inline-block' }}>
-        <QRCode
-          value={data}
-          size={size - 32}
-          level="M"
-          style={{ 
-            height: "auto", 
-            maxWidth: "100%", 
-            width: "100%",
-            display: "block"
-          }}
-          bgColor="#ffffff"
-          fgColor={color}
-          onError={() => {
-            console.error('❌ QR Code generation error for data:', data);
-            setQrError(true);
-          }}
-        />
+      <div className="bg-gray-100 p-3 rounded-lg shadow-lg flex items-center justify-center" style={{ width: size, height: size }}>
+        <span className="text-gray-500 text-sm">No QR Data</span>
       </div>
     );
-  };
+  }
 
-  // ✅ FIXED: Enhanced certificate preview component
-  const CertificatePreview = () => {
+  if (qrError) {
     return (
-      <div 
-        ref={certificateRef}
-        className="w-full relative overflow-visible rounded-lg shadow-lg"
-        style={{ 
-          aspectRatio: '4/3',
-          minHeight: '600px',
-          backgroundColor: '#ffffff'
-        }}
-      >
-        {/* Background Image */}
-        <img 
-          src={imagePreview} 
-          alt="Certificate Design"
-          className="w-full h-full object-cover"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 1
-          }}
-        />
-        
-        {/* Text Overlays */}
-        {showPreview && textElements.map((element) => {
-          const content = getTextContent(element.id);
-          
-          // ✅ FIXED: Don't render empty content
-          if (!content.trim()) return null;
-          
-          return (
-            <div
-              key={element.id}
-              className="absolute"
-              style={{
-                left: `${element.x}%`,
-                top: `${element.y}%`,
-                transform: 'translate(-50%, -50%)',
-                fontSize: `${element.fontSize}px`,
-                color: element.color,
-                fontWeight: element.fontWeight,
-                textAlign: element.textAlign,
-                whiteSpace: 'nowrap',
-                maxWidth: '90%',
-                overflow: 'visible',
-                textOverflow: 'clip',
-                zIndex: 2,
-                textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
-                fontFamily: 'Arial, sans-serif'
-              }}
-            >
-              {content}
-            </div>
-          );
-        })}
+      <div className="bg-red-100 p-3 rounded-lg shadow-lg flex items-center justify-center" style={{ width: size, height: size }}>
+        <span className="text-red-500 text-sm">QR Error</span>
+      </div>
+    );
+  }
 
-        {/* QR Code Overlay */}
-        {showPreview && qrData && (
+  return (
+    <div 
+      className="bg-white p-4 rounded-lg shadow-lg" 
+      style={{ 
+        display: 'inline-block',
+        visibility: 'visible',
+        opacity: 1,
+        position: 'relative',
+        zIndex: 1000
+      }}
+    >
+      <QRCode
+        value={data}
+        size={size - 32}
+        level="H" // ✅ CHANGED: Highest error correction for better scanning
+        style={{ 
+          height: "auto", 
+          maxWidth: "100%", 
+          width: "100%",
+          display: "block",
+          visibility: "visible",
+          opacity: 1
+        }}
+        bgColor="#ffffff"
+        fgColor={color}
+        onLoad={() => {
+          setQrLoaded(true);
+          console.log('✅ QR Code loaded successfully');
+        }}
+        onError={(error) => {
+          console.error('❌ QR Code generation error:', error);
+          setQrError(true);
+        }}
+      />
+      {!qrLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
+          <span className="text-xs text-gray-500">Loading QR...</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 3. ✅ FIXED: Enhanced Certificate Preview with better QR positioning
+const CertificatePreview = () => {
+  return (
+    <div 
+      ref={certificateRef}
+      className="w-full relative overflow-visible rounded-lg shadow-lg"
+      style={{ 
+        aspectRatio: '4/3',
+        minHeight: '600px',
+        backgroundColor: '#ffffff',
+        position: 'relative'
+      }}
+    >
+      {/* Background Image */}
+      <img 
+        src={imagePreview} 
+        alt="Certificate Design"
+        className="w-full h-full object-cover"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 1
+        }}
+      />
+      
+      {/* Text Overlays */}
+      {showPreview && textElements.map((element) => {
+        const content = getTextContent(element.id);
+        
+        // ✅ FIXED: Don't render empty content
+        if (!content.trim()) return null;
+        
+        return (
           <div
+            key={element.id}
             className="absolute"
             style={{
-              left: `${qrSettings.x}%`,
-              top: `${qrSettings.y}%`,
+              left: `${element.x}%`,
+              top: `${element.y}%`,
               transform: 'translate(-50%, -50%)',
-              zIndex: 3
+              fontSize: `${element.fontSize}px`,
+              color: element.color,
+              fontWeight: element.fontWeight,
+              textAlign: element.textAlign,
+              whiteSpace: 'nowrap',
+              maxWidth: '90%',
+              overflow: 'visible',
+              textOverflow: 'clip',
+              zIndex: 2,
+              textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
+              fontFamily: 'Arial, sans-serif',
+              visibility: 'visible',
+              opacity: 1,
+              display: 'block'
             }}
           >
-            <QRCodeDisplay 
-              data={qrData} 
-              size={qrSettings.size} 
-              color={qrSettings.color} 
-            />
+            {content}
           </div>
-        )}
-      </div>
-    );
-  };
+        );
+      })}
+
+      {/* QR Code Overlay - ENHANCED */}
+      {showPreview && qrData && (
+        <div
+          className="absolute"
+          style={{
+            left: `${qrSettings.x}%`,
+            top: `${qrSettings.y}%`,
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000, // ✅ HIGHEST z-index
+            visibility: 'visible',
+            opacity: 1,
+            display: 'block',
+            position: 'absolute'
+          }}
+        >
+          <QRCodeDisplay 
+            data={qrData} 
+            size={qrSettings.size} 
+            color={qrSettings.color} 
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 
   // ✅ Status indicator component
   const StatusIndicator = () => {
@@ -853,77 +940,78 @@ const QRCertificateGenerator = () => {
 
   // ✅ Enhanced form validation indicator
   const FormValidationIndicator = () => {
-    const validations = [
-      { field: 'auth', label: 'User Authentication', valid: !!(user && token) },
-      { field: 'recipientName', label: 'Recipient Name', valid: !!formData.recipientName?.trim() },
-      { field: 'courseName', label: 'Course/Event Name', valid: !!formData.courseName?.trim() },
-      { field: 'issuerName', label: 'Issuer Name', valid: !!formData.issuerName?.trim(), optional: true },
-      { field: 'certificateId', label: 'Certificate ID', valid: !!formData.certificateId?.trim(), optional: true },
-      { field: 'design', label: 'Design Upload', valid: !!designImage },
-      { 
-        field: 'eventId', 
-        label: 'Event ID (Optional)', 
-        valid: !formData.eventId || (formData.eventId.trim() !== '' && formData.eventId !== 'manual-certificate'),
-        optional: true,
-        warning: formData.eventId === 'manual-certificate' ? 'Invalid eventId format' : null
-      }
-    ];
+  const validations = [
+    { field: 'auth', label: 'User Authentication', valid: !!(user && token) },
+    { field: 'recipientName', label: 'Recipient Name', valid: !!formData.recipientName?.trim() },
+    { field: 'design', label: 'Design Upload', valid: !!designImage },
+    // ✅ ALL OTHER FIELDS ARE OPTIONAL
+    { field: 'courseName', label: 'Course/Event Name', valid: !!formData.courseName?.trim(), optional: true },
+    { field: 'issuerName', label: 'Issuer Name', valid: !!formData.issuerName?.trim(), optional: true },
+    { field: 'certificateId', label: 'Certificate ID', valid: !!formData.certificateId?.trim(), optional: true },
+    { 
+      field: 'eventId', 
+      label: 'Event ID', 
+      valid: !formData.eventId || (formData.eventId.trim() !== '' && formData.eventId !== 'manual-certificate'),
+      optional: true,
+      warning: formData.eventId === 'manual-certificate' ? 'Invalid eventId format' : null
+    }
+  ];
 
-    const requiredValidations = validations.filter(v => !v.optional);
-    const validCount = requiredValidations.filter(v => v.valid).length;
-    const totalRequired = requiredValidations.length;
-    const hasWarnings = validations.some(v => v.warning);
+  const requiredValidations = validations.filter(v => !v.optional);
+  const validCount = requiredValidations.filter(v => v.valid).length;
+  const totalRequired = requiredValidations.length;
+  const hasWarnings = validations.some(v => v.warning);
 
-    return (
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-blue-800">
-            Form Completion: {validCount}/{totalRequired} Required Fields
-          </span>
-          <div className="w-16 bg-blue-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(validCount / totalRequired) * 100}%` }}
-            />
-          </div>
-        </div>
-        
-        {hasWarnings && (
-          <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
-            <p className="text-xs text-yellow-800 font-medium">⚠️ Warnings:</p>
-            {validations.filter(v => v.warning).map(validation => (
-              <p key={validation.field} className="text-xs text-yellow-700">
-                • {validation.label}: {validation.warning}
-              </p>
-            ))}
-          </div>
-        )}
-        
-        <div className="space-y-1">
-          {validations.map(validation => (
-            <div key={validation.field} className="flex items-center text-xs">
-              <span className={`mr-2 ${
-                validation.warning ? 'text-yellow-600' :
-                validation.valid ? 'text-green-600' : 
-                validation.optional ? 'text-yellow-600' : 'text-red-600'
-              }`}>
-                {validation.warning ? '⚠' :
-                 validation.valid ? '✓' : 
-                 validation.optional ? '○' : '✗'}
-              </span>
-              <span className={`${
-                validation.warning ? 'text-yellow-700' :
-                validation.valid ? 'text-green-700' : 
-                validation.optional ? 'text-yellow-700' : 'text-red-700'
-              }`}>
-                {validation.label} {validation.optional && '(Optional)'}
-              </span>
-            </div>
-          ))}
+  return (
+    <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium text-blue-800">
+          Form Completion: {validCount}/{totalRequired} Required Fields
+        </span>
+        <div className="w-16 bg-blue-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(validCount / totalRequired) * 100}%` }}
+          />
         </div>
       </div>
-    );
-  };
+      
+      {hasWarnings && (
+        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+          <p className="text-xs text-yellow-800 font-medium">⚠️ Warnings:</p>
+          {validations.filter(v => v.warning).map(validation => (
+            <p key={validation.field} className="text-xs text-yellow-700">
+              • {validation.label}: {validation.warning}
+            </p>
+          ))}
+        </div>
+      )}
+      
+      <div className="space-y-1">
+        {validations.map(validation => (
+          <div key={validation.field} className="flex items-center text-xs">
+            <span className={`mr-2 ${
+              validation.warning ? 'text-yellow-600' :
+              validation.valid ? 'text-green-600' : 
+              validation.optional ? 'text-blue-600' : 'text-red-600'
+            }`}>
+              {validation.warning ? '⚠' :
+               validation.valid ? '✓' : 
+               validation.optional ? '○' : '✗'}
+            </span>
+            <span className={`${
+              validation.warning ? 'text-yellow-700' :
+              validation.valid ? 'text-green-700' : 
+              validation.optional ? 'text-blue-700' : 'text-red-700'
+            }`}>
+              {validation.label} {validation.optional && '(Optional)'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
   // ✅ Authentication check component
   const AuthenticationStatus = () => {
@@ -960,8 +1048,7 @@ const QRCertificateGenerator = () => {
         </div>
       </div>
     );
-  };
-  // Part 6: Debug Panel and Main Component Render
+  };// Part 6: Debug Panel and Main Component Render
 
   // ✅ Enhanced Debug Panel with auth and API service info
   const EnhancedDebugPanel = () => {
@@ -1118,20 +1205,15 @@ const QRCertificateGenerator = () => {
           <div className="flex items-center justify-center mb-4">
             <Upload className="w-12 h-12 mr-4" />
             <h1 className="text-4xl md:text-5xl font-bold">Certificate Generator</h1>
-            <h1 className="text-4xl md:text-5xl font-bold">Certificate Generator</h1>
           </div>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
             Create professional PDF certificates with scannable QR codes for verification
           </p>
           <StatusIndicator />
-          <StatusIndicator />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Authentication Status */}
-        <AuthenticationStatus />
-
         {/* Authentication Status */}
         <AuthenticationStatus />
 
@@ -1177,7 +1259,6 @@ const QRCertificateGenerator = () => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Upload Design Tab */}
-            {/* Upload Design Tab */}
             {activeTab === 'upload' && (
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="flex items-center justify-between mb-8">
@@ -1189,8 +1270,6 @@ const QRCertificateGenerator = () => {
                     onClick={resetDesign}
                     disabled={isProcessing}
                     className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors text-sm flex items-center disabled:opacity-50"
-                    disabled={isProcessing}
-                    className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors text-sm flex items-center disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Clear
@@ -1199,13 +1278,10 @@ const QRCertificateGenerator = () => {
 
                 <FormValidationIndicator />
 
-                <FormValidationIndicator />
-
                 <div className="space-y-6">
                   {/* File Upload Area */}
                   <div 
                     className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
-                    onClick={() => !isProcessing && fileInputRef.current?.click()}
                     onClick={() => !isProcessing && fileInputRef.current?.click()}
                   >
                     <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -1224,7 +1300,6 @@ const QRCertificateGenerator = () => {
                       accept="image/*"
                       onChange={handleFileUpload}
                       disabled={isProcessing}
-                      disabled={isProcessing}
                       className="hidden"
                     />
                   </div>
@@ -1232,13 +1307,8 @@ const QRCertificateGenerator = () => {
                   {/* Design Tips */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
                     <h4 className="font-semibold text-blue-800 mb-3">Design Tips for Better QR Scanning:</h4>
-                    <h4 className="font-semibold text-blue-800 mb-3">Design Tips for Better QR Scanning:</h4>
                     <ul className="space-y-2 text-blue-700 text-sm">
                       <li>• Use high-resolution images (300 DPI recommended)</li>
-                      <li>• Leave adequate white space around QR code area</li>
-                      <li>• Ensure QR code area has good contrast (white background recommended)</li>
-                      <li>• QR code should be at least 1cm x 1cm when printed</li>
-                      <li>• Test QR code scanning before finalizing design</li>
                       <li>• Leave adequate white space around QR code area</li>
                       <li>• Ensure QR code area has good contrast (white background recommended)</li>
                       <li>• QR code should be at least 1cm x 1cm when printed</li>
@@ -1250,7 +1320,6 @@ const QRCertificateGenerator = () => {
             )}
 
             {/* Certificate Content Tab */}
-            {/* Certificate Content Tab */}
             {activeTab === 'content' && (
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
                 <div className="flex items-center mb-8">
@@ -1260,11 +1329,7 @@ const QRCertificateGenerator = () => {
 
                 <FormValidationIndicator />
 
-                <FormValidationIndicator />
-
                 <div className="grid md:grid-cols-2 gap-6">
-                  <EventIdInput />
-
                   <EventIdInput />
 
                   <div>
@@ -1276,8 +1341,6 @@ const QRCertificateGenerator = () => {
                       name="recipientName"
                       value={formData.recipientName}
                       onChange={handleInputChange}
-                      disabled={isProcessing}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder="Enter recipient's full name"
@@ -1297,7 +1360,7 @@ const QRCertificateGenerator = () => {
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder="e.g., React Development Bootcamp (Required)"
-                      required
+                    
                     />
                   </div>
 
@@ -1310,8 +1373,6 @@ const QRCertificateGenerator = () => {
                       name="completionDate"
                       value={formData.completionDate}
                       onChange={handleInputChange}
-                      disabled={isProcessing}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                     />
@@ -1328,10 +1389,7 @@ const QRCertificateGenerator = () => {
                       onChange={handleInputChange}
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-                      placeholder={user ? `Default: ${user.firstName} ${user.lastName}` : "Your organization name"}
-                      disabled={isProcessing}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-                      placeholder={user ? `Default: ${user.firstName} ${user.lastName}` : "Your organization name"}
+                      placeholder= "Your organization name"
                     />
                   </div>
 
@@ -1347,14 +1405,10 @@ const QRCertificateGenerator = () => {
                         onChange={handleInputChange}
                         disabled={isProcessing}
                         className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-                        disabled={isProcessing}
-                        className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                         placeholder="Auto-generated if empty"
                       />
                       <button
                         onClick={generateCertificateId}
-                        disabled={isProcessing}
-                        className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
                         disabled={isProcessing}
                         className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
                         title="Generate Random ID"
@@ -1373,9 +1427,7 @@ const QRCertificateGenerator = () => {
                       value={formData.description}
                       onChange={handleInputChange}
                       disabled={isProcessing}
-                      disabled={isProcessing}
                       rows="3"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                       placeholder="Additional details about the achievement..."
                     />
@@ -1384,7 +1436,6 @@ const QRCertificateGenerator = () => {
               </div>
             )}
 
-            {/* Position Elements Tab */}
             {/* Position Elements Tab */}
             {activeTab === 'position' && (
               <div className="space-y-6">
@@ -1409,7 +1460,6 @@ const QRCertificateGenerator = () => {
                               value={element.x}
                               onChange={(e) => updateTextElement(element.id, 'x', parseInt(e.target.value))}
                               disabled={isProcessing}
-                              disabled={isProcessing}
                               className="w-full"
                             />
                             <span className="text-xs text-gray-500">{element.x}%</span>
@@ -1422,7 +1472,6 @@ const QRCertificateGenerator = () => {
                               max="100"
                               value={element.y}
                               onChange={(e) => updateTextElement(element.id, 'y', parseInt(e.target.value))}
-                              disabled={isProcessing}
                               disabled={isProcessing}
                               className="w-full"
                             />
@@ -1437,7 +1486,6 @@ const QRCertificateGenerator = () => {
                               value={element.fontSize}
                               onChange={(e) => updateTextElement(element.id, 'fontSize', parseInt(e.target.value))}
                               disabled={isProcessing}
-                              disabled={isProcessing}
                               className="w-full"
                             />
                             <span className="text-xs text-gray-500">{element.fontSize}px</span>
@@ -1449,7 +1497,6 @@ const QRCertificateGenerator = () => {
                               value={element.color}
                               onChange={(e) => updateTextElement(element.id, 'color', e.target.value)}
                               disabled={isProcessing}
-                              disabled={isProcessing}
                               className="w-full h-8 border border-gray-300 rounded"
                             />
                           </div>
@@ -1458,7 +1505,6 @@ const QRCertificateGenerator = () => {
                           <select
                             value={element.textAlign}
                             onChange={(e) => updateTextElement(element.id, 'textAlign', e.target.value)}
-                            disabled={isProcessing}
                             disabled={isProcessing}
                             className="px-3 py-1 border border-gray-300 rounded text-sm"
                           >
@@ -1469,7 +1515,6 @@ const QRCertificateGenerator = () => {
                           <select
                             value={element.fontWeight}
                             onChange={(e) => updateTextElement(element.id, 'fontWeight', e.target.value)}
-                            disabled={isProcessing}
                             disabled={isProcessing}
                             className="px-3 py-1 border border-gray-300 rounded text-sm"
                           >
@@ -1487,10 +1532,8 @@ const QRCertificateGenerator = () => {
                   <div className="flex items-center mb-6">
                     <QrCode className="w-6 h-6 text-blue-600 mr-3" />
                     <h3 className="text-xl font-bold text-gray-800">QR Code Positioning & Testing</h3>
-                    <h3 className="text-xl font-bold text-gray-800">QR Code Positioning & Testing</h3>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-600 mb-2">X Position (%)</label>
@@ -1500,7 +1543,6 @@ const QRCertificateGenerator = () => {
                         max="100"
                         value={qrSettings.x}
                         onChange={(e) => updateQRSettings('x', parseInt(e.target.value))}
-                        disabled={isProcessing}
                         disabled={isProcessing}
                         className="w-full"
                       />
@@ -1515,7 +1557,6 @@ const QRCertificateGenerator = () => {
                         value={qrSettings.y}
                         onChange={(e) => updateQRSettings('y', parseInt(e.target.value))}
                         disabled={isProcessing}
-                        disabled={isProcessing}
                         className="w-full"
                       />
                       <span className="text-sm text-gray-500">{qrSettings.y}%</span>
@@ -1526,11 +1567,8 @@ const QRCertificateGenerator = () => {
                         type="range"
                         min="60"
                         max="200"
-                        min="60"
-                        max="200"
                         value={qrSettings.size}
                         onChange={(e) => updateQRSettings('size', parseInt(e.target.value))}
-                        disabled={isProcessing}
                         disabled={isProcessing}
                         className="w-full"
                       />
@@ -1542,7 +1580,6 @@ const QRCertificateGenerator = () => {
                         type="color"
                         value={qrSettings.color}
                         onChange={(e) => updateQRSettings('color', e.target.value)}
-                        disabled={isProcessing}
                         disabled={isProcessing}
                         className="w-full h-10 border border-gray-300 rounded"
                       />
@@ -1577,41 +1614,9 @@ const QRCertificateGenerator = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* QR Code Testing */}
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-                    <h4 className="font-semibold text-amber-800 mb-3">QR Code Testing:</h4>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-amber-700 text-sm mb-3">
-                          Current QR Code URL: <span className="font-mono bg-white px-2 py-1 rounded text-xs break-all">{qrData || 'Generate certificate first'}</span>
-                        </p>
-                        <ul className="text-amber-700 text-sm space-y-1">
-                          <li>• Size should be at least 100px for good scanning</li>
-                          <li>• Use black (#000000) for best contrast</li>
-                          <li>• Ensure white background around QR code</li>
-                          <li>• Test with multiple camera apps</li>
-                        </ul>
-                      </div>
-                      <div className="text-center">
-                        <button
-                          onClick={testQRCode}
-                          disabled={!qrData || isProcessing}
-                          className="bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium flex items-center mx-auto transition-colors"
-                        >
-                          <TestTube className="w-4 h-4 mr-2" />
-                          Test QR Code
-                        </button>
-                        <p className="text-xs text-amber-600 mt-2">Opens test window with QR details</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
-
-            {/* Enhanced Debug Panel */}
-            <EnhancedDebugPanel />
 
             {/* Enhanced Debug Panel */}
             <EnhancedDebugPanel />
@@ -1626,21 +1631,7 @@ const QRCertificateGenerator = () => {
                   <button
                     onClick={generateCertificate}
                     disabled={!designImage || isProcessing || !user}
-                    disabled={!designImage || isProcessing || !user}
                     className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium flex items-center transition-colors text-sm"
-                    title={!user ? "Login required" : ""}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-4 h-4 mr-1" />
-                        Update
-                      </>
-                    )}
                     title={!user ? "Login required" : ""}
                   >
                     {isProcessing ? (
@@ -1679,7 +1670,6 @@ const QRCertificateGenerator = () => {
                       <strong>Design Status:</strong> {designImage ? 'Uploaded ✓' : 'Not uploaded'}
                     </p>
                     <p className="text-sm text-gray-600 mb-2">
-                    <p className="text-sm text-gray-600 mb-2">
                       <strong>QR Code:</strong> {qrData ? 'Generated ✓' : 'Click Update to generate'}
                     </p>
                     <p className="text-sm text-gray-600 mb-2">
@@ -1713,7 +1703,7 @@ const QRCertificateGenerator = () => {
           </div>
         </div>
 
-     {/* QR Code Scanning Tips */}
+        {/* QR Code Scanning Tips */}
         {qrData && (
           <div className="mt-12 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-8 border border-green-200">
             <div className="flex items-center mb-4">
@@ -1810,7 +1800,6 @@ const QRCertificateGenerator = () => {
         </div>
 
         {/* Features Section */}
-        <div className="mt-16 grid md:grid-cols-4 gap-8">
         <div className="mt-16 grid md:grid-cols-4 gap-8">
           <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <User className="w-12 h-12 text-blue-600 mb-4" />
@@ -1945,4 +1934,3 @@ const QRCertificateGenerator = () => {
 };
 
 export default QRCertificateGenerator;
-  

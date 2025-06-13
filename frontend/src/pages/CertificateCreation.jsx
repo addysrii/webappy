@@ -1,15 +1,15 @@
-// Part 1: Imports and Component Setup
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Download, Award, QrCode, Eye, RefreshCw, Upload, Image, Move, RotateCcw, Trash2, TestTube, User, Building } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { useAuth } from '../context/AuthContext';
 import api, { testConnection, checkServerConnection } from '../services/api';
 
+// ✅ Define API_URL constant to fix import issue
+const API_URL = process.env.REACT_APP_API_URL || 'https://meetkats-backend.onrender.com';
+
 const QRCertificateGenerator = () => {
   const { user, token } = useAuth();
-  const API_URL = 'https://new-backend-w86d.onrender.com';
   
   const [formData, setFormData] = useState({
     recipientName: '',
@@ -24,64 +24,18 @@ const QRCertificateGenerator = () => {
   const [designImage, setDesignImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   
-  // ✅ FIXED: Updated text element positions to match your certificate template
   const [textElements, setTextElements] = useState([
-    { 
-      id: 'recipient', 
-      label: 'Recipient Name', 
-      x: 50, 
-      y: 58, 
-      fontSize: 32, 
-      color: '#000000', 
-      fontWeight: 'bold', 
-      textAlign: 'center' 
-    },
-    { 
-      id: 'course', 
-      label: 'Course/Event Name', 
-      x: 50, 
-      y: 70, 
-      fontSize: 16, 
-      color: '#333333', 
-      fontWeight: 'normal', 
-      textAlign: 'center' 
-    },
-    { 
-      id: 'date', 
-      label: 'Date', 
-      x: 50, 
-      y: 75, 
-      fontSize: 14, 
-      color: '#666666', 
-      fontWeight: 'normal', 
-      textAlign: 'center' 
-    },
-    { 
-      id: 'issuer', 
-      label: 'Issuer/Organization', 
-      x: 75, 
-      y: 85, 
-      fontSize: 12, 
-      color: '#333333', 
-      fontWeight: 'normal', 
-      textAlign: 'center' 
-    },
-    { 
-      id: 'certId', 
-      label: 'Certificate ID', 
-      x: 25, 
-      y: 85, 
-      fontSize: 10, 
-      color: '#888888', 
-      fontWeight: 'normal', 
-      textAlign: 'center' 
-    }
+    { id: 'recipient', label: 'Recipient Name', x: 50, y: 40, fontSize: 24, color: '#1f2937', fontWeight: 'bold', textAlign: 'center' },
+    { id: 'course', label: 'Course Name', x: 50, y: 55, fontSize: 18, color: '#374151', fontWeight: 'normal', textAlign: 'center' },
+    { id: 'date', label: 'Date', x: 20, y: 80, fontSize: 14, color: '#6b7280', fontWeight: 'normal', textAlign: 'left' },
+    { id: 'issuer', label: 'Issuer', x: 80, y: 80, fontSize: 14, color: '#6b7280', fontWeight: 'normal', textAlign: 'right' },
+    { id: 'certId', label: 'Certificate ID', x: 20, y: 85, fontSize: 12, color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }
   ]);
 
   const [qrSettings, setQrSettings] = useState({
     x: 85,
     y: 15,
-    size: 100,
+    size: 120,
     color: '#000000'
   });
 
@@ -91,6 +45,7 @@ const QRCertificateGenerator = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [isProcessing, setIsProcessing] = useState(false);
   const [backendStatus, setBackendStatus] = useState('unknown');
+  const [downloadQuality, setDownloadQuality] = useState('high');
   
   const fileInputRef = useRef(null);
   const certificateRef = useRef(null);
@@ -103,12 +58,13 @@ const QRCertificateGenerator = () => {
         ...prev,
         issuerName: user.firstName && user.lastName 
           ? `${user.firstName} ${user.lastName}` 
-          : user.email || '',
+          : user.email || 'Certificate Authority',
         completionDate: new Date().toISOString().split('T')[0]
       }));
     }
   }, [user]);
 
+  // ✅ Test backend connection on mount
   useEffect(() => {
     const initialBackendTest = async () => {
       if (token) {
@@ -118,22 +74,8 @@ const QRCertificateGenerator = () => {
     initialBackendTest();
   }, [token]);
 
-  // Helper Functions
-  const compressImage = (canvas, maxSizeKB = 2048, format = 'image/jpeg') => {
-    return new Promise((resolve) => {
-      let quality = 0.9;
-      let dataURL = canvas.toDataURL(format, quality);
-      
-      while (dataURL.length > maxSizeKB * 1024 && quality > 0.1) {
-        quality -= 0.1;
-        dataURL = canvas.toDataURL(format, quality);
-      }
-      
-      console.log(`📏 Compressed image: ${Math.round(dataURL.length / 1024)}KB (quality: ${quality})`);
-      resolve(dataURL);
-    });
-  };
-
+  console.log('🌐 API_URL resolved to:', API_URL);
+  // Handle file upload
   const handleFileUpload = useCallback((event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -149,6 +91,7 @@ const QRCertificateGenerator = () => {
     }
   }, []);
 
+  // Generate random certificate ID
   const generateCertificateId = () => {
     const timestamp = Date.now();
     const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -157,6 +100,7 @@ const QRCertificateGenerator = () => {
     return id;
   };
 
+  // Handle input changes
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -164,6 +108,7 @@ const QRCertificateGenerator = () => {
     });
   };
 
+  // Update text element properties
   const updateTextElement = (id, property, value) => {
     setTextElements(prev => 
       prev.map(element => 
@@ -172,38 +117,24 @@ const QRCertificateGenerator = () => {
     );
   };
 
+  // Update QR settings
   const updateQRSettings = (property, value) => {
     setQrSettings(prev => ({ ...prev, [property]: value }));
   };
 
+  // Get text content for each element
   const getTextContent = (elementId) => {
     switch(elementId) {
-      case 'recipient': 
-        return formData.recipientName || '';
-      case 'course': 
-        if (formData.courseName) {
-          return `for his/her active participation in the ${formData.courseName}`;
-        }
-        return '';
-      case 'date': 
-        if (formData.completionDate) {
-          const date = new Date(formData.completionDate);
-          return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          });
-        }
-        return '';
-      case 'issuer': 
-        return formData.issuerName || '';
-      case 'certId': 
-        return formData.certificateId ? `ID: ${formData.certificateId}` : '';
-      default: 
-        return '';
+      case 'recipient': return formData.recipientName || 'John Doe';
+      case 'course': return formData.courseName || '';
+      case 'date': return formData.completionDate || '';
+      case 'issuer': return formData.issuerName || '';
+      case 'certId': return formData.certificateId || '';
+      default: return '';
     }
   };
 
+  // ✅ Enhanced validation with eventId checking
   const validateAndFixFormData = () => {
     console.log('🔍 Validating form data...');
     
@@ -218,6 +149,7 @@ const QRCertificateGenerator = () => {
       errors.push('Please upload a certificate design');
     }
     
+    // Check for invalid eventId format
     if (formData.eventId === 'manual-certificate') {
       setFormData(prev => ({ ...prev, eventId: '' }));
       fixes.push('Cleared invalid eventId format');
@@ -226,6 +158,20 @@ const QRCertificateGenerator = () => {
     if (!formData.certificateId?.trim()) {
       const newId = generateCertificateId();
       fixes.push(`Generated certificate ID: ${newId}`);
+    }
+    
+    if (!formData.issuerName?.trim() && user) {
+      const defaultIssuer = user.firstName && user.lastName 
+        ? `${user.firstName} ${user.lastName}` 
+        : user.email || 'Certificate Authority';
+      setFormData(prev => ({ ...prev, issuerName: defaultIssuer }));
+      fixes.push(`Set issuer to authenticated user: ${defaultIssuer}`);
+    }
+    
+    if (!formData.courseName?.trim()) {
+      const defaultCourse = 'Certificate of Achievement';
+      setFormData(prev => ({ ...prev, courseName: defaultCourse }));
+      fixes.push(`Set default course name: ${defaultCourse}`);
     }
     
     if (!formData.completionDate) {
@@ -245,7 +191,218 @@ const QRCertificateGenerator = () => {
     
     return true;
   };
+  // ✅ COLOR CONVERSION FUNCTIONS to fix oklch error
+  const convertModernColors = (element) => {
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_ELEMENT,
+      null,
+      false
+    );
+    
+    const elements = [];
+    let node = walker.nextNode();
+    while (node) {
+      elements.push(node);
+      node = walker.nextNode();
+    }
+    
+    // Store original styles to restore later
+    const originalStyles = [];
+    
+    elements.forEach((el, index) => {
+      const computedStyle = window.getComputedStyle(el);
+      const originalStyleData = {
+        element: el,
+        originalStyle: el.style.cssText,
+        computedColor: computedStyle.color,
+        computedBackgroundColor: computedStyle.backgroundColor,
+        computedBorderColor: computedStyle.borderColor
+      };
+      originalStyles[index] = originalStyleData;
+      
+      // Convert oklch/modern colors to hex/rgb
+      if (computedStyle.color && (computedStyle.color.includes('oklch') || computedStyle.color.includes('lab'))) {
+        el.style.color = convertColorToHex(computedStyle.color) || '#000000';
+      }
+      
+      if (computedStyle.backgroundColor && (computedStyle.backgroundColor.includes('oklch') || computedStyle.backgroundColor.includes('lab'))) {
+        el.style.backgroundColor = convertColorToHex(computedStyle.backgroundColor) || 'transparent';
+      }
+      
+      if (computedStyle.borderColor && (computedStyle.borderColor.includes('oklch') || computedStyle.borderColor.includes('lab'))) {
+        el.style.borderColor = convertColorToHex(computedStyle.borderColor) || '#000000';
+      }
+    });
+    
+    return originalStyles;
+  };
 
+  // ✅ Convert modern color functions to hex
+  const convertColorToHex = (colorString) => {
+    try {
+      // Create a temporary element to let the browser compute the color
+      const tempDiv = document.createElement('div');
+      tempDiv.style.color = colorString;
+      document.body.appendChild(tempDiv);
+      
+      const computedColor = window.getComputedStyle(tempDiv).color;
+      document.body.removeChild(tempDiv);
+      
+      // Convert rgb() to hex
+      const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1]);
+        const g = parseInt(rgbMatch[2]);
+        const b = parseInt(rgbMatch[3]);
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+      }
+      
+      // Convert rgba() to hex (ignore alpha for now)
+      const rgbaMatch = computedColor.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)/);
+      if (rgbaMatch) {
+        const r = parseInt(rgbaMatch[1]);
+        const g = parseInt(rgbaMatch[2]);
+        const b = parseInt(rgbaMatch[3]);
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+      }
+      
+      return colorString; // Return original if conversion fails
+    } catch (error) {
+      console.warn('Color conversion failed:', error);
+      return '#000000'; // Default fallback
+    }
+  };
+
+  // ✅ Restore original styles
+  const restoreOriginalStyles = (originalStyles) => {
+    originalStyles.forEach(styleData => {
+      if (styleData && styleData.element) {
+        styleData.element.style.cssText = styleData.originalStyle;
+      }
+    });
+  };
+
+  // ✅ QR Code generation with external API
+  const generateQRAsDataURL = async (data, size, color) => {
+    try {
+      // ✅ Use QR Server API (works without additional libraries)
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&color=${color.replace('#', '')}&bgcolor=ffffff&format=png&ecc=M`;
+      
+      // Convert to data URL for better html2canvas compatibility
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+      
+    } catch (error) {
+      console.error('QR generation failed:', error);
+      
+      // ✅ Fallback: Use canvas-based QR generation
+      return generateQRCanvas(data, size, color);
+    }
+  };
+
+  // ✅ Fallback QR generation using canvas
+  const generateQRCanvas = (data, size, color) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    
+    // White background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, size, size);
+    
+    // Simple placeholder pattern
+    ctx.fillStyle = color;
+    const gridSize = Math.floor(size / 25);
+    
+    // Create a simple grid pattern as placeholder
+    for (let i = 0; i < 25; i++) {
+      for (let j = 0; j < 25; j++) {
+        if ((i + j) % 3 === 0) {
+          ctx.fillRect(i * gridSize, j * gridSize, gridSize, gridSize);
+        }
+      }
+    }
+    
+    return canvas.toDataURL('image/png');
+  };
+  // ✅ IMPROVED: QR Code component using data URL approach
+  const QRCodeDisplay = ({ data, size, color }) => {
+    const [qrDataUrl, setQrDataUrl] = useState('');
+    const [qrError, setQrError] = useState(false);
+    
+    useEffect(() => {
+      if (!data) return;
+      
+      const generateQRDataUrl = async () => {
+        try {
+          const qrDataUrl = await generateQRAsDataURL(data, size, color);
+          setQrDataUrl(qrDataUrl);
+        } catch (error) {
+          console.error('QR generation error:', error);
+          setQrError(true);
+        }
+      };
+      
+      generateQRDataUrl();
+    }, [data, size, color]);
+    
+    if (!data) {
+      return (
+        <div 
+          className="bg-gray-100 flex items-center justify-center rounded"
+          style={{ width: size, height: size }}
+        >
+          <span className="text-gray-500 text-sm">No QR Data</span>
+        </div>
+      );
+    }
+
+    if (qrError || !qrDataUrl) {
+      return (
+        <div 
+          className="bg-red-100 flex items-center justify-center rounded"
+          style={{ width: size, height: size }}
+        >
+          <span className="text-red-500 text-sm">QR Error</span>
+        </div>
+      );
+    }
+
+    return (
+      <div 
+        className="bg-white rounded shadow-sm"
+        style={{ 
+          padding: '8px',
+          display: 'inline-block',
+          width: size,
+          height: size,
+          boxSizing: 'border-box'
+        }}
+      >
+        <img 
+          src={qrDataUrl}
+          alt="QR Code"
+          style={{
+            width: size - 16,
+            height: size - 16,
+            imageRendering: 'pixelated', // Keeps QR crisp
+            display: 'block'
+          }}
+          crossOrigin="anonymous"
+        />
+      </div>
+    );
+  };
+
+  // ✅ Test backend connection using API service
   const testBackendConnection = async () => {
     try {
       console.log('🧪 Testing backend connection to:', API_URL);
@@ -276,171 +433,7 @@ const QRCertificateGenerator = () => {
     }
   };
 
-  const generateCertificate = async () => {
-    console.log('🎯 Starting certificate generation...');
-    
-    if (!user || !token) {
-      alert('Please log in to generate certificates');
-      return;
-    }
-    
-    if (!validateAndFixFormData()) {
-      return;
-    }
-
-    setIsProcessing(true);
-    
-    try {
-      const backendOk = await testBackendConnection();
-      if (!backendOk) {
-        console.warn('⚠️ Backend connection failed, continuing with local generation only');
-      }
-
-      const certificateId = formData.certificateId || generateCertificateId();
-      
-      if (!formData.certificateId) {
-        setFormData(prev => ({ ...prev, certificateId: certificateId }));
-      }
-
-      const verificationUrl = `https://meetkats.com/certificates/${certificateId}`;
-      
-      setQrData(verificationUrl);
-      setShowPreview(true);
-      
-      console.log('✅ Certificate generated with QR code:', verificationUrl);
-      
-    } catch (error) {
-      console.error('❌ Certificate generation error:', error);
-      alert('Failed to generate certificate. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // ✅ COMPLETELY FIXED: Download function with proper scaling and PDF generation
-  
-
-  // Backend save functions (keeping existing implementation)
-  const saveCertificateToBackend = async (imageDataURL) => {
-    try {
-      console.log('💾 Attempting to save certificate to backend:', API_URL);
-      
-      const certificateData = {
-        recipientName: formData.recipientName,
-        eventName: formData.courseName || 'Certificate of Participation',
-        completionDate: formData.completionDate || new Date().toISOString(),
-        issuerName: formData.issuerName || 'MeetKats Certificates',
-        certificateId: formData.certificateId,
-        certificateImage: imageDataURL,
-        description: formData.description || '',
-        createdBy: user.id,
-        createdByEmail: user.email
-      };
-
-      const hasValidEventId = formData.eventId && 
-                              formData.eventId.trim() !== '' && 
-                              formData.eventId !== 'manual-certificate' &&
-                              formData.eventId.length > 5;
-
-      let saveSuccessful = false;
-      let lastError = null;
-
-      if (hasValidEventId) {
-        try {
-          const eventRequestData = {
-            eventId: formData.eventId,
-            templateId: 'default-template',
-            attendeeIds: [],
-            certificateImage: imageDataURL,
-            customMessage: formData.description || '',
-            manualCertificate: {
-              ...certificateData,
-              eventId: formData.eventId
-            }
-          };
-
-          const result = await api.postData('/api/certificates/issue', eventRequestData);
-          
-          if (result && (result.success || result.certificate || result.certificates)) {
-            console.log('✅ Event-based certificate saved successfully');
-            handleSuccessfulSave(result);
-            saveSuccessful = true;
-          }
-        } catch (eventError) {
-          console.log('❌ Event-based creation failed:', eventError.message);
-          lastError = eventError.message;
-        }
-      }
-
-      if (!saveSuccessful) {
-        const manualEndpoints = [
-          '/api/certificates/manual',
-          '/api/certificates/create',
-          '/api/certificates'
-        ];
-
-        for (const endpoint of manualEndpoints) {
-          try {
-            const result = await api.postData(endpoint, certificateData);
-            
-            if (result && (result.success || result.certificate || result.certificates)) {
-              console.log(`✅ Manual certificate saved via ${endpoint}`);
-              handleSuccessfulSave(result);
-              saveSuccessful = true;
-              break;
-            }
-          } catch (endpointError) {
-            console.log(`❌ Error with ${endpoint}:`, endpointError.message);
-            lastError = endpointError.message;
-            continue;
-          }
-        }
-      }
-
-      if (!saveSuccessful) {
-        if (lastError?.includes('413') || lastError?.includes('too large')) {
-          alert(`✅ Certificate PDF and image downloaded successfully!\n\n⚠️ Backend storage failed due to image size: ${Math.round(imageDataURL.length / 1024)}KB\n\nMax allowed: 2MB\nYou can still use the downloaded files.`);
-        } else {
-          alert(`✅ Certificate PDF and image downloaded successfully!\n\n⚠️ Backend save failed: ${lastError}\n\nYou can still use the downloaded files.`);
-        }
-      } else {
-        const fileName = formData.recipientName?.replace(/[^a-z0-9]/gi, '_') || 'certificate';
-        alert(`✅ Certificate saved successfully!\n\n📁 Files downloaded:\n• PDF: ${fileName}_certificate.pdf\n• Image: ${fileName}_certificate.jpg\n\nCertificate ID: ${formData.certificateId}\nCreated by: ${user.email}`);
-      }
-        
-    } catch (saveError) {
-      console.error('❌ Error saving certificate to backend:', saveError);
-      
-      if (saveError.message?.includes('413') || saveError.message?.includes('too large')) {
-        alert(`✅ Certificate PDF and image downloaded successfully!\n\n⚠️ Backend storage failed due to image size\n\nYou can still use the downloaded files.`);
-      } else {
-        alert(`✅ Certificate PDF and image downloaded successfully!\n\n⚠️ Backend save failed: ${saveError.message}\n\nYou can still use the downloaded files.`);
-      }
-    }
-  };
-
-  const handleSuccessfulSave = (result) => {
-    let actualCertificateId, actualVerificationUrl;
-    
-    if (result.certificate) {
-      actualCertificateId = result.certificate.certificateId;
-      actualVerificationUrl = result.certificate.verificationUrl;
-    } else if (result.certificates && result.certificates.length > 0) {
-      const cert = result.certificates[0];
-      actualCertificateId = cert.certificateId;
-      actualVerificationUrl = cert.verificationUrl;
-    } else if (result.success) {
-      actualCertificateId = formData.certificateId;
-      actualVerificationUrl = `https://meetkats.com/certificates/${formData.certificateId}`;
-    }
-    
-    if (actualCertificateId && actualVerificationUrl) {
-      console.log('🔄 Updating QR code with actual certificate data');
-      setQrData(actualVerificationUrl);
-      setFormData(prev => ({ ...prev, certificateId: actualCertificateId }));
-    }
-  };
-
+  // ✅ Check backend status using API service
   const checkBackendStatus = async () => {
     try {
       console.log('🔍 Checking authenticated backend status:', API_URL);
@@ -480,6 +473,391 @@ const QRCertificateGenerator = () => {
     }
   };
 
+  // ✅ Generate certificate with auth validation
+  const generateCertificate = async () => {
+    console.log('🎯 Starting certificate generation...');
+    
+    if (!user || !token) {
+      alert('Please log in to generate certificates');
+      return;
+    }
+    
+    if (!validateAndFixFormData()) {
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const backendOk = await testBackendConnection();
+      if (!backendOk) {
+        console.warn('⚠️ Backend connection failed, continuing with local generation only');
+      }
+
+      const certificateId = formData.certificateId || generateCertificateId();
+      
+      if (!formData.certificateId) {
+        setFormData(prev => ({ ...prev, certificateId: certificateId }));
+      }
+
+      const verificationUrl = `https://meetkats.com/certificates/${certificateId}`;
+      
+      setQrData(verificationUrl);
+      setShowPreview(true);
+      
+      // ✅ Wait a moment for React to update the DOM and images to load
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('✅ Certificate generated with QR code:', verificationUrl);
+      
+    } catch (error) {
+      console.error('❌ Certificate generation error:', error);
+      alert('Failed to generate certificate. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  // ✅ IMPROVED: Download function with color preprocessing and high quality
+  const downloadCertificate = async () => {
+    if (!certificateRef.current) {
+      alert('Certificate preview not available. Please generate the certificate first.');
+      return;
+    }
+
+    if (!user || !token) {
+      alert('Please log in to save certificates');
+      return;
+    }
+
+    setIsProcessing(true);
+    let originalStyles = [];
+    
+    try {
+      console.log('🎯 Starting certificate download with color fix...');
+      
+      // ✅ STEP 1: Preprocess colors to avoid oklch issues
+      console.log('🎨 Converting modern colors to compatible format...');
+      originalStyles = convertModernColors(certificateRef.current);
+      
+      // ✅ STEP 2: Wait for any pending style changes
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // ✅ STEP 3: Ensure all images are loaded
+      const images = certificateRef.current.querySelectorAll('img');
+      await Promise.all(Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => resolve(), 5000); // 5s timeout
+          img.onload = () => { clearTimeout(timeout); resolve(); };
+          img.onerror = () => { clearTimeout(timeout); resolve(); }; // Don't fail on image errors
+        });
+      }));
+      
+      console.log('✅ All images processed');
+      
+      // ✅ STEP 4: Html2canvas with safe options
+      const getScaleForQuality = () => {
+        switch(downloadQuality) {
+          case 'high': return 3;
+          case 'medium': return 2;
+          case 'low': return 1;
+          default: return 2;
+        }
+      };
+
+      const safeOptions = {
+        scale: getScaleForQuality(),
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false, // Disable logging to reduce console noise
+        
+        // ✅ Dimensions
+        width: certificateRef.current.offsetWidth,
+        height: certificateRef.current.offsetHeight,
+        scrollX: 0,
+        scrollY: 0,
+        
+        // ✅ Safer rendering options
+        foreignObjectRendering: false, // Disable to avoid issues
+        imageTimeout: 10000,
+        removeContainer: true,
+        
+        // ✅ Element filtering to avoid problematic elements
+        ignoreElements: (element) => {
+          // Skip elements that might cause issues
+          const tagName = element.tagName?.toLowerCase();
+          const classList = element.classList || [];
+          
+          return (
+            classList.contains('html2canvas-ignore') ||
+            tagName === 'script' ||
+            tagName === 'style' ||
+            element.style?.display === 'none'
+          );
+        },
+        
+        // ✅ Clone processing to clean up styles
+        onclone: (clonedDoc, element) => {
+          try {
+            // Remove any problematic CSS custom properties
+            const allElements = clonedDoc.querySelectorAll('*');
+            allElements.forEach(el => {
+              // Remove CSS custom properties that might cause issues
+              const style = el.style;
+              for (let i = style.length - 1; i >= 0; i--) {
+                const prop = style[i];
+                if (prop.startsWith('--') || 
+                    style.getPropertyValue(prop).includes('oklch') ||
+                    style.getPropertyValue(prop).includes('lab(')) {
+                  style.removeProperty(prop);
+                }
+              }
+              
+              // Ensure basic styles are compatible
+              if (el.style.color && el.style.color.includes('oklch')) {
+                el.style.color = '#000000';
+              }
+              if (el.style.backgroundColor && el.style.backgroundColor.includes('oklch')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+            });
+            
+            console.log('✅ Cloned document styles cleaned');
+          } catch (cleanupError) {
+            console.warn('⚠️ Style cleanup warning:', cleanupError);
+          }
+        }
+      };
+
+      console.log('📸 Capturing canvas with safe options...');
+      const canvas = await html2canvas(certificateRef.current, safeOptions);
+      
+      // ✅ STEP 5: Verify canvas
+      if (canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Canvas has zero dimensions');
+      }
+      
+      const dataURL = canvas.toDataURL('image/png', 0.95); // Slightly reduced quality for stability
+      
+      if (dataURL.length < 1000) {
+        throw new Error('Generated image appears to be blank');
+      }
+
+      console.log('✅ Canvas generated successfully:', { 
+        width: canvas.width, 
+        height: canvas.height,
+        dataSize: Math.round(dataURL.length / 1024) + 'KB',
+        quality: downloadQuality
+      });
+
+      // ✅ STEP 6: Download
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `${formData.recipientName?.replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, '_') || 'certificate'}_${Date.now()}.png`;
+      link.rel = 'noopener noreferrer';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log('✅ Certificate downloaded successfully');
+
+      // ✅ STEP 7: Save to backend with proper eventId handling
+      try {
+        console.log('💾 Attempting to save certificate to backend:', API_URL);
+        console.log('🔐 Using authenticated user:', user.id);
+        
+        const certificateData = {
+          recipientName: formData.recipientName,
+          eventName: formData.courseName || 'Certificate Achievement',
+          completionDate: formData.completionDate || new Date().toISOString(),
+          issuerName: formData.issuerName || `${user.firstName} ${user.lastName}`,
+          certificateId: formData.certificateId,
+          certificateImage: dataURL,
+          description: formData.description || '',
+          createdBy: user.id,
+          createdByEmail: user.email
+        };
+
+        console.log('📤 Certificate data prepared for authenticated backend');
+
+        // ✅ Determine the correct approach based on eventId
+        const hasValidEventId = formData.eventId && 
+                                formData.eventId.trim() !== '' && 
+                                formData.eventId !== 'manual-certificate' &&
+                                formData.eventId.length > 5;
+
+        let saveSuccessful = false;
+        let lastError = null;
+
+        if (hasValidEventId) {
+          // Try event-based certificate creation
+          console.log('📅 Attempting event-based certificate creation');
+          
+          try {
+            const eventRequestData = {
+              eventId: formData.eventId,
+              templateId: 'default-template',
+              attendeeIds: [],
+              certificateImage: dataURL,
+              customMessage: formData.description || '',
+              manualCertificate: {
+                ...certificateData,
+                eventId: formData.eventId
+              }
+            };
+
+            const result = await api.postData('/api/certificates/issue', eventRequestData);
+            
+            if (result && (result.success || result.certificate || result.certificates)) {
+              console.log('✅ Event-based certificate saved successfully');
+              handleSuccessfulSave(result);
+              saveSuccessful = true;
+            }
+          } catch (eventError) {
+            console.log('❌ Event-based creation failed:', eventError.message);
+            lastError = eventError.message;
+          }
+        }
+
+        // If event-based failed or no valid eventId, try manual endpoints
+        if (!saveSuccessful) {
+          console.log('📋 Attempting manual certificate creation');
+          
+          const manualEndpoints = [
+            '/api/certificates/manual',
+            '/api/certificates/create',
+            '/api/certificates'
+          ];
+
+          for (const endpoint of manualEndpoints) {
+            try {
+              console.log(`📤 Trying manual endpoint: ${API_URL}${endpoint}`);
+              
+              const result = await api.postData(endpoint, certificateData);
+              
+              if (result && (result.success || result.certificate || result.certificates)) {
+               console.log(`✅ Manual certificate saved via ${endpoint}`);
+                handleSuccessfulSave(result);
+                saveSuccessful = true;
+                break;
+              }
+            } catch (endpointError) {
+              console.log(`❌ Error with ${endpoint}:`, endpointError.message);
+              lastError = endpointError.message;
+              continue;
+            }
+          }
+        }
+
+        if (!saveSuccessful) {
+          console.error('❌ All endpoints failed. Last error:', lastError);
+          alert(`⚠️ Certificate downloaded successfully but could not save to backend.\n\nUser: ${user.email}\nBackend URL: ${API_URL}\nLast error: ${lastError}\n\nPossible issues:\n- Backend validation requirements\n- Server configuration\n- Network connectivity\n\nYou can still use the downloaded certificate locally.`);
+        }
+        
+      } catch (saveError) {
+        console.error('❌ Error saving certificate to backend:', saveError);
+        handleSaveError(saveError);
+      }
+      
+    } catch (error) {
+      console.error('❌ Download error:', error);
+      
+      if (error.message.includes('oklch') || error.message.includes('Attempting to parse')) {
+        alert('❌ Color compatibility issue detected.\n\nThis usually happens with modern CSS colors.\nTrying alternative approach...');
+        
+        // Try with minimal options as fallback
+        try {
+          const minimalCanvas = await html2canvas(certificateRef.current, {
+            scale: 1,
+            backgroundColor: "#ffffff",
+            logging: false,
+            useCORS: false,
+            allowTaint: true, // Allow tainted canvas as fallback
+            foreignObjectRendering: false
+          });
+          
+          const fallbackDataURL = minimalCanvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = fallbackDataURL;
+          link.download = `${formData.recipientName?.replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, '_') || 'certificate'}_fallback.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          console.log('✅ Fallback download completed');
+        } catch (fallbackError) {
+          alert('❌ Both download attempts failed. Please try:\n1. Using a different browser (Chrome/Firefox)\n2. Refreshing the page\n3. Checking browser console for details');
+        }
+      } else {
+        alert(`❌ Download failed: ${error.message}`);
+      }
+      
+    } finally {
+      // ✅ Always restore original styles
+      try {
+        restoreOriginalStyles(originalStyles);
+        console.log('✅ Original styles restored');
+      } catch (restoreError) {
+        console.warn('⚠️ Style restoration warning:', restoreError);
+      }
+      
+      setIsProcessing(false);
+    }
+  };
+
+  // ✅ Helper function to handle successful saves
+  const handleSuccessfulSave = (result) => {
+    let actualCertificateId, actualVerificationUrl;
+    
+    if (result.certificate) {
+      actualCertificateId = result.certificate.certificateId;
+      actualVerificationUrl = result.certificate.verificationUrl;
+    } else if (result.certificates && result.certificates.length > 0) {
+      const cert = result.certificates[0];
+      actualCertificateId = cert.certificateId;
+      actualVerificationUrl = cert.verificationUrl;
+    } else if (result.success) {
+      actualCertificateId = formData.certificateId;
+      actualVerificationUrl = `https://meetkats.com/certificates/${formData.certificateId}`;
+    }
+    
+    if (actualCertificateId && actualVerificationUrl) {
+      console.log('🔄 Updating QR code with actual certificate data');
+      setQrData(actualVerificationUrl);
+      setFormData(prev => ({ ...prev, certificateId: actualCertificateId }));
+    }
+    
+    alert(`✅ Certificate saved successfully!\n\nCertificate ID: ${actualCertificateId || formData.certificateId}\nCreated by: ${user.email}\nBackend: ${API_URL}`);
+  };
+
+  // ✅ Helper function to handle save errors
+  const handleSaveError = (saveError) => {
+    let errorMessage = '⚠️ Certificate downloaded but failed to save to backend.\n\n';
+    errorMessage += `User: ${user.email}\nBackend URL: ${API_URL}\n\n`;
+    
+    if (saveError.message?.includes('Network Error')) {
+      errorMessage += 'Network error: Cannot connect to backend server.';
+    } else if (saveError.message?.includes('timeout')) {
+      errorMessage += 'Timeout error: Backend server took too long to respond.';
+    } else if (saveError.response?.status === 401) {
+      errorMessage += 'Authentication error: Please log in again.';
+    } else if (saveError.response?.status === 403) {
+      errorMessage += 'Permission error: You may not have permission to create certificates.';
+    } else if (saveError.response?.status === 400) {
+      errorMessage += 'Validation error: Check your form data and try again.';
+    } else if (saveError.response?.status >= 500) {
+      errorMessage += 'Server error: Backend server is experiencing issues.';
+    } else {
+      errorMessage += `Error details: ${saveError.message}`;
+    }
+    
+    errorMessage += '\n\nYou can still use the downloaded certificate locally.';
+    alert(errorMessage);
+  };
+
+  // ✅ Test QR code function
   const testQRCode = () => {
     if (!qrData) {
       alert('Please generate a certificate first');
@@ -499,6 +877,7 @@ const QRCertificateGenerator = () => {
     }
   };
 
+  // Reset design
   const resetDesign = () => {
     setDesignImage(null);
     setImagePreview(null);
@@ -510,424 +889,80 @@ const QRCertificateGenerator = () => {
     }
   };
 
-  // UI Components
- // ✅ ALTERNATIVE: Using qrcode library (install: npm install qrcode)
-// OR we can create QR as data URL and use as image
-
-// ✅ IMPROVED: QR Code component using data URL approach
-const QRCodeDisplay = ({ data, size, color }) => {
-  const [qrDataUrl, setQrDataUrl] = useState('');
-  const [qrError, setQrError] = useState(false);
-  
-  useEffect(() => {
-    if (!data) return;
-    
-    const generateQRDataUrl = async () => {
-      try {
-        // ✅ Use the existing react-qr-code but convert to data URL
-        const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        qrSvg.setAttribute('width', size);
-        qrSvg.setAttribute('height', size);
-        qrSvg.style.backgroundColor = '#ffffff';
-        
-        // Create a temporary container to render QR code
-        const tempDiv = document.createElement('div');
-        tempDiv.style.position = 'absolute';
-        tempDiv.style.left = '-9999px';
-        tempDiv.style.width = `${size}px`;
-        tempDiv.style.height = `${size}px`;
-        document.body.appendChild(tempDiv);
-        
-        // Use react-qr-code to generate SVG
-        const qrElement = document.createElement('div');
-        qrElement.innerHTML = `
-          <svg width="${size}" height="${size}" style="background: white;">
-            <!-- QR code will be generated here -->
-          </svg>
-        `;
-        
-        // Alternative: Create QR as canvas and convert to data URL
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        
-        // Fill white background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, size, size);
-        
-        // ✅ Use a simple QR generation approach
-        const qrDataUrl = await generateQRAsDataURL(data, size, color);
-        setQrDataUrl(qrDataUrl);
-        
-        // Cleanup
-        document.body.removeChild(tempDiv);
-        
-      } catch (error) {
-        console.error('QR generation error:', error);
-        setQrError(true);
-      }
-    };
-    
-    generateQRDataUrl();
-  }, [data, size, color]);
-  
-  if (!data) {
-    return (
-      <div 
-        className="bg-gray-100 flex items-center justify-center rounded"
-        style={{ width: size, height: size }}
-      >
-        <span className="text-gray-500 text-sm">No QR Data</span>
-      </div>
-    );
-  }
-
-  if (qrError || !qrDataUrl) {
-    return (
-      <div 
-        className="bg-red-100 flex items-center justify-center rounded"
-        style={{ width: size, height: size }}
-      >
-        <span className="text-red-500 text-sm">QR Error</span>
-      </div>
-    );
-  }
-
-  return (
-    <div 
-      className="bg-white rounded shadow-sm"
-      style={{ 
-        padding: '8px',
-        display: 'inline-block',
-        width: size,
-        height: size,
-        boxSizing: 'border-box'
-      }}
-    >
-      <img 
-        src={qrDataUrl}
-        alt="QR Code"
-        style={{
-          width: size - 16,
-          height: size - 16,
-          imageRendering: 'pixelated', // Keeps QR crisp
-          display: 'block'
-        }}
-      />
-    </div>
-  );
-};
-
-// ✅ Function to generate QR as data URL using external service or library
-const generateQRAsDataURL = async (data, size, color) => {
-  try {
-    // ✅ Option 1: Use QR Server API (works without additional libraries)
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&color=${color.replace('#', '')}&bgcolor=ffffff&format=png&ecc=M`;
-    
-    // Convert to data URL for better html2canvas compatibility
-    const response = await fetch(qrUrl);
-    const blob = await response.blob();
-    
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-    
-  } catch (error) {
-    console.error('QR generation failed:', error);
-    
-    // ✅ Fallback: Use canvas-based QR generation
-    return generateQRCanvas(data, size, color);
-  }
-};
-
-// ✅ Fallback QR generation using canvas
-const generateQRCanvas = (data, size, color) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  
-  // White background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
-  
-  // Simple placeholder pattern (you can implement actual QR generation here)
-  ctx.fillStyle = color;
-  const gridSize = Math.floor(size / 25);
-  
-  // Create a simple grid pattern as placeholder
-  for (let i = 0; i < 25; i++) {
-    for (let j = 0; j < 25; j++) {
-      if ((i + j) % 3 === 0) {
-        ctx.fillRect(i * gridSize, j * gridSize, gridSize, gridSize);
-      }
-    }
-  }
-  
-  return canvas.toDataURL('image/png');
-};
-
-// ✅ IMPROVED: High-quality download function
-const downloadCertificate = async () => {
-  if (!certificateRef.current) {
-    alert('Certificate preview not available. Please generate the certificate first.');
-    return;
-  }
-
-  if (!user || !token) {
-    alert('Please log in to save certificates');
-    return;
-  }
-
-  setIsProcessing(true);
-  
-  try {
-    console.log('🎯 Starting high-quality certificate download...');
-    
-    // ✅ Pre-process: Ensure all images are loaded
-    const images = certificateRef.current.querySelectorAll('img');
-    await Promise.all(Array.from(images).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        // Trigger load if needed
-        const src = img.src;
-        img.src = '';
-        img.src = src;
-      });
-    }));
-    
-    console.log('✅ All images loaded');
-    
-    // ✅ HIGH QUALITY: Multiple rendering approaches
-    const highQualityOptions = {
-      scale: 3, // Higher scale for better quality
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
-      
-      // ✅ Optimal settings for quality
-      width: certificateRef.current.offsetWidth,
-      height: certificateRef.current.offsetHeight,
-      scrollX: 0,
-      scrollY: 0,
-      
-      // ✅ Better text rendering
-      letterRendering: true,
-      
-      // ✅ Handle elements properly
-      ignoreElements: (element) => {
-        // Skip problematic elements
-        return element.tagName === 'CANVAS' && element.classList.contains('html2canvas-ignore');
-      },
-      
-      // ✅ Image settings
-      imageTimeout: 15000,
-      removeContainer: true,
-      
-      // ✅ Canvas settings for crisp output
-      onclone: (clonedDoc, element) => {
-        // Ensure all images have proper sizing
-        const clonedImages = clonedDoc.querySelectorAll('img');
-        clonedImages.forEach(img => {
-          img.style.imageRendering = 'pixelated';
-          img.style.userSelect = 'none';
-        });
-        
-        // Ensure QR codes are crisp
-        const qrElements = clonedDoc.querySelectorAll('[data-qr="true"]');
-        qrElements.forEach(qr => {
-          qr.style.imageRendering = 'pixelated';
-        });
-      }
-    };
-
-    console.log('📸 Capturing with high quality settings...');
-    const canvas = await html2canvas(certificateRef.current, highQualityOptions);
-    
-    // ✅ Verify canvas quality
-    if (canvas.width === 0 || canvas.height === 0) {
-      throw new Error('Canvas has zero dimensions');
+  // ✅ Test canvas capture function for debugging
+  const testCanvasCapture = async () => {
+    if (!certificateRef.current) {
+      alert('No certificate element to capture');
+      return;
     }
     
-    // ✅ Generate high-quality PNG
-    const dataURL = canvas.toDataURL('image/png', 1.0);
-    
-    if (dataURL.length < 1000) {
-      throw new Error('Generated image appears to be blank');
-    }
-
-    console.log('✅ High-quality canvas generated:', { 
-      width: canvas.width, 
-      height: canvas.height,
-      dataSize: Math.round(dataURL.length / 1024) + 'KB',
-      quality: 'High (Scale 3x)'
-    });
-
-    // ✅ Download with proper filename
-    const link = document.createElement('a');
-    link.href = dataURL;
-    link.download = `${formData.recipientName?.replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, '_') || 'certificate'}_${formData.certificateId || 'cert'}.png`;
-    link.rel = 'noopener noreferrer';
-    
-    // ✅ Ensure download works in all browsers
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    console.log('✅ High-quality certificate downloaded successfully');
-
-    // Continue with backend save...
-    // [Your existing backend save logic here]
-    
-  } catch (error) {
-    console.error('❌ High-quality download error:', error);
-    
-    // ✅ Fallback to lower quality if high quality fails
     try {
-      console.log('⚠️ Attempting fallback download...');
-      const fallbackCanvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: true
+      console.log('🧪 Testing canvas capture...');
+      console.log('Element dimensions:', {
+        offsetWidth: certificateRef.current.offsetWidth,
+        offsetHeight: certificateRef.current.offsetHeight,
+        scrollWidth: certificateRef.current.scrollWidth,
+        scrollHeight: certificateRef.current.scrollHeight
       });
       
-      const fallbackDataURL = fallbackCanvas.toDataURL('image/png', 0.95);
+      // Simple test capture
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 1,
+        logging: true,
+        useCORS: true,
+        allowTaint: false
+      });
       
-      const link = document.createElement('a');
-      link.href = fallbackDataURL;
-      link.download = `${formData.recipientName?.replace(/[^a-z0-9\s]/gi, '').replace(/\s+/g, '_') || 'certificate'}_fallback.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      console.log('Canvas dimensions:', { width: canvas.width, height: canvas.height });
       
-      console.log('✅ Fallback download completed');
+      const dataURL = canvas.toDataURL('image/png');
+      console.log('Data URL length:', dataURL.length);
       
-    } catch (fallbackError) {
-      console.error('❌ Fallback download also failed:', fallbackError);
-      alert(`❌ Download failed: ${error.message}\n\nPlease try:\n1. Refresh the page\n2. Use a different browser\n3. Check if images are loading properly`);
+      // Open in new tab for inspection
+      const newTab = window.open();
+      newTab.document.write(`<img src="${dataURL}" style="max-width: 100%; height: auto;" />`);
+      
+    } catch (error) {
+      console.error('Canvas test failed:', error);
+      alert(`Canvas test failed: ${error.message}`);
     }
-    
-  } finally {
-    setIsProcessing(false);
-  }
-};
-
-// ✅ IMPROVED: Certificate preview with better image handling
-const CertificatePreview = () => {
-  return (
-    <div 
-      ref={certificateRef}
-      className="relative w-full border border-gray-200 rounded-lg overflow-hidden bg-white"
-      style={{ 
-        aspectRatio: '4/3',
-        minHeight: '400px',
-        minWidth: '533px'
-      }}
-    >
-      {/* ✅ Background Image */}
-      {imagePreview && (
-        <img 
-          src={imagePreview} 
-          alt="Certificate Design"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ 
-            imageRendering: 'auto',
-            userSelect: 'none'
-          }}
-          crossOrigin="anonymous" // Help with CORS
-          onLoad={() => console.log('✅ Background image loaded for download')}
-          onError={(e) => {
-            console.error('❌ Background image failed to load:', e);
-            // Try to reload the image
-            e.target.src = imagePreview;
-          }}
-        />
-      )}
-      
-      {/* ✅ Text Overlays */}
-      {showPreview && textElements.map((element) => {
-        const content = getTextContent(element.id);
-        if (!content) return null;
+  };
+// ✅ Override modern colors component
+  const OverrideModernColors = () => {
+    useEffect(() => {
+      // Add CSS to override problematic color functions
+      const style = document.createElement('style');
+      style.textContent = `
+        /* Override modern color functions for html2canvas compatibility */
+        [data-html2canvas] * {
+          color: inherit !important;
+          background-color: inherit !important;
+          border-color: inherit !important;
+        }
         
-        return (
-          <div
-            key={element.id}
-            className="absolute pointer-events-none"
-            style={{
-              left: `${element.x}%`,
-              top: `${element.y}%`,
-              transform: 'translate(-50%, -50%)',
-              fontSize: `${element.fontSize}px`,
-              color: element.color,
-              fontWeight: element.fontWeight,
-              textAlign: element.textAlign,
-              fontFamily: 'Arial, sans-serif',
-              lineHeight: '1.2',
-              maxWidth: '80%',
-              textShadow: element.color === '#ffffff' ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none',
-              // ✅ Better text rendering
-              textRendering: 'optimizeLegibility',
-              WebkitFontSmoothing: 'antialiased'
-            }}
-          >
-            {content}
-          </div>
-        );
-      })}
+        /* Force safe colors for certificate elements */
+        [data-certificate] .text-blue-600 { color: #2563eb !important; }
+        [data-certificate] .text-green-600 { color: #16a34a !important; }
+        [data-certificate] .text-purple-600 { color: #9333ea !important; }
+        [data-certificate] .text-red-600 { color: #dc2626 !important; }
+        [data-certificate] .text-gray-600 { color: #4b5563 !important; }
+        [data-certificate] .text-gray-700 { color: #374151 !important; }
+        [data-certificate] .text-gray-800 { color: #1f2937 !important; }
+        [data-certificate] .bg-white { background-color: #ffffff !important; }
+        [data-certificate] .bg-blue-50 { background-color: #eff6ff !important; }
+        [data-certificate] .bg-green-50 { background-color: #f0fdf4 !important; }
+      `;
+      document.head.appendChild(style);
+      
+      return () => {
+        document.head.removeChild(style);
+      };
+    }, []);
+    
+    return null;
+  };
 
-      {/* ✅ QR Code with data attribute for styling */}
-      {showPreview && qrData && (
-        <div
-          className="absolute pointer-events-none"
-          data-qr="true"
-          style={{
-            left: `${qrSettings.x}%`,
-            top: `${qrSettings.y}%`,
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <QRCodeDisplay 
-            data={qrData} 
-            size={qrSettings.size} 
-            color={qrSettings.color} 
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ✅ Add quality settings to your component state
-const [downloadQuality, setDownloadQuality] = useState('high'); // 'high', 'medium', 'low'
-
-// ✅ Quality selector component
-const QualitySelector = () => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-2">
-      Download Quality
-    </label>
-    <select 
-      value={downloadQuality}
-      onChange={(e) => setDownloadQuality(e.target.value)}
-      className="px-3 py-2 border border-gray-300 rounded-lg"
-    >
-      <option value="high">High Quality (Scale 3x)</option>
-      <option value="medium">Medium Quality (Scale 2x)</option>
-      <option value="low">Fast Download (Scale 1x)</option>
-    </select>
-  </div>
-);
-
-  // ✅ COMPLETELY FIXED: Certificate Preview with proper scaling and layout
-
-
+  // ✅ Status indicator component
   const StatusIndicator = () => {
     const getStatusInfo = () => {
       if (!user || !token) {
@@ -965,6 +1000,7 @@ const QualitySelector = () => (
     );
   };
 
+  // ✅ Enhanced Event ID input with validation
   const EventIdInput = () => {
     const isValidEventId = !formData.eventId || 
                           (formData.eventId.trim() !== '' && 
@@ -1003,17 +1039,18 @@ const QualitySelector = () => (
     );
   };
 
+  // ✅ Enhanced form validation indicator
   const FormValidationIndicator = () => {
     const validations = [
       { field: 'auth', label: 'User Authentication', valid: !!(user && token) },
       { field: 'recipientName', label: 'Recipient Name', valid: !!formData.recipientName?.trim() },
-      { field: 'design', label: 'Design Upload', valid: !!designImage },
       { field: 'courseName', label: 'Course/Event Name', valid: !!formData.courseName?.trim(), optional: true },
       { field: 'issuerName', label: 'Issuer Name', valid: !!formData.issuerName?.trim(), optional: true },
       { field: 'certificateId', label: 'Certificate ID', valid: !!formData.certificateId?.trim(), optional: true },
+      { field: 'design', label: 'Design Upload', valid: !!designImage },
       { 
         field: 'eventId', 
-        label: 'Event ID', 
+        label: 'Event ID (Optional)', 
         valid: !formData.eventId || (formData.eventId.trim() !== '' && formData.eventId !== 'manual-certificate'),
         optional: true,
         warning: formData.eventId === 'manual-certificate' ? 'Invalid eventId format' : null
@@ -1056,7 +1093,7 @@ const QualitySelector = () => (
               <span className={`mr-2 ${
                 validation.warning ? 'text-yellow-600' :
                 validation.valid ? 'text-green-600' : 
-                validation.optional ? 'text-blue-600' : 'text-red-600'
+                validation.optional ? 'text-yellow-600' : 'text-red-600'
               }`}>
                 {validation.warning ? '⚠' :
                  validation.valid ? '✓' : 
@@ -1065,7 +1102,7 @@ const QualitySelector = () => (
               <span className={`${
                 validation.warning ? 'text-yellow-700' :
                 validation.valid ? 'text-green-700' : 
-                validation.optional ? 'text-blue-700' : 'text-red-700'
+                validation.optional ? 'text-yellow-700' : 'text-red-700'
               }`}>
                 {validation.label} {validation.optional && '(Optional)'}
               </span>
@@ -1076,6 +1113,7 @@ const QualitySelector = () => (
     );
   };
 
+  // ✅ Authentication check component
   const AuthenticationStatus = () => {
     if (!user || !token) {
       return (
@@ -1112,81 +1150,25 @@ const QualitySelector = () => (
     );
   };
 
-  // ✅ IMPROVED: Scaling and Layout Helper
-  const ScalingLayoutHelper = () => {
-    return (
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6">
-        <h4 className="font-semibold text-green-800 mb-3 flex items-center">
-          <Eye className="w-4 h-4 mr-2" />
-          Preview & PDF Layout Guide
-        </h4>
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <h5 className="font-medium text-green-700 mb-2">✅ Fixed Preview Issues:</h5>
-            <ul className="space-y-1 text-green-600">
-              <li>• <strong>Proper Scaling:</strong> A4 landscape aspect ratio</li>
-              <li>• <strong>Better Size:</strong> 400-600px height for good visibility</li>
-              <li>• <strong>Object Fit:</strong> Contains entire certificate in preview</li>
-              <li>• <strong>No Zoom Out:</strong> Certificate fills preview area properly</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-medium text-green-700 mb-2">✅ Fixed PDF Generation:</h5>
-            <ul className="space-y-1 text-green-600">
-              <li>• <strong>Full Page:</strong> Certificate fills entire PDF page</li>
-              <li>• <strong>No Margins:</strong> Edge-to-edge layout (0mm margins)</li>
-              <li>• <strong>Landscape:</strong> Properly oriented for your template</li>
-              <li>• <strong>High Quality:</strong> 2x scale with proper compression</li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-4 p-3 bg-white rounded border-l-4 border-green-500">
-          <p className="text-green-700 text-sm">
-            <strong>💡 Result:</strong> Preview shows proper size and downloaded PDF fills entire page without white space corners.
-          </p>
-        </div>
-      </div>
-    );
-  };
-
-  const TemplatePositioningHelper = () => {
-    return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
-        <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-          <Move className="w-4 h-4 mr-2" />
-          Certificate Template Positioning Guide
-        </h4>
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <h5 className="font-medium text-blue-700 mb-2">Text Element Positions:</h5>
-            <ul className="space-y-1 text-blue-600">
-              <li>• <strong>Recipient Name:</strong> Center, 58% down (large, bold)</li>
-              <li>• <strong>Course Description:</strong> Center, 70% down</li>
-              <li>• <strong>Date:</strong> Center, 75% down</li>
-              <li>• <strong>Certificate ID:</strong> Left side, 85% down (small)</li>
-              <li>• <strong>Issuer Name:</strong> Right side, 85% down</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-medium text-blue-700 mb-2">QR Code Placement:</h5>
-            <ul className="space-y-1 text-blue-600">
-              <li>• <strong>Position:</strong> Top right corner (85%, 15%)</li>
-              <li>• <strong>Size:</strong> 100px (readable but not intrusive)</li>
-              <li>• <strong>Color:</strong> Black for best scanning</li>
-              <li>• <strong>Background:</strong> White area recommended</li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-4 p-3 bg-white rounded border-l-4 border-blue-500">
-          <p className="text-blue-700 text-sm">
-            <strong>💡 Tip:</strong> The positions have been optimized for your certificate template. 
-            Use the Position Elements tab to fine-tune alignment if needed.
-          </p>
-        </div>
-      </div>
-    );
-  };
-
+  // ✅ Quality selector component
+  const QualitySelector = () => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Download Quality
+      </label>
+      <select 
+        value={downloadQuality}
+        onChange={(e) => setDownloadQuality(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-lg"
+        disabled={isProcessing}
+      >
+        <option value="high">High Quality (Scale 3x)</option>
+        <option value="medium">Medium Quality (Scale 2x)</option>
+        <option value="low">Fast Download (Scale 1x)</option>
+      </select>
+    </div>
+  );
+// ✅ Enhanced Debug Panel with auth and API service info
   const EnhancedDebugPanel = () => {
     const [backendCheck, setBackendCheck] = useState(null);
     const [apiInfo, setApiInfo] = useState(null);
@@ -1230,28 +1212,6 @@ const QualitySelector = () => (
           Debug Information
         </h4>
         <div className="space-y-2 text-sm text-gray-600">
-          {/* Layout & Scaling Info */}
-          <div className="border-b pb-2 mb-3">
-            <div><strong>📐 Layout & Scaling:</strong></div>
-            <div className="ml-4">
-              <div><strong>Preview Aspect:</strong> A4 Landscape (1.414:1)</div>
-              <div><strong>Preview Size:</strong> 400-600px height</div>
-              <div><strong>PDF Layout:</strong> Full page, no margins</div>
-              <div><strong>Canvas Scale:</strong> 2x for quality</div>
-            </div>
-          </div>
-          
-          {/* Template Info */}
-          <div className="border-b pb-2 mb-3">
-            <div><strong>📄 Template Info:</strong></div>
-            <div className="ml-4">
-              <div><strong>Type:</strong> Certificate of Participation</div>
-              <div><strong>Orientation:</strong> Landscape</div>
-              <div><strong>Text Elements:</strong> {textElements.length} positioned</div>
-              <div><strong>QR Position:</strong> Top-right ({qrSettings.x}%, {qrSettings.y}%)</div>
-            </div>
-          </div>
-          
           {/* Auth Information */}
           <div className="border-b pb-2 mb-3">
             <div><strong>🔐 Authentication:</strong></div>
@@ -1266,6 +1226,7 @@ const QualitySelector = () => (
           <div><strong>QR Data:</strong> <code className="bg-white px-2 py-1 rounded break-all">{qrData || 'Not generated'}</code></div>
           <div><strong>Event ID:</strong> {formData.eventId || 'Not set (Manual Certificate)'}</div>
           <div><strong>Certificate Type:</strong> {formData.eventId ? 'Event-based' : 'Manual'}</div>
+          <div><strong>Download Quality:</strong> {downloadQuality}</div>
           
           {/* API Service Information */}
           <div className="border-t pt-2 mt-3">
@@ -1348,13 +1309,108 @@ const QualitySelector = () => (
             >
               Refresh API Info
             </button>
+            <button
+              onClick={testCanvasCapture}
+              className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+            >
+              Test Canvas Capture
+            </button>
           </div>
         </div>
       </div>
     );
   };
 
-  // ✅ MAIN COMPONENT RENDER
+  // ✅ IMPROVED: Certificate preview with better image handling and color fix
+  const CertificatePreview = () => {
+    return (
+      <div 
+        ref={certificateRef}
+        data-certificate="true"
+        className="relative w-full border border-gray-200 rounded-lg overflow-hidden"
+        style={{ 
+          aspectRatio: '4/3',
+          backgroundColor: '#ffffff',
+          minHeight: '400px',
+          minWidth: '533px'
+        }}
+      >
+        {/* Include the color override component */}
+        <OverrideModernColors />
+        
+        {/* ✅ Background Image with better loading */}
+        {imagePreview && (
+          <img 
+            src={imagePreview} 
+            alt="Certificate Design"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ 
+              imageRendering: 'auto',
+              userSelect: 'none'
+            }}
+            crossOrigin="anonymous"
+            onLoad={() => console.log('✅ Background image loaded for download')}
+            onError={(e) => {
+              console.error('❌ Background image failed to load:', e);
+              // Try to reload the image
+              e.target.src = imagePreview;
+            }}
+          />
+        )}
+        
+        {/* ✅ Text Overlays with improved positioning */}
+        {showPreview && textElements.map((element) => {
+          const content = getTextContent(element.id);
+          if (!content) return null;
+          
+          return (
+            <div
+              key={element.id}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${element.x}%`,
+                top: `${element.y}%`,
+                transform: 'translate(-50%, -50%)',
+                fontSize: `${element.fontSize}px`,
+                color: element.color,
+                fontWeight: element.fontWeight,
+                textAlign: element.textAlign,
+                fontFamily: 'Arial, sans-serif',
+                lineHeight: '1.2',
+                maxWidth: '80%',
+                textShadow: element.color === '#ffffff' ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none',
+                // ✅ Better text rendering
+                textRendering: 'optimizeLegibility',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale'
+              }}
+            >
+              {content}
+            </div>
+          );
+        })}
+
+        {/* ✅ QR Code with data attribute for styling */}
+        {showPreview && qrData && (
+          <div
+            className="absolute pointer-events-none"
+            data-qr="true"
+            style={{
+              left: `${qrSettings.x}%`,
+              top: `${qrSettings.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
+          >
+            <QRCodeDisplay 
+              data={qrData} 
+              size={qrSettings.size} 
+              color={qrSettings.color} 
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
@@ -1365,7 +1421,7 @@ const QualitySelector = () => (
             <h1 className="text-4xl md:text-5xl font-bold">Certificate Generator</h1>
           </div>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
-            Create professional PDF certificates with scannable QR codes for verification
+            Create professional certificates with scannable QR codes for verification
           </p>
           <StatusIndicator />
         </div>
@@ -1374,12 +1430,6 @@ const QualitySelector = () => (
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Authentication Status */}
         <AuthenticationStatus />
-
-        {/* Scaling & Layout Helper */}
-        <ScalingLayoutHelper />
-
-        {/* Template Positioning Helper */}
-        <TemplatePositioningHelper />
 
         {/* Tab Navigation */}
         <div className="flex flex-wrap gap-2 mb-8 bg-white rounded-xl p-2 shadow-lg">
@@ -1456,7 +1506,7 @@ const QualitySelector = () => (
                       Click to upload or drag and drop your certificate template
                     </p>
                     <p className="text-sm text-gray-400">
-                      Supports PNG, JPG, JPEG, SVG • Max 10MB • Landscape orientation recommended
+                      Supports PNG, JPG, JPEG, SVG • Max 10MB
                     </p>
                     <input
                       ref={fileInputRef}
@@ -1470,13 +1520,13 @@ const QualitySelector = () => (
 
                   {/* Design Tips */}
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                    <h4 className="font-semibold text-blue-800 mb-3">✅ Fixed Design Issues:</h4>
+                    <h4 className="font-semibold text-blue-800 mb-3">Design Tips for Better QR Scanning:</h4>
                     <ul className="space-y-2 text-blue-700 text-sm">
-                      <li>• <strong>Proper Preview:</strong> A4 landscape aspect ratio for accurate preview</li>
-                      <li>• <strong>Full PDF Page:</strong> Certificate fills entire PDF without white space</li>
-                      <li>• <strong>No Corner Issues:</strong> Edge-to-edge layout (0mm margins)</li>
-                      <li>• <strong>High Quality:</strong> 2x scale rendering for crisp text and QR codes</li>
-                      <li>• <strong>Optimized Size:</strong> Better preview scaling (400-600px height)</li>
+                      <li>• Use high-resolution images (300 DPI recommended)</li>
+                      <li>• Leave adequate white space around QR code area</li>
+                      <li>• Ensure QR code area has good contrast (white background recommended)</li>
+                      <li>• QR code should be at least 1cm x 1cm when printed</li>
+                      <li>• Test QR code scanning before finalizing design</li>
                     </ul>
                   </div>
                 </div>
@@ -1498,7 +1548,7 @@ const QualitySelector = () => (
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Recipient Name <span className="text-red-500">*</span>
+                      Recipient Name *
                     </label>
                     <input
                       type="text"
@@ -1508,13 +1558,12 @@ const QualitySelector = () => (
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
                       placeholder="Enter recipient's full name"
-                      required
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Course/Event Name (Optional)
+                      Course/Achievement Name
                     </label>
                     <input
                       type="text"
@@ -1523,16 +1572,13 @@ const QualitySelector = () => (
                       onChange={handleInputChange}
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-                      placeholder="e.g., HACKATHON BYTE BATTLE"
+                      placeholder="e.g., React Development Bootcamp"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Will appear as "for his/her active participation in the [Event Name]"
-                    </p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Completion Date (Optional)
+                      Completion Date
                     </label>
                     <input
                       type="date"
@@ -1546,7 +1592,7 @@ const QualitySelector = () => (
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Issuing Organization (Optional)
+                      Issuing Organization
                     </label>
                     <input
                       type="text"
@@ -1555,13 +1601,13 @@ const QualitySelector = () => (
                       onChange={handleInputChange}
                       disabled={isProcessing}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors disabled:opacity-50"
-                      placeholder="Your organization name"
+                      placeholder={user ? `Default: ${user.firstName} ${user.lastName}` : "Your organization name"}
                     />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Certificate ID (Optional)
+                      Certificate ID
                     </label>
                     <div className="flex gap-3">
                       <input
@@ -1599,9 +1645,13 @@ const QualitySelector = () => (
                     />
                   </div>
                 </div>
+
+                {/* Quality Selector */}
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <QualitySelector />
+                </div>
               </div>
             )}
-
             {/* Position Elements Tab */}
             {activeTab === 'position' && (
               <div className="space-y-6">
@@ -1820,7 +1870,7 @@ const QualitySelector = () => (
                       title={!user ? "Login required to save" : ""}
                     >
                       <Download className="w-4 h-4 mr-1" />
-                      {isProcessing ? 'Generating...' : 'Download PDF'}
+                      Download ({downloadQuality})
                     </button>
                   )}
                 </div>
@@ -1829,20 +1879,20 @@ const QualitySelector = () => (
               {imagePreview ? (
                 <div className="w-full">
                   <CertificatePreview />
-                  
+
                   {/* Design Info */}
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-600 mb-2">
-                      <strong>✅ Preview:</strong> Proper A4 landscape scaling
-                    </p>
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>✅ PDF Output:</strong> Full page, no white corners
+                      <strong>Design Status:</strong> {designImage ? 'Uploaded ✓' : 'Not uploaded'}
                     </p>
                     <p className="text-sm text-gray-600 mb-2">
                       <strong>QR Code:</strong> {qrData ? 'Generated ✓' : 'Click Update to generate'}
                     </p>
                     <p className="text-sm text-gray-600 mb-2">
                       <strong>Authentication:</strong> {user ? `Logged in as ${user.email} ✓` : 'Not authenticated ✗'}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      <strong>Quality:</strong> {downloadQuality} ({downloadQuality === 'high' ? '3x' : downloadQuality === 'medium' ? '2x' : '1x'} scale)
                     </p>
                     {qrData && (
                       <p className="text-sm text-gray-600 mb-2">
@@ -1861,7 +1911,7 @@ const QualitySelector = () => (
                   <Image className="w-16 h-16 mb-4 opacity-20" />
                   <p className="text-lg mb-2">No Design Uploaded</p>
                   <p className="text-sm text-center max-w-xs">
-                    Upload your certificate design to see the preview with proper scaling
+                    Upload your certificate design to see the preview
                   </p>
                 </div>
               )}
@@ -1869,204 +1919,12 @@ const QualitySelector = () => (
           </div>
         </div>
 
-        {/* QR Code Scanning Tips */}
-        {qrData && (
-          <div className="mt-12 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-8 border border-green-200">
-            <div className="flex items-center mb-4">
-              <QrCode className="w-8 h-8 text-green-600 mr-3" />
-              <h3 className="text-2xl font-bold text-gray-800">QR Code Scanning Guide</h3>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-3">📱 Mobile Camera Apps:</h4>
-                <ul className="text-gray-600 space-y-1 text-sm">
-                  <li>• iOS: Built-in Camera app</li>
-                  <li>• Android: Google Camera</li>
-                  <li>• Samsung: Samsung Camera</li>
-                  <li>• Third-party: QR Code Reader apps</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-3">✅ Scanning Tips:</h4>
-                <ul className="text-gray-600 space-y-1 text-sm">
-                  <li>• Hold phone 6-12 inches away</li>
-                  <li>• Ensure good lighting</li>
-                  <li>• Keep QR code flat and stable</li>
-                  <li>• Wait for auto-focus</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-3">🔧 Troubleshooting:</h4>
-                <ul className="text-gray-600 space-y-1 text-sm">
-                  <li>• Increase QR code size if scanning fails</li>
-                  <li>• Use black color for better contrast</li>
-                  <li>• Ensure white background around QR</li>
-                  <li>• Test with "Test QR Code" button</li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-green-500">
-              <p className="text-gray-700">
-                <strong>Current QR Code redirects to:</strong> 
-                <span className="font-mono bg-gray-100 px-2 py-1 rounded ml-2 text-sm break-all">{qrData}</span>
-              </p>
-              {user && (
-                <p className="text-gray-700 mt-2">
-                  <strong>Created by:</strong> {user.email} ({user.firstName} {user.lastName})
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Usage Instructions */}
-        <div className="mt-12 bg-white rounded-xl p-8 shadow-lg border border-gray-100">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">✅ Fixed Certificate Generation Process</h3>
-          <div className="grid md:grid-cols-5 gap-6">
-            <div className="text-center">
-              <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-red-600">1</span>
-              </div>
-              <h4 className="font-semibold mb-2">Login</h4>
-              <p className="text-gray-600 text-sm">Authenticate to save certificates to the database</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-blue-600">2</span>
-              </div>
-              <h4 className="font-semibold mb-2">Upload Design</h4>
-              <p className="text-gray-600 text-sm">Upload your certificate template (landscape orientation)</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-green-600">3</span>
-              </div>
-              <h4 className="font-semibold mb-2">Fill Content</h4>
-              <p className="text-gray-600 text-sm">Enter recipient name (required). All other fields are optional.</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-purple-600">4</span>
-              </div>
-              <h4 className="font-semibold mb-2">Preview</h4>
-              <p className="text-gray-600 text-sm">See properly scaled preview with A4 landscape ratio</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-orange-600">5</span>
-              </div>
-              <h4 className="font-semibold mb-2">Download PDF</h4>
-              <p className="text-gray-600 text-sm">Generate full-page PDF without white corners</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="mt-16 grid md:grid-cols-4 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <Eye className="w-12 h-12 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">✅ Fixed Preview</h3>
-            <p className="text-gray-600">Proper A4 landscape scaling, no more zoomed-out preview. Perfect size and aspect ratio.</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <Upload className="w-12 h-12 text-green-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">✅ Full-Page PDF</h3>
-            <p className="text-gray-600">Certificate fills entire PDF page with 0mm margins. No white space in corners.</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <Move className="w-12 h-12 text-purple-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">✅ Perfect Alignment</h3>
-            <p className="text-gray-600">Text and QR codes positioned exactly for your certificate template layout.</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <QrCode className="w-12 h-12 text-orange-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">✅ High Quality</h3>
-            <p className="text-gray-600">2x scale rendering for crisp text and QR codes with proper compression.</p>
-          </div>
-        </div>
-
-        {/* Event Integration Info */}
-        {formData.eventId && (
-          <div className="mt-12 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-8 border border-purple-200">
-            <div className="flex items-center mb-4">
-              <Building className="w-8 h-8 text-purple-600 mr-3" />
-              <h3 className="text-2xl font-bold text-gray-800">Event Integration Active</h3>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-2">Event Details:</h4>
-                <p className="text-gray-600 mb-1"><strong>Event ID:</strong> {formData.eventId}</p>
-                <p className="text-gray-600 mb-1"><strong>QR Redirect:</strong> meetkats.com/certificates/{formData.certificateId || 'CERT-XXXXX'}</p>
-                <p className="text-gray-600 mb-1"><strong>Backend Storage:</strong> {backendStatus === 'connected' ? 'Enabled ✓' : 'Checking...'}</p>
-                {user && (
-                  <p className="text-gray-600"><strong>Created By:</strong> {user.email}</p>
-                )}
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-2">✅ Fixed Features:</h4>
-                <ul className="text-gray-600 space-y-1">
-                  <li>• {user ? '✓' : '✗'} Authenticated certificate creation</li>
-                  <li>• {backendStatus === 'connected' ? '✓' : '?'} Certificate saved to database</li>
-                  <li>• ✓ QR code verification</li>
-                  <li>• ✅ Full-page PDF (no white corners)</li>
-                  <li>• ✅ Proper preview scaling</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Authentication Notice */}
-        {!user && (
-          <div className="mt-12 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-8 border border-yellow-200">
-            <div className="flex items-center mb-4">
-              <User className="w-8 h-8 text-yellow-600 mr-3" />
-              <h3 className="text-2xl font-bold text-gray-800">Authentication Required</h3>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-2">Why Login?</h4>
-                <ul className="text-gray-600 space-y-1">
-                  <li>• Save certificates to secure database</li>
-                  <li>• Automatic issuer information assignment</li>
-                  <li>• Certificate ownership tracking</li>
-                  <li>• Access to PDF generation features</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-2">Available Without Login:</h4>
-                <ul className="text-gray-600 space-y-1">
-                  <li>• Certificate design and preview</li>
-                  <li>• QR code generation</li>
-                  <li>• Basic certificate positioning</li>
-                  <li>• Design validation</li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => window.location.href = '/login'}
-                className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Login to Download Full-Page PDF Certificates
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* API Status Footer */}
+        {/* Footer Status */}
         <div className="mt-12 bg-gray-100 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-semibold text-gray-700">✅ System Status (Fixed)</h4>
-              <p className="text-gray-600 text-sm">Backend: {API_URL} | Layout: A4 Landscape | Scaling: Fixed</p>
+              <h4 className="font-semibold text-gray-700">System Status</h4>
+              <p className="text-gray-600 text-sm">Backend: {API_URL}</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center">

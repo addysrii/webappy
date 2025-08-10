@@ -448,7 +448,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
   }
   
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-orange-50">
+    <div className="flex flex-col md:flex-row h-screen bg-green-50">
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} onLogout={logout} />
@@ -459,21 +459,21 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
         <div className="flex justify-around items-center h-16 px-2">
           <button 
             onClick={() => setActiveSection('overview')}
-            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'overview' ? 'text-orange-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'overview' ? 'text-green-500' : 'text-gray-500'}`}
           >
             <Home className="h-6 w-6" />
             <span className="text-xs">Home</span>
           </button>
           <button 
             onClick={() => setActiveSection('events')}
-            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-orange-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-green-500' : 'text-gray-500'}`}
           >
             <Calendar className="h-6 w-6" />
             <span className="text-xs">Events</span>
           </button>
           <button 
             onClick={() => setActiveSection('network')}
-            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'network' ? 'text-orange-500' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'network' ? 'text-green-500' : 'text-gray-500'}`}
           >
             <Users className="h-6 w-6" />
             <span className="text-xs">Network</span>
@@ -493,11 +493,11 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
         <div className="md:pl-0 pl-0 md:pt-0 pt-4">
           <main className="max-w-7xl mx-auto p-4 md:p-6">
             {/* Dashboard Header */}
-            <div className="bg-white rounded-xl shadow-md mb-6 p-4 md:p-6 border-l-4 border-orange-500">
+            <div className="bg-white rounded-xl shadow-md mb-6 p-4 md:p-6 border-l-4 border-green-500">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
                   <div className="flex items-center mb-2">
-                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 mr-4 flex items-center justify-center text-white font-bold text-xl">
+                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-lg bg-gradient-to-r from-green-500 to-green-400 mr-4 flex items-center justify-center text-white font-bold text-xl">
                       {new Date().getDate()}
                     </div>
                     <div>
@@ -510,11 +510,11 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                 <div className="mt-4 md:mt-0 w-full md:w-auto">
                   <div className="flex flex-wrap gap-2">
                     <Link to={`/connections`}>
-                      <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-md text-sm font-medium">
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm font-medium">
                         {pendingRequests} connection requests
                       </span>
                     </Link>
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm font-medium">
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm font-medium">
                       {planner.filter(task => !task.completed).length} pending tasks
                     </span>
                   </div>
@@ -529,8 +529,8 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   onClick={() => setActiveSection('overview')}
                   className={`flex-none text-center py-4 px-4 font-medium text-sm focus:outline-none transition-colors duration-200 ${
                     activeSection === 'overview'
-                      ? 'text-orange-600 border-b-2 border-orange-500'
-                      : 'text-gray-500 hover:text-orange-500'
+                      ? 'text-green-600 border-b-2 border-green-500'
+                      : 'text-gray-500 hover:text-green-500'
                   }`}
                 >
                   Overview
@@ -539,8 +539,8 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   onClick={() => setActiveSection('events')}
                   className={`flex-none text-center py-4 px-4 font-medium text-sm focus:outline-none transition-colors duration-200 ${
                     activeSection === 'events'
-                      ? 'text-orange-600 border-b-2 border-orange-500'
-                      : 'text-gray-500 hover:text-orange-500'
+                      ? 'text-green-600 border-b-2 border-green-500'
+                      : 'text-gray-500 hover:text-green-500'
                   }`}
                 >
                   Events
@@ -549,8 +549,8 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   onClick={() => setActiveSection('network')}
                   className={`flex-none text-center py-4 px-4 font-medium text-sm focus:outline-none transition-colors duration-200 ${
                     activeSection === 'network'
-                      ? 'text-orange-600 border-b-2 border-orange-500'
-                      : 'text-gray-500 hover:text-orange-500'
+                      ? 'text-green-600 border-b-2 border-green-500'
+                      : 'text-gray-500 hover:text-green-500'
                   }`}
                 >
                   Network
@@ -566,7 +566,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   <div className="bg-white rounded-xl shadow-md overflow-hidden h-full">
                     <div className="border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center">
                       <h3 className="font-semibold text-gray-800">My Planner</h3>
-                      <div className="text-orange-500 hover:text-orange-600 text-sm cursor-pointer">
+                      <div className="text-green-500 hover:text-green-600 text-sm cursor-pointer">
                         <Calendar className="h-4 w-4 md:h-5 md:w-5" />
                       </div>
                     </div>
@@ -578,12 +578,12 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                           value={newTask}
                           onChange={(e) => setNewTask(e.target.value)}
                           placeholder="Add a new task..."
-                          className="flex-1 border border-gray-300 rounded-l-md py-2 px-3 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="flex-1 border border-gray-300 rounded-l-md py-2 px-3 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                           onKeyPress={(e) => e.key === 'Enter' && addTask()}
                         />
                         <button
                           onClick={addTask}
-                          className="bg-orange-500 text-white rounded-r-md px-3 md:px-4 py-2 text-xs md:text-sm hover:bg-orange-600 transition"
+                          className="bg-green-500 text-white rounded-r-md px-3 md:px-4 py-2 text-xs md:text-sm hover:bg-green-600 transition"
                         >
                           <PlusCircle className="h-4 w-4 md:h-5 md:w-5" />
                         </button>
@@ -600,7 +600,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             <div 
                               key={task.id} 
                               className={`flex items-center justify-between p-2 md:p-3 border rounded-md ${
-                                task.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                                task.completed ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
                               }`}
                             >
                               <div className="flex items-center flex-1 min-w-0">
@@ -643,19 +643,17 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                       <div className="border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center">
                         <h3 className="font-semibold text-gray-800">Upcoming Events</h3>
                         <div className="flex items-center space-x-2">
-                          <Link to="/events/create" className="text-white bg-orange-500 hover:bg-orange-600 rounded-md px-2 py-1 text-xs flex items-center">
+                          <Link to="/events/create" className="text-white bg-green-500 hover:bg-green-600 rounded-md px-2 py-1 text-xs flex items-center">
                             <PlusCircle className="h-3 w-3 mr-1" />
                             Host Event
                           </Link>
-                          <Link to="/my-events" className="text-white bg-orange-500 hover:bg-orange-600 rounded-md px-2 py-1 text-xs flex items-center">
-                           
+                          <Link to="/my-events" className="text-white bg-green-500 hover:bg-green-600 rounded-md px-2 py-1 text-xs flex items-center">
                             My Events
                           </Link>
-                          <Link to="/tickets" className="text-white bg-orange-500 hover:bg-orange-600 rounded-md px-2 py-1 text-xs flex items-center">
-                           
+                          <Link to="/tickets" className="text-white bg-green-500 hover:bg-green-600 rounded-md px-2 py-1 text-xs flex items-center">
                             My Tickets
                           </Link>
-                          <Link to="/events" className="text-orange-500 hover:text-orange-600 text-xs md:text-sm">View All</Link>
+                          <Link to="/events" className="text-green-500 hover:text-green-600 text-xs md:text-sm">View All</Link>
                         </div>
                       </div>
                       <div className="p-4 md:p-6">
@@ -663,7 +661,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                           <div className="space-y-4">
                             {events.slice(0, 2).map(event => (
                               <div key={event._id || event.id} className="flex border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div className="w-24 md:w-32 bg-orange-100 flex-shrink-0">
+                                <div className="w-24 md:w-32 bg-green-100 flex-shrink-0">
                                   <img 
                                     src={event.coverImage?.url || "/api/placeholder/400/200"} 
                                     alt={event.name || "Event"}
@@ -680,7 +678,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                                     <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                                     <span className="text-xs md:text-sm">{event.virtual ? "Virtual Event" : (event.location?.name || "Location TBA")}</span>
                                   </div>
-                                  <Link to={`/events/${event._id || event.id}`} className="text-orange-500 hover:text-orange-700 text-xs md:text-sm font-medium">
+                                  <Link to={`/events/${event._id || event.id}`} className="text-green-500 hover:text-green-700 text-xs md:text-sm font-medium">
                                     View Details
                                   </Link>
                                 </div>
@@ -690,7 +688,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                         ) : (
                           <div className="text-center py-6">
                             <p className="text-gray-500 text-sm">No upcoming events found.</p>
-                            <Link to="/events" className="text-orange-500 hover:text-orange-600 text-sm font-medium mt-2 inline-block">
+                            <Link to="/events" className="text-green-500 hover:text-green-600 text-sm font-medium mt-2 inline-block">
                               Browse All Events →
                             </Link>
                           </div>
@@ -702,22 +700,22 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                     <div className="bg-white rounded-xl shadow-md overflow-hidden">
                       <div className="border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center">
                         <div className="flex items-center">
-                          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-orange-500 mr-2" />
+                          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-green-500 mr-2" />
                           <h3 className="font-semibold text-gray-800">Nearby Professionals</h3>
                         </div>
-                        <Link to="/network/nearby" className="text-orange-500 hover:text-orange-600 text-xs md:text-sm">View All</Link>
+                        <Link to="/network/nearby" className="text-green-500 hover:text-green-600 text-xs md:text-sm">View All</Link>
                       </div>
                       <div className="p-4 md:p-6">
                         {locationError ? (
-                          <div className="bg-orange-50 rounded-lg p-4 text-center">
-                            <AlertTriangle className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+                          <div className="bg-green-50 rounded-lg p-4 text-center">
+                            <AlertTriangle className="h-8 w-8 text-green-500 mx-auto mb-2" />
                             <p className="text-sm text-gray-700 mb-2">{locationError}</p>
                             <LocationPermissionIcon />
                           </div>
                         ) : nearbyUsers.length > 0 ? (
                           <div className="space-y-4">
                             {nearbyUsers.map(user => (
-                              <div key={user._id} className="flex items-start border border-gray-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                              <div key={user._id} className="flex items-start border border-gray-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow bg-white">
                                 <div className="mr-3 flex-shrink-0">
                                   <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden">
                                     <img 
@@ -747,8 +745,8 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                                         user.connectionStatus === 'pending'
                                           ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                                           : user.connectionStatus === 'connected'
-                                            ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                            : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                                            ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
+                                            : 'bg-green-100 text-green-700 hover:bg-green-200'
                                       }`}
                                     >
                                       <UserPlus className="h-3 w-3 mr-1" />
@@ -775,7 +773,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             <p className="text-gray-500 text-sm">No nearby professionals found.</p>
                             <button 
                               onClick={() => fetchNearbyUsers(userLocation?.latitude, userLocation?.longitude, 10)}
-                              className="mt-2 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                              className="mt-2 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600"
                             >
                               <RefreshCw className="w-3 h-3 mr-1" />
                               Refresh Location
@@ -798,7 +796,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                       <p className="text-sm text-gray-500">Discover events that match your interests</p>
                     </div>
                     <Link to="/events/create" className="mt-3 md:mt-0">
-                      <button className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg px-4 py-2 flex items-center justify-center transition-colors">
+                      <button className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg px-4 py-2 flex items-center justify-center transition-colors">
                         <PlusCircle className="w-4 h-4 mr-2" />
                         Host an Event
                       </button>
@@ -813,14 +811,14 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                         <input
                           type="text"
                           placeholder="Search events..."
-                          className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                         />
                       </div>
                       <button 
                         type="submit"
-                        className="ml-2 px-4 py-2 bg-orange-600 text-white font-medium rounded-md hover:bg-orange-500 transition"
+                        className="ml-2 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-500 transition"
                       >
                         Search
                       </button>
@@ -829,19 +827,19 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                     {/* Filters */}
                     <div className="flex flex-wrap gap-3 mb-4">
                       <button 
-                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'upcoming' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'upcoming' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                         onClick={() => setFilter('upcoming')}
                       >
                         Upcoming
                       </button>
                       <button 
-                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'all' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'all' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                         onClick={() => setFilter('all')}
                       >
                         All Events
                       </button>
                       <button 
-                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'past' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                        className={`px-3 py-1.5 rounded-full text-sm ${filter === 'past' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                         onClick={() => setFilter('past')}
                       >
                         Past
@@ -849,7 +847,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                       
                       <div className="relative ml-auto">
                         <select
-                          className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-10 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                           value={categoryFilter}
                           onChange={(e) => setCategoryFilter(e.target.value)}
                         >
@@ -866,7 +864,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   {/* Events Grid */}
                   {loadingData ? (
                     <div className="text-center py-10">
-                      <div className="w-12 h-12 border-t-4 border-orange-500 border-solid rounded-full animate-spin mx-auto"></div>
+                      <div className="w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin mx-auto"></div>
                       <p className="mt-4 text-gray-600">Loading events...</p>
                     </div>
                   ) : events.length === 0 ? (
@@ -895,7 +893,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                               className="w-full h-48 object-cover"
                             />
                             {event.category && (
-                              <span className="absolute top-4 right-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                              <span className="absolute top-4 right-4 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                                 {typeof event.category === 'string' ? event.category : 'Other'}
                               </span>
                             )}
@@ -920,7 +918,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             
                             <div className="flex justify-end">
                               <Link to={`/events/${event._id || event.id}`}>
-                                <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+                                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
                                   View Details
                                 </button>
                               </Link>
@@ -932,7 +930,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   )}
                   
                   <div className="mt-6 text-center">
-                    <Link to="/events" className="inline-block text-orange-600 font-medium hover:underline">
+                    <Link to="/events" className="inline-block text-green-600 font-medium hover:underline">
                       View All Events →
                     </Link>
                   </div>
@@ -950,14 +948,14 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                   
                   {/* Connection requests and nearby professionals */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                    <div className="bg-orange-50 rounded-xl p-4 md:p-6">
+                    <div className="bg-green-50 rounded-xl p-4 md:p-6">
                       <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4">Connection Requests</h3>
                       {pendingRequests > 0 ? (
                         <div className="space-y-3 md:space-y-4">
                           {connectionRequests.slice(0, 3).map(request => (
                             <div key={request._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-3 rounded-lg shadow-sm">
                               <div className="flex items-center mb-2 sm:mb-0">
-                                <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xl mr-3">
+                                <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-green-100 flex items-center justify-center text-green-600 font-bold text-xl mr-3">
                                   <img 
                                     src={getProfilePicture(request)} 
                                     alt={`${request?.firstName || 'User'} ${request?.lastName || ''}`} 
@@ -972,7 +970,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                               <div className="flex space-x-2">
                                 <button 
                                   onClick={() => handleAcceptConnection(request._id)}
-                                  className="bg-orange-500 text-white px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-orange-600"
+                                  className="bg-green-500 text-white px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-green-600"
                                 >
                                   Accept
                                 </button>
@@ -986,18 +984,18 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             </div>
                           ))}
                           {connectionRequests.length > 3 && (
-                            <Link to="/network" className="block w-full text-center text-orange-500 font-medium mt-4 text-sm hover:underline">
+                            <Link to="/network" className="block w-full text-center text-green-500 font-medium mt-4 text-sm hover:underline">
                               View All Requests ({connectionRequests.length}) →
                             </Link>
                           )}
                         </div>
                       ) : (
                         <div className="text-center py-6 bg-white rounded-lg shadow-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-orange-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-green-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                           </svg>
                           <p className="text-gray-500 mb-2">No pending connection requests</p>
-                          <Link to="/network/discover" className="text-orange-500 text-sm font-medium hover:underline">
+                          <Link to="/network/discover" className="text-green-500 text-sm font-medium hover:underline">
                             Discover new connections →
                           </Link>
                         </div>
@@ -1009,24 +1007,24 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                       {/* Header */}
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center">
-                          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-orange-500 mr-2" />
+                          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-green-500 mr-2" />
                           <h3 className="text-base md:text-lg font-semibold text-gray-800">Nearby Professionals</h3>
                         </div>
-                        <Link to="/network/nearby" className="text-xs md:text-sm text-orange-500 hover:text-orange-600 flex items-center">
+                        <Link to="/network/nearby" className="text-xs md:text-sm text-green-500 hover:text-green-600 flex items-center">
                           See All <ChevronRight className="h-3 w-3 md:h-4 md:w-4 ml-1" />
                         </Link>
                       </div>
                       
                       {/* User Cards */}
                       {locationError ? (
-                        <div className="bg-orange-50 rounded-xl p-4 text-center">
+                        <div className="bg-green-50 rounded-xl p-4 text-center">
                           <div className="flex flex-col items-center justify-center">
-                            <AlertTriangle className="h-10 w-10 text-orange-500 mb-2" />
+                            <AlertTriangle className="h-10 w-10 text-green-500 mb-2" />
                             <h3 className="text-lg font-semibold text-gray-800 mb-1">Location Error</h3>
                             <p className="text-sm text-gray-600 mb-3">{locationError}</p>
                             <button
                               onClick={() => fetchNearbyUsers(userLocation?.latitude, userLocation?.longitude, 10)}
-                              className="inline-flex items-center px-3 py-1.5 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition-colors"
                             >
                               <RefreshCw className="h-4 w-4 mr-1" />
                               Try Again
@@ -1039,7 +1037,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             <div key={user._id} className="flex items-start p-3 md:p-4 border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white">
                               {/* User image */}
                               <div className="mr-3 md:mr-4">
-                                <div className="h-12 w-12 md:h-14 md:w-14 rounded-lg overflow-hidden bg-orange-100">
+                                <div className="h-12 w-12 md:h-14 md:w-14 rounded-lg overflow-hidden bg-green-100">
                                   <img 
                                     src={getProfilePicture(user)} 
                                     alt={`${user.firstName} ${user.lastName}`}
@@ -1082,8 +1080,8 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                                       user.connectionStatus === 'pending'
                                         ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                                         : user.connectionStatus === 'connected'
-                                          ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                          : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                                          ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
+                                          : 'bg-green-100 text-green-700 hover:bg-green-200'
                                     }`}
                                   >
                                     <UserPlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
@@ -1105,14 +1103,14 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                             </div>
                           ))}
                           
-                          <Link to="/network/nearby" className="block w-full text-center text-orange-500 font-medium mt-2 text-sm hover:underline">
+                          <Link to="/network/nearby" className="block w-full text-center text-green-500 font-medium mt-2 text-sm hover:underline">
                             View All Nearby Professionals →
                           </Link>
                         </div>
                       ) : (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 text-center">
-                          <div className="inline-flex h-16 w-16 rounded-full bg-orange-100 items-center justify-center mb-4">
-                            <MapPin className="h-8 w-8 text-orange-600" />
+                          <div className="inline-flex h-16 w-16 rounded-full bg-green-100 items-center justify-center mb-4">
+                            <MapPin className="h-8 w-8 text-green-600" />
                           </div>
                           <h3 className="text-xl font-semibold text-gray-800 mb-2">No Nearby Professionals</h3>
                           <p className="text-sm text-gray-600 mb-4">
@@ -1123,7 +1121,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                           <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-3">
                             <button 
                               onClick={() => fetchNearbyUsers(userLocation?.latitude, userLocation?.longitude, 10)}
-                              className="inline-flex items-center justify-center px-4 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                              className="inline-flex items-center justify-center px-4 py-2 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600"
                             >
                               <RefreshCw className="w-4 h-4 mr-1" />
                               Refresh Location
@@ -1144,34 +1142,29 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
             )}
           </main>
 
-
-{/*FOOTER */}
-          {/* <footer className="bg-gradient-to-r from-orange-600 to-orange-700 text-white py-3 md:py-4 mt-6">
-  <div className="max-w-7xl mx-auto px-4 text-center">
-    <p className="text-xs md:text-sm">
-      © 2025 MeetKats •{" "}
-      <a
-        href="/privacypolicy"
-        className="hover:underline hover:text-orange-300 transition"
-      >
-        Privacy Policy
-      </a>{" "}
-      •{" "}
-      <a
-        href="/termsandconditions"
-        className="hover:underline hover:text-orange-300 transition"
-      >
-        Terms of Service
-      </a>
-    </p>
-  </div>
-</footer> */}
-
-
+          {/* Footer */}
+          {/* <footer className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3 md:py-4 mt-6">
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <p className="text-xs md:text-sm">
+                © 2025 MeetKats •{" "}
+                <a
+                  href="/privacypolicy"
+                  className="hover:underline hover:text-green-300 transition"
+                >
+                  Privacy Policy
+                </a>{" "}
+                •{" "}
+                <a
+                  href="/termsandconditions"
+                  className="hover:underline hover:text-green-300 transition"
+                >
+                  Terms of Service
+                </a>
+              </p>
+            </div>
+          </footer> */}
         </div>
       </div>
     </div>
-  );
-};
 
 export default MergedDashboard;

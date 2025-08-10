@@ -1166,5 +1166,6 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
         </div>
       </div>
     </div>
-
+  );
+};
 export default MergedDashboard;

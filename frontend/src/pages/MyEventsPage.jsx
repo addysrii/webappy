@@ -110,7 +110,7 @@ const MyEventsPage = () => {
   };
   
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-orange-50">
+    <div className="flex flex-col md:flex-row h-screen top-8 bg-green-50">
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} />

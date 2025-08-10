@@ -130,7 +130,7 @@ function LandPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center">
-                <img src="/mainlogo.png" className="text-white font-bold text-xl"/>
+                <img src="https://res.cloudinary.com/dnnl72vrp/image/upload/v1747536665/events/zoazicakt24ny6dkhdyl.png" className="text-white font-bold text-xl"/>
               </div>
               <span className="text-2xl font-bold text-gray-900">MeetKats</span>
             </div>

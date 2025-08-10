@@ -110,7 +110,7 @@ const MyEventsPage = () => {
   };
   
   return (
-    <div className="flex flex-col md:flex-row h-screen top-8 bg-green-50">
+   <div className="flex flex-col md:flex-row h-screen top-8 bg-green-50">
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} />
@@ -120,7 +120,7 @@ const MyEventsPage = () => {
       <div className="flex-1 overflow-auto pb-16 md:pb-0">
         <div className="max-w-7xl mx-auto p-4 md:p-6">
           {/* Page Header */}
-          <div className="bg-white rounded-xl shadow-md mb-6 p-4 md:p-6 border-l-4 border-orange-500">
+          <div className="bg-white rounded-xl shadow-md mb-6 p-4 md:p-6 border-l-4 border-green-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-gray-800">My Events</h1>
@@ -129,7 +129,7 @@ const MyEventsPage = () => {
               
               <div className="mt-4 md:mt-0">
                 <Link to="/events/create">
-                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg px-4 py-2 inline-flex items-center">
+                  <button className="bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg px-4 py-2 inline-flex items-center">
                     <Plus className="h-4 w-4 mr-2" />
                     Create New Event
                   </button>
@@ -144,19 +144,19 @@ const MyEventsPage = () => {
               {/* Filter Buttons */}
               <div className="flex flex-wrap gap-2">
                 <button 
-                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'upcoming' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'upcoming' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                   onClick={() => setFilter('upcoming')}
                 >
                   Upcoming
                 </button>
                 <button 
-                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'all' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'all' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                   onClick={() => setFilter('all')}
                 >
                   All Events
                 </button>
                 <button 
-                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'past' ? 'bg-orange-600 text-white' : 'bg-orange-100 text-orange-700'}`}
+                  className={`px-3 py-1.5 rounded-full text-sm ${filter === 'past' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700'}`}
                   onClick={() => setFilter('past')}
                 >
                   Past
@@ -170,14 +170,14 @@ const MyEventsPage = () => {
                   <input
                     type="text"
                     placeholder="Search events..."
-                    className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="pl-10 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <button 
                   type="submit"
-                  className="ml-2 px-4 py-2 bg-orange-500 text-white font-medium rounded-md hover:bg-orange-600 transition"
+                  className="ml-2 px-4 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition"
                 >
                   Search
                 </button>
@@ -189,7 +189,7 @@ const MyEventsPage = () => {
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             {loading ? (
               <div className="text-center py-12">
-                <div className="w-12 h-12 border-t-4 border-orange-500 border-solid rounded-full animate-spin mx-auto"></div>
+                <div className="w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin mx-auto"></div>
                 <p className="mt-4 text-gray-600">Loading your events...</p>
               </div>
             ) : error ? (
@@ -197,7 +197,7 @@ const MyEventsPage = () => {
                 <p className="text-red-500 mb-4">{error}</p>
                 <button 
                   onClick={() => setLoading(true)} // This will trigger the useEffect to reload
-                  className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                  className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
@@ -205,13 +205,13 @@ const MyEventsPage = () => {
               </div>
             ) : events.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-orange-100 rounded-full mx-auto flex items-center justify-center mb-4">
-                  <Calendar className="w-8 h-8 text-orange-500" />
+                <div className="w-16 h-16 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-4">
+                  <Calendar className="w-8 h-8 text-green-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Events Found</h3>
                 <p className="text-gray-600 mb-6">You haven't created any events yet, or no events match your search.</p>
                 <Link to="/events/create">
-                  <button className="inline-flex items-center px-5 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
+                  <button className="inline-flex items-center px-5 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">
                     <Plus className="w-4 h-4 mr-2" />
                     Create Your First Event
                   </button>
@@ -223,7 +223,7 @@ const MyEventsPage = () => {
                   const status = getEventStatus(event);
                   
                   return (
-                    <div key={event._id || event.id} className="p-4 md:p-6 hover:bg-orange-50 transition-colors">
+                    <div key={event._id || event.id} className="p-4 md:p-6 hover:bg-green-50 transition-colors">
                       <div className="flex flex-col md:flex-row">
                         {/* Event Image */}
                         <div className="w-full md:w-40 h-32 md:h-24 flex-shrink-0 mb-4 md:mb-0 md:mr-4">
@@ -263,7 +263,7 @@ const MyEventsPage = () => {
                               )}
                               <Link 
                                 to={`/events/${event._id || event.id}/tickets/create`}
-                                className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-md text-sm hover:bg-green-200"
+                                className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200"
                               >
                                 <Ticket className="w-3.5 h-3.5 mr-1" />
                                 Tickets
@@ -285,21 +285,21 @@ const MyEventsPage = () => {
                           
                           {/* Event Stats */}
                           <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <div className="bg-orange-50 p-2 rounded-md">
+                            <div className="bg-green-50 p-2 rounded-md">
                               <div className="text-xs text-gray-500">Attendees</div>
                               <div className="text-sm font-semibold">
                                 {event.attendeesCount || event.ticketStats?.sold || '0'} {event.maxAttendees ? `/ ${event.maxAttendees}` : ''}
                               </div>
                             </div>
                             
-                            <div className="bg-orange-50 p-2 rounded-md">
+                            <div className="bg-green-50 p-2 rounded-md">
                               <div className="text-xs text-gray-500">Ticket Types</div>
                               <div className="text-sm font-semibold">
                                 {event.ticketTypesCount || '0'}
                               </div>
                             </div>
                             
-                            <div className="hidden md:block bg-orange-50 p-2 rounded-md">
+                            <div className="hidden md:block bg-green-50 p-2 rounded-md">
                               <div className="text-xs text-gray-500">Revenue</div>
                               <div className="text-sm font-semibold">
                                 ${event.revenue || event.ticketStats?.revenue || '0'}
@@ -311,7 +311,7 @@ const MyEventsPage = () => {
                           <div className="mt-3 flex justify-end">
                             <Link 
                               to={`/events/${event._id || event.id}`}
-                              className="text-orange-500 hover:text-orange-700 text-sm font-medium flex items-center"
+                              className="text-green-500 hover:text-green-700 text-sm font-medium flex items-center"
                             >
                               View Details
                               <ChevronRight className="w-4 h-4 ml-1" />

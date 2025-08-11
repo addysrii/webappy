@@ -26,7 +26,6 @@ import {
 import eventService from '../services/eventService';
 import ticketService from '../services/ticketService';
 
-// Use dynamic import for Cashfree component to avoid loading it unnecessarily
 const CashfreePayment = React.lazy(() => import('../components/payment/CashfreeButton'));
 
 const TicketPurchasePage = () => {
@@ -38,23 +37,20 @@ const TicketPurchasePage = () => {
   const [selectedTickets, setSelectedTickets] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
   const [originalAmount, setOriginalAmount] = useState(0);
-  const [serviceFee, setServiceFee] = useState(0); // Added service fee state
+  const [serviceFee, setServiceFee] = useState(0);
+  const [assuranceFee] = useState(1); // Flat ₹1 assurance fee
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [checkoutStep, setCheckoutStep] = useState('select'); // select, payment, confirmation
+  const [checkoutStep, setCheckoutStep] = useState('select');
   const [customerInfo, setCustomerInfo] = useState({ email: '', phone: '', name: '' });
   const [paymentMethod, setPaymentMethod] = useState('cashfree_sdk');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [bookingId, setBookingId] = useState(null);
-  
-  // State variables for coupon functionality
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [discount, setDiscount] = useState(0);
-  
-  // State for additional user preferences
   const [specialRequests, setSpecialRequests] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTicketDetails, setShowTicketDetails] = useState(true);
@@ -62,32 +58,25 @@ const TicketPurchasePage = () => {
   const [paymentPolling, setPaymentPolling] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  // Check for successful payment on initial load or when returning from payment gateway
+
   useEffect(() => {
     const checkPaymentStatus = async () => {
-      // Get stored order ID and booking ID from localStorage
       const storedOrderId = localStorage.getItem('pendingOrderId');
       const storedBookingId = localStorage.getItem('pendingBookingId');
       
       if (storedOrderId && storedBookingId) {
         try {
           setPaymentPolling(true);
-          console.log('Checking payment status for order:', storedOrderId);
-          
-          // Check payment status with the API
           const status = await ticketService.checkCashfreeFormPaymentStatus(storedOrderId, 'cashfree_sdk');
           
           if (status && (status.status === 'PAYMENT_SUCCESS' || status.status === 'completed')) {
-            console.log('Payment successful for order:', storedOrderId);
             setPaymentStatus('success');
             setSuccessMessage('Payment successful! Redirecting to confirmation page...');
             
-            // Clear localStorage
             localStorage.removeItem('pendingOrderId');
             localStorage.removeItem('pendingBookingId');
             localStorage.removeItem('cashfreeOrderToken');
             
-            // Redirect to confirmation page
             setTimeout(() => {
               navigate(`/tickets/confirmation/${storedBookingId}`);
             }, 1500);
@@ -102,28 +91,20 @@ const TicketPurchasePage = () => {
     
     checkPaymentStatus();
   }, [navigate]);
-  
-  // Fetch event and ticket types on component mount
+
   useEffect(() => {
     const fetchEventData = async () => {
       try {
         setLoading(true);
-        
-        // Fetch event details
         const eventData = await eventService.getEvent(eventId);
         setEvent(eventData);
         
-        // Fetch available ticket types
         const ticketsData = await ticketService.getEventTicketTypes(eventId);
-        
-        // Filter out inactive or sold out tickets
         const availableTickets = ticketsData?.data?.filter(
           ticket => ticket.isActive && (ticket.quantity > ticket.quantitySold || ticket.quantity === -1)
         ) || [];
         
         setTicketTypes(availableTickets);
-        
-        // Initialize selected tickets array
         setSelectedTickets(
           availableTickets.map(ticket => ({
             ticketTypeId: ticket.id,
@@ -134,7 +115,6 @@ const TicketPurchasePage = () => {
             description: ticket.description || ''
           }))
         );
-        
         setLoading(false);
       } catch (err) {
         console.error('Error fetching event data:', err);
@@ -145,7 +125,7 @@ const TicketPurchasePage = () => {
     
     fetchEventData();
   }, [eventId]);
-  // Calculate total amount whenever selected tickets or applied coupon change
+
   useEffect(() => {
     let subtotal = 0;
     
@@ -155,44 +135,37 @@ const TicketPurchasePage = () => {
     
     setOriginalAmount(subtotal);
     
-    // Calculate service fee (20% of subtotal)
-    const calculatedServiceFee = subtotal * 0.2;
+    // Calculate service fee (5% of subtotal)
+    const calculatedServiceFee = subtotal * 0.05;
     setServiceFee(calculatedServiceFee);
     
-    // Calculate the total before discount (subtotal + service fee)
-    const totalBeforeDiscount = subtotal + calculatedServiceFee;
+    // Flat ₹1 assurance fee
+    const totalBeforeDiscount = subtotal + calculatedServiceFee + assuranceFee;
     
-    // Apply discount if coupon is active
     if (appliedCoupon) {
       if (appliedCoupon.discountType === 'percentage') {
-        // Apply percentage discount to the total (subtotal + service fee)
-        const discountValue = totalBeforeDiscount * (appliedCoupon.discountValue / 100);
+        const discountValue = subtotal * (appliedCoupon.discountValue / 100);
         setDiscount(discountValue);
         setTotalAmount(totalBeforeDiscount - discountValue);
       } else if (appliedCoupon.discountType === 'fixed') {
         setDiscount(appliedCoupon.discountValue);
-        // Apply fixed discount to the total (ensure total doesn't go negative)
         setTotalAmount(Math.max(0, totalBeforeDiscount - appliedCoupon.discountValue));
       } else {
         setTotalAmount(totalBeforeDiscount);
         setDiscount(0);
       }
     } else {
-      // No coupon
       setTotalAmount(totalBeforeDiscount);
       setDiscount(0);
     }
-  }, [selectedTickets, appliedCoupon]);
+  }, [selectedTickets, appliedCoupon, assuranceFee]);
 
-  // Continuous payment status check
   useEffect(() => {
     let intervalId;
     
     if (paymentPolling && transactionId) {
       intervalId = setInterval(async () => {
         try {
-          console.log('Polling payment status for transaction:', transactionId);
-          
           const status = await ticketService.checkPaymentStatus(transactionId, paymentMethod);
           
           if (status && (status.status === 'PAYMENT_SUCCESS' || status.status === 'completed')) {
@@ -201,9 +174,7 @@ const TicketPurchasePage = () => {
             setPaymentStatus('success');
             setSuccessMessage('Payment successful! Redirecting to confirmation page...');
             
-            // Redirect to confirmation page
             if (bookingId) {
-              // Clear localStorage first
               localStorage.removeItem('pendingOrderId');
               localStorage.removeItem('pendingBookingId');
               localStorage.removeItem('cashfreeOrderToken');
@@ -221,31 +192,25 @@ const TicketPurchasePage = () => {
         } catch (err) {
           console.error('Error checking payment status:', err);
         }
-      }, 3000); // Check every 3 seconds
+      }, 3000);
     }
     
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      if (intervalId) clearInterval(intervalId);
     };
   }, [paymentPolling, transactionId, bookingId, navigate, paymentMethod]);
-  // Update ticket quantity
+
   const handleQuantityChange = (index, quantity) => {
     const updatedTickets = [...selectedTickets];
     updatedTickets[index].quantity = quantity;
     setSelectedTickets(updatedTickets);
   };
   
-  // Handle customer info change
   const handleInfoChange = (e) => {
     const { name, value } = e.target;
     setCustomerInfo(prev => ({ ...prev, [name]: value }));
-    const { phone, values } = e.target;
-    setCustomerInfo(prev => ({ ...prev, [phone]: values }));
   };
   
-  // Apply coupon code
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError('Please enter a coupon code');
@@ -256,7 +221,6 @@ const TicketPurchasePage = () => {
       setCouponLoading(true);
       setCouponError(null);
       
-      // Call the API to validate the coupon
       const couponResult = await ticketService.validateCoupon(eventId, couponCode);
       
       if (couponResult && couponResult.valid) {
@@ -278,14 +242,12 @@ const TicketPurchasePage = () => {
     }
   };
   
-  // Remove applied coupon
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
     setCouponError(null);
   };
-  // Proceed to payment step
+
   const proceedToPayment = async () => {
-    // Validate ticket selection
     const hasSelectedTickets = selectedTickets.some(ticket => ticket.quantity > 0);
     
     if (!hasSelectedTickets) {
@@ -303,13 +265,11 @@ const TicketPurchasePage = () => {
       return;
     }
     
-    // Clear any previous errors
     setError(null);
     
     try {
       setPaymentProcessing(true);
       
-      // Create booking object to send
       const bookingData = {
         ticketSelections: selectedTickets
           .filter(ticket => ticket.quantity > 0)
@@ -320,22 +280,18 @@ const TicketPurchasePage = () => {
         paymentMethod: 'cashfree_sdk',
         contactInformation: customerInfo,
         specialRequests: specialRequests || '',
-        serviceFee: serviceFee // Include service fee in booking data
+        serviceFee: serviceFee,
+        assuranceFee: assuranceFee
       };
       
-      // Add coupon if applied
       if (appliedCoupon) {
         bookingData.promoCode = appliedCoupon.code;
       }
       
-      // Create booking with the API
       const booking = await ticketService.bookEventTickets(eventId, bookingData);
       
       if (booking && booking.booking && booking.booking.id) {
-        // Store booking ID
         setBookingId(booking.booking.id);
-        
-        // Move to payment step
         setCheckoutStep('payment');
       } else {
         throw new Error('Failed to create booking');
@@ -348,7 +304,6 @@ const TicketPurchasePage = () => {
     }
   };
   
-  // Go back to previous step
   const goBack = () => {
     if (checkoutStep === 'payment') {
       setCheckoutStep('select');
@@ -358,16 +313,14 @@ const TicketPurchasePage = () => {
       navigate(`/events/${eventId}`);
     }
   };
-  // Handle successful payment
+
   const handlePaymentSuccess = (paymentResult) => {
     console.log('Payment successful:', paymentResult);
     setPaymentProcessing(false);
     setPaymentStatus('success');
     setSuccessMessage('Payment successful! Redirecting to confirmation page...');
     
-    // Redirect to confirmation page
     if (bookingId) {
-      // Clear localStorage first
       localStorage.removeItem('pendingOrderId');
       localStorage.removeItem('pendingBookingId');
       localStorage.removeItem('cashfreeOrderToken');
@@ -378,7 +331,6 @@ const TicketPurchasePage = () => {
     }
   };
   
-  // Handle payment failure
   const handlePaymentFailure = (error) => {
     console.error('Payment failed:', error);
     setError('Payment could not be completed. Please try again.');
@@ -386,19 +338,16 @@ const TicketPurchasePage = () => {
     setPaymentStatus('failed');
   };
   
-  // Handle payment cancellation
   const handlePaymentCancel = () => {
     setPaymentProcessing(false);
     setPaymentStatus('cancelled');
   };
   
-  // Initiate UPI payment
   const handleUpiPayment = async () => {
     try {
       setPaymentProcessing(true);
       setError(null);
       
-      // Create UPI payment request
       const paymentData = {
         bookingId,
         amount: totalAmount,
@@ -411,15 +360,11 @@ const TicketPurchasePage = () => {
       const result = await ticketService.initiateUpiPayment(eventId, paymentData);
       
       if (result && result.success) {
-        // Set transaction ID for polling
         setTransactionId(result.orderId);
         setPaymentPolling(true);
-        
-        // Store in localStorage for recovery if page is closed/refreshed
         localStorage.setItem('pendingOrderId', result.orderId);
         localStorage.setItem('pendingBookingId', bookingId);
         
-        // Open payment link in new tab if available
         if (result.paymentLink) {
           window.open(result.paymentLink, '_blank');
         }
@@ -432,7 +377,7 @@ const TicketPurchasePage = () => {
       setPaymentProcessing(false);
     }
   };
-  // Format currency for display
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -440,23 +385,18 @@ const TicketPurchasePage = () => {
     }).format(amount);
   };
   
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
   
-  // Format time for display
   const formatTime = (dateString) => {
     if (!dateString) return '';
-    
     const options = { hour: '2-digit', minute: '2-digit', hour12: true };
     return new Date(dateString).toLocaleTimeString('en-US', options);
   };
   
-  // Copy booking ID to clipboard
   const copyBookingId = () => {
     if (bookingId) {
       navigator.clipboard.writeText(bookingId);
@@ -464,7 +404,7 @@ const TicketPurchasePage = () => {
       setTimeout(() => setSuccessMessage(''), 2000);
     }
   };
-  // Loading state
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -475,7 +415,6 @@ const TicketPurchasePage = () => {
     );
   }
   
-  // Error state - when the event cannot be loaded
   if (error && !event) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -496,7 +435,6 @@ const TicketPurchasePage = () => {
     );
   }
   
-  // If payment was successful, show success message and redirection
   if (paymentStatus === 'success' && successMessage) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -509,6 +447,7 @@ const TicketPurchasePage = () => {
       </div>
     );
   }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
@@ -614,6 +553,7 @@ const TicketPurchasePage = () => {
           </div>
         </div>
       )}
+      
       {/* Event Details */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col md:flex-row">
@@ -661,6 +601,7 @@ const TicketPurchasePage = () => {
           </div>
         </div>
       </div>
+      
       {/* Ticket Selection Step */}
       {checkoutStep === 'select' && (
         <>
@@ -701,14 +642,12 @@ const TicketPurchasePage = () => {
                           <div className="flex-1">
                             <div className="font-medium text-lg">{ticket.name}</div>
                             
-                            {/* Only show description if showTicketDetails is true */}
                             {showTicketDetails && ticket.description && (
                               <div className="text-sm text-gray-600 mt-1">{ticket.description}</div>
                             )}
                             
                             <div className="mt-2 font-semibold text-orange-600">{formatCurrency(ticket.price)}</div>
                             
-                            {/* Show remaining tickets if limited */}
                             {ticket.quantity !== -1 && ticket.quantity - ticket.quantitySold < 20 && (
                               <div className="mt-1 text-xs text-red-600 flex items-center">
                                 <AlertCircle className="w-3 h-3 mr-1" />
@@ -743,74 +682,74 @@ const TicketPurchasePage = () => {
                         )}
                       </div>
                     ))}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Customer Info */}
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h3 className="text-lg font-semibold mb-4">Your Contact Information</h3>
                 
-                {/* Customer Info */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Your Contact Information</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="name" className="block text-gray-700 mb-1">Full Name</label>
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={customerInfo.name}
-                        onChange={handleInfoChange}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        placeholder="Your full name"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={customerInfo.email}
-                        onChange={handleInfoChange}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        required
-                        placeholder="you@example.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="phone" className="block text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={customerInfo.phone}
-                        onChange={handleInfoChange}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        required
-                        placeholder="10-digit mobile number"
-                      />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-gray-700 mb-1">Full Name</label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      value={customerInfo.name}
+                      onChange={handleInfoChange}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="Your full name"
+                    />
                   </div>
                   
-                  {/* Special Requests */}
-                  <div className="mt-4">
-                    <label htmlFor="specialRequests" className="block text-gray-700 mb-1">Special Requests (optional)</label>
-                    <textarea
-                      id="specialRequests"
-                      name="specialRequests"
-                      value={specialRequests}
-                      onChange={(e) => setSpecialRequests(e.target.value)}
+                  <div>
+                    <label htmlFor="email" className="block text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={customerInfo.email}
+                      onChange={handleInfoChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      rows="3"
-                      placeholder="Any special accommodations or requests"
+                      required
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="phone" className="block text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={customerInfo.phone}
+                      onChange={handleInfoChange}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                      placeholder="10-digit mobile number"
                     />
                   </div>
                 </div>
+                
+                {/* Special Requests */}
+                <div className="mt-4">
+                  <label htmlFor="specialRequests" className="block text-gray-700 mb-1">Special Requests (optional)</label>
+                  <textarea
+                    id="specialRequests"
+                    name="specialRequests"
+                    value={specialRequests}
+                    onChange={(e) => setSpecialRequests(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    rows="3"
+                    placeholder="Any special accommodations or requests"
+                  />
+                </div>
               </div>
-              
-{/* Order Summary */}
+            </div>
+            
+            {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
                 <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
@@ -883,17 +822,21 @@ const TicketPurchasePage = () => {
                   )}
                 </div>
                 
-                {/* Price Details with Service Fee */}
+                {/* Price Details with Service Fee and Assurance Fee */}
                 <div className="space-y-2 border-t border-gray-200 pt-4">
                   <div className="flex justify-between">
                     <div className="text-gray-600">Subtotal</div>
                     <div>{formatCurrency(originalAmount)}</div>
                   </div>
                   
-                  {/* Service Fee (20%) */}
                   <div className="flex justify-between">
-                    <div className="text-gray-600">Service Fee (20%)</div>
+                    <div className="text-gray-600">Service Fee (5%)</div>
                     <div>{formatCurrency(serviceFee)}</div>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <div className="text-gray-600">Assurance Fee</div>
+                    <div>{formatCurrency(assuranceFee)}</div>
                   </div>
                   
                   {discount > 0 && (
@@ -967,6 +910,7 @@ const TicketPurchasePage = () => {
           </div>
         </>
       )}
+      
       {/* Payment Step */}
       {checkoutStep === 'payment' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -987,45 +931,37 @@ const TicketPurchasePage = () => {
                   <CreditCard className="w-5 h-5 text-orange-500 mr-2" />
                   <span>Cashfree (Credit/Debit Cards, UPI, Netbanking)</span>
                 </label>
-                
-{/*                 <label className="flex items-center p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="upi"
-                    checked={paymentMethod === 'upi'}
-                    onChange={() => setPaymentMethod('upi')}
-                    className="mr-2"
-                  />
-                  <Smartphone className="w-5 h-5 text-orange-500 mr-2" />
-                  <span>UPI Payment (PhonePe, Google Pay, Paytm)</span>
-                </label> */}
               </div>
               
-              {/* Pricing Information in Payment Step with Service Fee */}
-              <div className="bg-gray-50 rounded-md p-4 mb-6">
-                <div className="flex justify-between mb-2">
-                  <div className="text-gray-600">Subtotal:</div>
-                  <div>{formatCurrency(originalAmount)}</div>
-                </div>
-                
-                <div className="flex justify-between mb-2">
-                  <div className="text-gray-600">Service Fee (20%):</div>
-                  <div>{formatCurrency(serviceFee)}</div>
-                </div>
-                
-                {discount > 0 && (
-                  <div className="flex justify-between mb-2 text-green-600">
-                    <div>Discount:</div>
-                    <div>-{formatCurrency(discount)}</div>
-                  </div>
-                )}
-                
-                <div className="flex justify-between font-semibold pt-2 border-t border-gray-200">
-                  <div>Total:</div>
-                  <div>{formatCurrency(totalAmount)}</div>
-                </div>
-              </div>
+           {/* Pricing Information in Payment Step with Service Fee */}
+<div className="bg-gray-50 rounded-md p-4 mb-6">
+  <div className="flex justify-between mb-2">
+    <div className="text-gray-600">Subtotal:</div>
+    <div>{formatCurrency(originalAmount)}</div>
+  </div>
+  
+  <div className="flex justify-between mb-2">
+    <div className="text-gray-600">Service Fee (5%):</div>
+    <div>{formatCurrency(serviceFee)}</div>
+  </div>
+  
+  <div className="flex justify-between mb-2">
+    <div className="text-gray-600">Assurance Fee:</div>
+    <div>{formatCurrency(1)}</div>
+  </div>
+  
+  {discount > 0 && (
+    <div className="flex justify-between mb-2 text-green-600">
+      <div>Discount:</div>
+      <div>-{formatCurrency(discount)}</div>
+    </div>
+  )}
+  
+  <div className="flex justify-between font-semibold pt-2 border-t border-gray-200">
+    <div>Total:</div>
+    <div>{formatCurrency(totalAmount)}</div>
+  </div>
+</div>
               {paymentMethod === 'cashfree_sdk' && (
                 <Suspense fallback={<div className="flex justify-center my-8"><div className="w-10 h-10 border-t-4 border-b-4 border-orange-500 rounded-full animate-spin"></div></div>}>
                   <CashfreePayment
@@ -1151,30 +1087,35 @@ const TicketPurchasePage = () => {
                 </div>
               )}
               
-              {/* Payment Details with Service Fee */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <div className="text-gray-600">Subtotal</div>
-                  <div>{formatCurrency(originalAmount)}</div>
-                </div>
-                
-                <div className="flex justify-between text-sm">
-                  <div className="text-gray-600">Service Fee (20%)</div>
-                  <div>{formatCurrency(serviceFee)}</div>
-                </div>
-                
-                {discount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <div>Discount</div>
-                    <div>-{formatCurrency(discount)}</div>
-                  </div>
-                )}
-                
-                <div className="flex justify-between border-t border-gray-200 pt-2 font-bold">
-                  <div>Total</div>
-                  <div>{formatCurrency(totalAmount)}</div>
-                </div>
-              </div>
+             {/* Payment Details with Service Fee */}
+<div className="space-y-2">
+  <div className="flex justify-between text-sm">
+    <div className="text-gray-600">Subtotal</div>
+    <div>{formatCurrency(originalAmount)}</div>
+  </div>
+  
+  <div className="flex justify-between text-sm">
+    <div className="text-gray-600">Service Fee (5%)</div>
+    <div>{formatCurrency(serviceFee)}</div>
+  </div>
+  
+  <div className="flex justify-between text-sm">
+    <div className="text-gray-600">Assurance Fee</div>
+    <div>{formatCurrency(1)}</div>
+  </div>
+  
+  {discount > 0 && (
+    <div className="flex justify-between text-sm text-green-600">
+      <div>Discount</div>
+      <div>-{formatCurrency(discount)}</div>
+    </div>
+  )}
+  
+  <div className="flex justify-between border-t border-gray-200 pt-2 font-bold">
+    <div>Total</div>
+    <div>{formatCurrency(totalAmount)}</div>
+  </div>
+</div>
               
               {/* Booking ID (if available) */}
               {bookingId && (

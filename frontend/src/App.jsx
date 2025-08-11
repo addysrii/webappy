@@ -187,7 +187,7 @@ const App = () => {
           } />
            <Route path="/evebtdashboard" element={
             <ProtectedRoute>
-            <EventDashboard/>
+            <EventDashboardPage/>
             </ProtectedRoute>
           } />
           <Route path="/network/:section" element={

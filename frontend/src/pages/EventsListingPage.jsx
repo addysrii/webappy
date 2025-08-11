@@ -39,7 +39,7 @@ const EventCard = ({ event }) => {
   const goingCount = getAttendeeCount(event.attendeeCounts, 'going');
   
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-orange-100">
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-green-100">
       <div className="relative">
         <img 
           src={event.coverImage?.url || "/api/placeholder/400/200"} 
@@ -47,7 +47,7 @@ const EventCard = ({ event }) => {
           className="w-full h-48 object-cover"
         />
         {event.category && (
-          <span className="absolute top-4 right-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+          <span className="absolute top-4 right-4 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
             {typeof event.category === 'string' ? event.category : 'Other'}
           </span>
         )}
@@ -57,12 +57,12 @@ const EventCard = ({ event }) => {
         <h3 className="text-lg font-bold text-gray-900 mb-2">{event.name || "Untitled Event"}</h3>
         
         <div className="flex items-center text-gray-600 mb-2">
-          <Calendar className="w-4 h-4 mr-2 text-orange-500" />
+          <Calendar className="w-4 h-4 mr-2 text-green-500" />
           <span className="text-sm">{formatDate(event.startDateTime)}</span>
         </div>
         
         <div className="flex items-center text-gray-600 mb-4">
-          <MapPin className="w-4 h-4 mr-2 text-orange-500" />
+          <MapPin className="w-4 h-4 mr-2 text-green-500" />
           <span className="text-sm">
             {event.virtual 
               ? "Virtual Event" 
@@ -74,8 +74,8 @@ const EventCard = ({ event }) => {
           <div className="flex items-center space-x-1">
             <div className="flex -space-x-2">
               {[...Array(Math.min(3, goingCount))].map((_, i) => (
-                <div key={`avatar-${i}-${event._id || event.id}`} className="w-6 h-6 rounded-full bg-orange-200 border-2 border-white flex items-center justify-center">
-                  <span className="text-xs text-orange-600 font-medium">U</span>
+                <div key={`avatar-${i}-${event._id || event.id}`} className="w-6 h-6 rounded-full bg-green-200 border-2 border-white flex items-center justify-center">
+                  <span className="text-xs text-green-600 font-medium">U</span>
                 </div>
               ))}
             </div>
@@ -84,7 +84,7 @@ const EventCard = ({ event }) => {
             </span>
           </div>
           <Link to={`/events/${event._id || event.id}`}>
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
               View
             </button>
           </Link>
@@ -186,18 +186,18 @@ const EventListingPage = ({ user, onLogout }) => {
       </div>
       
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto bg-orange-50">
+      <div className="flex-1 overflow-y-auto bg-green-50">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-orange-600 to-orange-500 py-16 px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="bg-gradient-to-r from-green-600 to-green-500 py-16 px-4 sm:px-6 lg:px-8 mb-8">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-6">Find Your Next Event</h1>
-            <p className="text-lg sm:text-xl text-orange-100 mb-8">Discover events that match your interests</p>
+            <p className="text-lg sm:text-xl text-green-100 mb-8">Discover events that match your interests</p>
             
             {/* Search Bar */}
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center bg-white p-2 rounded-lg shadow-md">
                 <div className="flex items-center flex-1 w-full">
-                  <Search className="h-5 w-5 text-orange-400 ml-2" />
+                  <Search className="h-5 w-5 text-green-400 ml-2" />
                   <input
                     type="text"
                     placeholder="Search events..."
@@ -208,7 +208,7 @@ const EventListingPage = ({ user, onLogout }) => {
                 </div>
                 <button 
                   type="submit"
-                  className="mt-3 sm:mt-0 w-full sm:w-auto px-6 py-3 bg-orange-600 text-white font-medium rounded-md hover:bg-orange-700 transition duration-300 ease-in-out"
+                  className="mt-3 sm:mt-0 w-full sm:w-auto px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition duration-300 ease-in-out"
                 >
                   Search
                 </button>
@@ -222,19 +222,19 @@ const EventListingPage = ({ user, onLogout }) => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
             <div className="flex space-x-4">
               <button 
-                className={`px-4 py-2 rounded-full ${filter === 'upcoming' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
+                className={`px-4 py-2 rounded-full ${filter === 'upcoming' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-green-200'} transition`}
                 onClick={() => setFilter('upcoming')}
               >
                 Upcoming
               </button>
               <button 
-                className={`px-4 py-2 rounded-full ${filter === 'all' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
+                className={`px-4 py-2 rounded-full ${filter === 'all' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-green-200'} transition`}
                 onClick={() => setFilter('all')}
               >
                 All Events
               </button>
               <button 
-                className={`px-4 py-2 rounded-full ${filter === 'past' ? 'bg-orange-600 text-white' : 'bg-white text-gray-700 border border-orange-200'} transition`}
+                className={`px-4 py-2 rounded-full ${filter === 'past' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-green-200'} transition`}
                 onClick={() => setFilter('past')}
               >
                 Past
@@ -244,7 +244,7 @@ const EventListingPage = ({ user, onLogout }) => {
             <div className="flex space-x-3">
               <div className="relative">
                 <select
-                  className="appearance-none bg-white border border-orange-200 rounded-md pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                  className="appearance-none bg-white border border-green-200 rounded-md pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
                 >
@@ -253,11 +253,11 @@ const EventListingPage = ({ user, onLogout }) => {
                     <option key={`category-${index}`} value={category}>{category}</option>
                   ))}
                 </select>
-                <Filter className="absolute right-3 top-2.5 h-5 w-5 text-orange-400 pointer-events-none" />
+                <Filter className="absolute right-3 top-2.5 h-5 w-5 text-green-400 pointer-events-none" />
               </div>
               
-              <button className="flex items-center space-x-2 bg-white border border-orange-200 rounded-md px-4 py-2 hover:bg-orange-50 transition">
-                <ArrowUpDown className="h-4 w-4 text-orange-500" />
+              <button className="flex items-center space-x-2 bg-white border border-green-200 rounded-md px-4 py-2 hover:bg-green-50 transition">
+                <ArrowUpDown className="h-4 w-4 text-green-500" />
                 <span>Sort</span>
               </button>
             </div>
@@ -266,14 +266,14 @@ const EventListingPage = ({ user, onLogout }) => {
           {/* Events Grid */}
           {loading ? (
             <div className="text-center py-20">
-              <div className="w-16 h-16 border-t-4 border-orange-500 border-solid rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-t-4 border-green-500 border-solid rounded-full animate-spin mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading events...</p>
             </div>
           ) : error ? (
             <div className="text-center py-20">
               <p className="text-red-500">{error}</p>
               <button 
-                className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition"
+                className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
                 onClick={() => window.location.reload()}
               >
                 Try Again
@@ -284,7 +284,7 @@ const EventListingPage = ({ user, onLogout }) => {
               <p className="text-gray-600">No events found matching your criteria.</p>
               {(searchQuery || categoryFilter) && (
                 <button 
-                  className="mt-4 px-4 py-2 bg-orange-200 hover:bg-orange-300 rounded-md transition"
+                  className="mt-4 px-4 py-2 bg-green-200 hover:bg-green-300 rounded-md transition"
                   onClick={() => {
                     setSearchQuery('');
                     setCategoryFilter('');
@@ -307,7 +307,7 @@ const EventListingPage = ({ user, onLogout }) => {
           
           {/* Create Event Button - Fixed at bottom right */}
           <Link to="/events/new" className="fixed bottom-6 right-6">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition">
+            <button className="bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>

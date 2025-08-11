@@ -250,7 +250,7 @@ const EventDashboardPage = () => {
   const invitedCount = getAttendeeCount(event.attendeeCounts, 'invited');
   
   return (
-    <div className="bg-gray-50 min-h-screen pb-12">
+  <div className="bg-gray-50 min-h-screen pb-12">
       {/* Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -339,7 +339,7 @@ const EventDashboardPage = () => {
               onClick={() => setActiveTab('overview')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'overview'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -350,7 +350,7 @@ const EventDashboardPage = () => {
               onClick={() => setActiveTab('attendees')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'attendees'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -361,7 +361,7 @@ const EventDashboardPage = () => {
               onClick={() => setActiveTab('tickets')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'tickets'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -372,7 +372,7 @@ const EventDashboardPage = () => {
               onClick={() => setActiveTab('checkin')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'checkin'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -383,7 +383,7 @@ const EventDashboardPage = () => {
               onClick={() => setActiveTab('analytics')}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'analytics'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-green-500 text-green-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -402,7 +402,7 @@ const EventDashboardPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                  <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                     <Users className="h-6 w-6" />
                   </div>
                   <div>
@@ -435,7 +435,7 @@ const EventDashboardPage = () => {
               
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center">
-                  <div className="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                  <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                     <Ticket className="h-6 w-6" />
                   </div>
                   <div>
@@ -458,23 +458,23 @@ const EventDashboardPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link 
                   to={`/events/${eventId}/attendees`}
-                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-green-50"
                 >
-                  <Users className="h-6 w-6 text-blue-600 mb-2" />
+                  <Users className="h-6 w-6 text-green-600 mb-2" />
                   <span className="text-sm font-medium">Manage Attendees</span>
                 </Link>
                 
                 <Link 
                   to={`/events/${eventId}/tickets/manage`}
-                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-green-50"
                 >
-                  <Ticket className="h-6 w-6 text-purple-600 mb-2" />
+                  <Ticket className="h-6 w-6 text-green-600 mb-2" />
                   <span className="text-sm font-medium">Manage Tickets</span>
                 </Link>
                 
                 <button 
                   onClick={handleGenerateCheckInCode}
-                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-green-50"
                 >
                   <CheckCircle className="h-6 w-6 text-green-600 mb-2" />
                   <span className="text-sm font-medium">Generate Check-in Code</span>
@@ -482,9 +482,9 @@ const EventDashboardPage = () => {
                 
                 <button 
                   onClick={() => handleGenerateReport('csv')}
-                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="inline-flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-green-50"
                 >
-                  <Download className="h-6 w-6 text-gray-600 mb-2" />
+                  <Download className="h-6 w-6 text-green-600 mb-2" />
                   <span className="text-sm font-medium">Export Attendee List</span>
                 </button>
               </div>
@@ -497,7 +497,7 @@ const EventDashboardPage = () => {
                   <h3 className="text-lg font-bold text-gray-900">Event Details</h3>
                   <Link 
                     to={`/events/${eventId}/edit`}
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-sm text-green-600 hover:text-green-700 font-medium"
                   >
                     Edit
                   </Link>
@@ -555,7 +555,7 @@ const EventDashboardPage = () => {
                         href={event.virtualMeetingLink} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="mt-1 text-blue-600 hover:text-blue-700"
+                        className="mt-1 text-green-600 hover:text-green-700"
                       >
                         {event.virtualMeetingLink}
                       </a>
@@ -569,7 +569,7 @@ const EventDashboardPage = () => {
                         {event.tags.map(tag => (
                           <span 
                             key={tag} 
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
                           >
                             {tag}
                           </span>
@@ -630,7 +630,7 @@ const EventDashboardPage = () => {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <Link 
                     to={`/events/${eventId}/attendees`} 
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                    className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center"
                   >
                     View all activity
                     <ChevronRight className="ml-1 h-4 w-4" />
@@ -652,7 +652,7 @@ const EventDashboardPage = () => {
                   <div className="mt-3 sm:mt-0 flex flex-wrap gap-2">
                     <Link 
                       to={`/events/${eventId}/attendees/invite`}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       Invite People
@@ -660,7 +660,7 @@ const EventDashboardPage = () => {
                     
                     <button 
                       onClick={() => handleGenerateReport('csv')}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export List
@@ -668,7 +668,7 @@ const EventDashboardPage = () => {
                     
                     <button 
                       onClick={() => navigate(`/events/${eventId}/attendees/email`)}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                     >
                       <Mail className="w-4 h-4 mr-1" />
                       Email Attendees
@@ -681,22 +681,22 @@ const EventDashboardPage = () => {
                 <h4 className="font-medium text-gray-900 mb-4">Attendee Summary</h4>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="bg-green-50 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{goingCount}</div>
                     <div className="text-sm text-gray-600">Going</div>
                   </div>
                   
-                  <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="bg-green-100 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{maybeCount}</div>
                     <div className="text-sm text-gray-600">Maybe</div>
                   </div>
                   
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="bg-green-50 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{invitedCount}</div>
                     <div className="text-sm text-gray-600">Invited</div>
                   </div>
                   
-                  <div className="bg-green-50 rounded-lg p-4">
+                  <div className="bg-green-100 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{analytics?.metrics?.checkIns || 0}</div>
                     <div className="text-sm text-gray-600">Checked In</div>
                   </div>
@@ -706,7 +706,7 @@ const EventDashboardPage = () => {
               <div className="px-6 py-4 border-t border-gray-200 text-center">
                 <Link 
                   to={`/events/${eventId}/attendees`}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-green-600 hover:text-green-700 font-medium"
                 >
                   View Full Attendee List
                   <ChevronRight className="inline ml-1 w-4 h-4" />
@@ -741,7 +741,7 @@ const EventDashboardPage = () => {
                   <div className="mt-3 sm:mt-0 flex flex-wrap gap-2">
                     <Link 
                       to={`/events/${eventId}/tickets/new`}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                     >
                       <Plus className="w-4 h-4 mr-1" />
                       Create Ticket Type
@@ -749,7 +749,7 @@ const EventDashboardPage = () => {
                     
                     <button 
                       onClick={() => handleGenerateReport('csv')}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Download Sales Report
@@ -762,12 +762,12 @@ const EventDashboardPage = () => {
                 <h4 className="font-medium text-gray-900 mb-4">Sales Summary</h4>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="bg-green-50 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{ticketStats?.totalSold || 0}</div>
                     <div className="text-sm text-gray-600">Tickets Sold</div>
                   </div>
                   
-                  <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="bg-green-100 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{formatCurrency(ticketStats?.totalRevenue || 0)}</div>
                     <div className="text-sm text-gray-600">Revenue</div>
                   </div>
@@ -777,7 +777,7 @@ const EventDashboardPage = () => {
                     <div className="text-sm text-gray-600">Checked In</div>
                   </div>
                   
-                  <div className="bg-red-50 rounded-lg p-4">
+                  <div className="bg-green-100 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{ticketStats?.cancelled || 0}</div>
                     <div className="text-sm text-gray-600">Cancelled</div>
                   </div>
@@ -787,7 +787,7 @@ const EventDashboardPage = () => {
               <div className="px-6 py-4 border-t border-gray-200 text-center">
                 <Link 
                   to={`/events/${eventId}/tickets/manage`}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-green-600 hover:text-green-700 font-medium"
                 >
                   Manage Ticket Types & Sales
                   <ChevronRight className="inline ml-1 w-4 h-4" />
@@ -805,20 +805,20 @@ const EventDashboardPage = () => {
                 <h3 className="text-lg font-bold text-gray-900 mb-6">Check-in Options</h3>
                 
                 <div className="space-y-6">
-                  <div className="bg-blue-50 rounded-lg p-6">
+                  <div className="bg-green-50 rounded-lg p-6">
                     <h4 className="font-medium text-gray-900 mb-2">QR Code Check-in</h4>
                     <p className="text-gray-600 mb-4">
                       Attendees can check in by showing their ticket QR code at the event.
                     </p>
                     <Link 
                       to={`/events/${eventId}/checkin/scan`}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                     >
                       Launch Scanner
                     </Link>
                   </div>
                   
-                  <div className="bg-green-50 rounded-lg p-6">
+                  <div className="bg-green-100 rounded-lg p-6">
                     <h4 className="font-medium text-gray-900 mb-2">Check-in Code</h4>
                     <p className="text-gray-600 mb-4">
                       Generate a code that attendees can enter on their devices to check in.
@@ -831,7 +831,7 @@ const EventDashboardPage = () => {
                         </div>
                         <button 
                           onClick={handleGenerateCheckInCode}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                         >
                           Generate New Code
                         </button>
@@ -846,14 +846,14 @@ const EventDashboardPage = () => {
                     )}
                   </div>
                   
-                  <div className="bg-purple-50 rounded-lg p-6">
+                  <div className="bg-green-50 rounded-lg p-6">
                     <h4 className="font-medium text-gray-900 mb-2">Manual Check-in</h4>
                     <p className="text-gray-600 mb-4">
                       Manually check in attendees by searching for their name or ticket.
                     </p>
                     <Link 
                       to={`/events/${eventId}/checkin/manual`}
-                      className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                     >
                       Manual Check-in
                     </Link>
@@ -908,7 +908,7 @@ const EventDashboardPage = () => {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <Link 
                     to={`/events/${eventId}/checkin/history`} 
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                    className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center"
                   >
                     View all check-ins
                     <ChevronRight className="ml-1 h-4 w-4" />
@@ -929,7 +929,7 @@ const EventDashboardPage = () => {
               
               <div className="px-6 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="bg-green-50 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{goingCount}</div>
                     <div className="text-sm text-gray-600">Total Attendees</div>
                     <div className="mt-2 text-xs text-gray-500">
@@ -937,7 +937,7 @@ const EventDashboardPage = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-green-50 rounded-lg p-4">
+                  <div className="bg-green-100 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{analytics?.metrics?.checkIns || 0}</div>
                     <div className="text-sm text-gray-600">Check-ins</div>
                     <div className="mt-2 text-xs text-gray-500">
@@ -945,7 +945,7 @@ const EventDashboardPage = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="bg-green-50 rounded-lg p-4">
                     <div className="text-2xl font-bold text-gray-900">{ticketStats?.totalRevenue ? formatCurrency(ticketStats.totalRevenue) : '$0'}</div>
                     <div className="text-sm text-gray-600">Revenue</div>
                     <div className="mt-2 text-xs text-gray-500">
@@ -968,7 +968,7 @@ const EventDashboardPage = () => {
               <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
                 <button 
                   onClick={() => handleGenerateReport('json')}
-                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-green-50"
                 >
                   <Download className="w-4 h-4 mr-1" />
                   Export Full Analytics

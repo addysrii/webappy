@@ -185,6 +185,11 @@ const App = () => {
             <ChildAbuse/>
             </ProtectedRoute>
           } />
+           <Route path="/evebtdashboard" element={
+            <ProtectedRoute>
+            <EventDashboard/>
+            </ProtectedRoute>
+          } />
           <Route path="/network/:section" element={
             <ProtectedRoute>
               <NetworkPage />

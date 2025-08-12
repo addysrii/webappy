@@ -41,21 +41,7 @@ const MyEventsPage = () => {
           filter: filter,
           search: searchQuery
         });
-        
-        // Filter events to only show those hosted by the current user
-        const myHostedEvents = (response.events || response.data || []).filter(event => {
-          // Check different possible host identifier fields
-          if (event.host && typeof event.host === 'object') {
-            return event.host._id === user?._id;
-          } else if (event.hostId) {
-            return event.hostId === user?._id;
-          } else if (typeof event.host === 'string') {
-            return event.host === user?._id;
-          }
-          return false;
-        });
-        
-        setEvents(myHostedEvents);
+        setEvents(response.events || response.data || []);
         setError(null);
       } catch (err) {
         console.error('Error fetching my events:', err);
@@ -65,13 +51,9 @@ const MyEventsPage = () => {
       }
     };
     
-    if (user?._id) {
-      fetchEvents();
-    } else {
-      setLoading(false);
-    }
-  }, [filter, searchQuery, user]);
-
+    fetchEvents();
+  }, [filter, searchQuery]);
+  
   // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -128,7 +110,7 @@ const MyEventsPage = () => {
   };
   
   return (
-    <div className="flex flex-col md:flex-row h-screen mt-12 bg-green-50">
+   <div className="flex flex-col md:flex-row h-screen mt-12 bg-green-50">
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} />
@@ -214,10 +196,7 @@ const MyEventsPage = () => {
               <div className="text-center py-12">
                 <p className="text-red-500 mb-4">{error}</p>
                 <button 
-                  onClick={() => {
-                    setLoading(true);
-                    setError(null);
-                  }}
+                  onClick={() => setLoading(true)} // This will trigger the useEffect to reload
                   className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />

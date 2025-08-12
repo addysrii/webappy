@@ -33,27 +33,37 @@ const MyEventsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Fetch user's events
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await eventService.getMyEvents({ 
-          filter: filter,
-          search: searchQuery
-        });
-        setEvents(response.events || response.data || []);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching my events:', err);
-        setError('Failed to load events. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchEvents();
-  }, [filter, searchQuery]);
+// In your MyEventsPage component
+useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await eventService.getMyEvents({ 
+        filter: filter,
+        search: searchQuery
+      });
+      
+      // Filter events to only show those hosted by the current user
+      const myHostedEvents = (response.events || response.data || []).filter(event => 
+        event.host?._id === user?._id || 
+        event.hostId === user?._id ||
+        (typeof event.host === 'string' && event.host === user?._id)
+      );
+      
+      setEvents(myHostedEvents);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching my events:', err);
+      setError('Failed to load events. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   
+  if (user?._id) { // Only fetch if we have a user ID
+    fetchEvents();
+  }
+}, [filter, searchQuery, user?._id]);
   // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return '';

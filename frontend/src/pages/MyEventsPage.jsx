@@ -33,37 +33,45 @@ const MyEventsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Fetch user's events
-// In your MyEventsPage component
-useEffect(() => {
-  const fetchEvents = async () => {
-    try {
-      setLoading(true);
-      const response = await eventService.getMyEvents({ 
-        filter: filter,
-        search: searchQuery
-      });
-      
-      // Filter events to only show those hosted by the current user
-      const myHostedEvents = (response.events || response.data || []).filter(event => 
-        event.host?._id === user?._id || 
-        event.hostId === user?._id ||
-        (typeof event.host === 'string' && event.host === user?._id)
-      );
-      
-      setEvents(myHostedEvents);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching my events:', err);
-      setError('Failed to load events. Please try again.');
-    } finally {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await eventService.getMyEvents({ 
+          filter: filter,
+          search: searchQuery
+        });
+        
+        // Filter events to only show those hosted by the current user
+        const myHostedEvents = (response.events || response.data || []).filter(event => {
+          // Check different possible host identifier fields
+          if (event.host && typeof event.host === 'object') {
+            return event.host._id === user?._id;
+          } else if (event.hostId) {
+            return event.hostId === user?._id;
+          } else if (typeof event.host === 'string') {
+            return event.host === user?._id;
+          }
+          return false;
+        });
+        
+        setEvents(myHostedEvents);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching my events:', err);
+        setError('Failed to load events. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (user?._id) {
+      fetchEvents();
+    } else {
       setLoading(false);
     }
-  };
-  
-  if (user?._id) { // Only fetch if we have a user ID
-    fetchEvents();
-  }
-}, [filter, searchQuery, user?._id]);
+  }, [filter, searchQuery, user]);
+
   // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -120,7 +128,7 @@ useEffect(() => {
   };
   
   return (
-   <div className="flex flex-col md:flex-row h-screen mt-12 bg-green-50">
+    <div className="flex flex-col md:flex-row h-screen mt-12 bg-green-50">
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} />
@@ -206,7 +214,10 @@ useEffect(() => {
               <div className="text-center py-12">
                 <p className="text-red-500 mb-4">{error}</p>
                 <button 
-                  onClick={() => setLoading(true)} // This will trigger the useEffect to reload
+                  onClick={() => {
+                    setLoading(true);
+                    setError(null);
+                  }}
                   className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />

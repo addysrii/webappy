@@ -49,52 +49,11 @@ function LandPage() {
       attendees: 250,
       category: "Technology"
     },
-    {
-      id: 2,
-      title: "Creative Design Workshop",
-      date: "March 22, 2025",
-      time: "2:00 PM",
-      location: "Kanpur, Uttar Pradesh",
-      image: "https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=800",
-      price: "$45",
-      attendees: 120,
-      category: "Design"
-    },
-    {
-      id: 3,
-      title: "Startup Networking Mixer",
-      date: "March 28, 2025",
-      time: "6:30 PM",
-      location: "Kanpur, Uttar Pradesh",
-      image: "https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=800",
-      price: "Free",
-      attendees: 180,
-      category: "Networking"
-    }
+  
   ];
 
   const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Event Attendee",
-      image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150",
-      content: "MeetKats made it so easy to discover amazing events in my area. The MeetKats Lounge community is incredibly welcoming!",
-      rating: 5
-    },
-    {
-      name: "Michael Chen",
-      role: "Event Organizer",
-      image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150",
-      content: "The platform's analytics and ticket management tools helped me grow my events from 50 to 500+ attendees.",
-      rating: 5
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Community Member",
-      image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150",
-      content: "Being part of MeetKats Lounge has connected me with like-minded people and incredible opportunities.",
-      rating: 5
-    }
+   
   ];
 
   const benefits = [

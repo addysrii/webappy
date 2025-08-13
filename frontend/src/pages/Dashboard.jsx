@@ -697,7 +697,96 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                     </div>
                     
                     {/* Nearby Professionals */}
-                
+                    {/* <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                      <div className="border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-green-500 mr-2" />
+                          <h3 className="font-semibold text-gray-800">Nearby Professionals</h3>
+                        </div>
+                        <Link to="/network/nearby" className="text-green-500 hover:text-green-600 text-xs md:text-sm">View All</Link>
+                      </div>
+                      <div className="p-4 md:p-6">
+                        {locationError ? (
+                          <div className="bg-green-50 rounded-lg p-4 text-center">
+                            <AlertTriangle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                            <p className="text-sm text-gray-700 mb-2">{locationError}</p>
+                            <LocationPermissionIcon />
+                          </div>
+                        ) : nearbyUsers.length > 0 ? (
+                          <div className="space-y-4">
+                            {nearbyUsers.map(user => (
+                              <div key={user._id} className="flex items-start border border-gray-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow bg-white">
+                                <div className="mr-3 flex-shrink-0">
+                                  <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden">
+                                    <img 
+                                      src={getProfilePicture(user)} 
+                                      alt={`${user.firstName} ${user.lastName}`}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between">
+                                    <h4 className="text-sm md:text-base font-medium text-gray-900 truncate">
+                                      {user.firstName} {user.lastName}
+                                    </h4>
+                                    <span className="text-xs text-gray-500 flex items-center">
+                                      <MapPin className="h-3 w-3 mr-1" />
+                                      {user.distanceFormatted}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-gray-600">{user.headline || 'Professional'}</p>
+                                  
+                                  <div className="mt-2 flex space-x-2">
+                                    <button
+                                      onClick={() => handleConnect(user._id)}
+                                      disabled={user.connectionStatus === 'pending' || user.connectionStatus === 'connected'}
+                                      className={`flex items-center px-2 py-1 rounded text-xs ${
+                                        user.connectionStatus === 'pending'
+                                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                                          : user.connectionStatus === 'connected'
+                                            ? 'bg-blue-100 text-blue-700 cursor-not-allowed'
+                                            : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                      }`}
+                                    >
+                                      <UserPlus className="h-3 w-3 mr-1" />
+                                      {user.connectionStatus === 'pending'
+                                        ? 'Pending'
+                                        : user.connectionStatus === 'connected'
+                                          ? 'Connected'
+                                          : 'Connect'}
+                                    </button>
+                                    
+                                    <Link
+                                      to={`/profile/${user._id}`}
+                                      className="flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                    >
+                                      View Profile
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-6">
+                            <p className="text-gray-500 text-sm">No nearby professionals found.</p>
+                            <button 
+                              onClick={() => fetchNearbyUsers(userLocation?.latitude, userLocation?.longitude, 10)}
+                              className="mt-2 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600"
+                            >
+                              <RefreshCw className="w-3 h-3 mr-1" />
+                              Refresh Location
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div> */}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeSection === 'events' && (
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="p-4 md:p-6">

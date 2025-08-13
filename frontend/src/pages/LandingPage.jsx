@@ -147,12 +147,12 @@ function LandPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <button onClick={()=>{window.location.href="/events"}} className="cursor-pointer group bg-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center">
+              <button onClick={()=>{window.location.href="/login"}} className="cursor-pointer group bg-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-emerald-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center">
                 <Search className="w-5 h-5 mr-2" />
                 Find Events
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button onClick={()=>{window.location.href="/events/new"}} className="cursor-pointer group bg-white text-emerald-600 px-8 py-4 rounded-xl text-lg font-semibold border-2 border-emerald-600 hover:bg-emerald-50 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center">
+              <button onClick={()=>{window.location.href="login"}} className="cursor-pointer group bg-white text-emerald-600 px-8 py-4 rounded-xl text-lg font-semibold border-2 border-emerald-600 hover:bg-emerald-50 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl flex items-center">
                 <Calendar className="w-5 h-5 mr-2" />
                 Create Event
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

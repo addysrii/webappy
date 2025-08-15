@@ -255,7 +255,7 @@ const OrganizerManagementSystem = () => {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Types</option>
-                <option value="Corporate">Corporate</option>
+                <option value="individual">Individual</option>
                 <option value="Cultural">Cultural</option>
                 <option value="Educational">Educational</option>
                 <option value="Sports">Sports</option>

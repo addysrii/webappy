@@ -8,6 +8,7 @@ import AuthPage from './pages/AuthPage';
 import ChildAbuse from './pages/ChildAbuse';
 import CertificateVerificationPage from './pages/CertificateVerificationPage.jsx';
 import Discover from './pages/DiscoverPage';
+import OrganizerManagementSystem from './pages/OrganizerManagementService.jsx';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import Dashboard from './pages/Dashboard';
 import Robots from "./robots.txt"
@@ -101,7 +102,7 @@ const App = () => {
           <Route path="/termsandconditons" element={<TermsAndConditions/>} />
           <Route path="/refundpolicy" element={<Refundpolicy/>} />
           <Route path="/auth/linkedin-callback" element={<LinkCall />} />
-          
+               <Route path="/organizer" element={<OrganizerManagementSystem/>} />
           {/* Protected Routes - Require authentication */}
           <Route path="/profile-setup" element={
             <ProtectedRoute>

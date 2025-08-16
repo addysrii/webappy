@@ -96,6 +96,12 @@ const EventDetailPage = ({ user, onLogout }) => {
     }
   };
 
+  // Check if event is in the past
+  const isPastEvent = (eventDate) => {
+    if (!eventDate) return false;
+    return new Date(eventDate) < new Date();
+  };
+
   // Safely get the attendee count
   const getAttendeeCount = (attendeeCounts, type) => {
     if (!attendeeCounts) return 0;
@@ -316,6 +322,7 @@ const EventDetailPage = ({ user, onLogout }) => {
   const goingCount = event ? getAttendeeCount(event.attendeeCounts, 'going') : 0;
   const maybeCount = event ? getAttendeeCount(event.attendeeCounts, 'maybe') : 0;
   const timeRemaining = event ? getTimeRemaining(event.startDateTime) : null;
+  const eventIsPast = event ? isPastEvent(event.endDateTime || event.startDateTime) : false;
 
   return (
     <div className="flex min-h-screen bg-orange-50">
@@ -596,13 +603,15 @@ const EventDetailPage = ({ user, onLogout }) => {
                             <p className="text-sm text-orange-600">+{ticketTypes.length - 2} more ticket types</p>
                           )}
                           
-                          <button 
-                            onClick={handleBuyTickets}
-                            className="mt-2 w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded text-sm font-medium transition flex items-center justify-center"
-                          >
-                            <Ticket size={14} className="mr-1" />
-                            Book Tickets
-                          </button>
+                          {!eventIsPast && (
+                            <button 
+                              onClick={handleBuyTickets}
+                              className="mt-2 w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded text-sm font-medium transition flex items-center justify-center"
+                            >
+                              <Ticket size={14} className="mr-1" />
+                              Book Tickets
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <div>
@@ -629,7 +638,7 @@ const EventDetailPage = ({ user, onLogout }) => {
                   
                   {/* Action buttons */}
                   <div className="mt-6 flex flex-wrap gap-3">
-                    {ticketTypes && ticketTypes.length > 0 && (
+                    {ticketTypes && ticketTypes.length > 0 && !eventIsPast && (
                       <button 
                         onClick={handleBuyTickets}
                         className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg flex items-center space-x-2 transition"
@@ -695,7 +704,7 @@ const EventDetailPage = ({ user, onLogout }) => {
               <div className="text-gray-700 whitespace-pre-line">
                 {event.description || "No description provided for this event."}
               </div>
-       {/* Tags */}
+              {/* Tags */}
               {event.tags && event.tags.length > 0 && (
                 <div className="mt-6 pt-4 border-t border-gray-200">
                   <h3 className="font-medium text-gray-900 mb-2">Tags</h3>

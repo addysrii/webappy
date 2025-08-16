@@ -149,7 +149,7 @@ const App = () => {
           } />
             <Route path="/organizerregister" element={
             <ProtectedRoute>
-              <OrganizationRegister />
+              <OrganizerRegistration />
             </ProtectedRoute>
           } />
           

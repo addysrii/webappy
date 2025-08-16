@@ -25,20 +25,41 @@ const AllOrganizersPage = () => {
  const fetchOrganizers = async () => {
   try {
     setLoading(true);
-    // const params = {
-    //   page: currentPage,
-    //   limit: itemsPerPage,
-    //   search: searchQuery,
-    //   ...filters
-    // };
+    const params = {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchQuery,
+      ...filters
+    };
 
-    // console.log("API Params:", params); // Add this line
+    // Remove empty filters
+    Object.keys(params).forEach(key => {
+      if (params[key] === '') {
+        delete params[key];
+      }
+    });
+
+    // Get raw API response
+    const response = await organizerService.getAllOrganizers(params);
     
-    const response = await organizerService.getAllOrganizers();
-    console.log("API Response:", response); // Add this line
+    // Transform the data to match frontend expectations
+    const transformedOrganizers = response.map(org => ({
+      _id: org._id,
+      organizerName: org.organizerName,
+      email: org.email,
+      profileImage: org.profileImage || 'https://via.placeholder.com/100',
+      location: `${org.address?.city}, ${org.address?.state}`,
+      organizerType: org.organizationType,
+      rating: org.rating || 0, // Default if not available
+      eventsHosted: org.eventsHosted?.length || 0,
+      isVerified: org.approved, // Using 'approved' field as verification status
+      description: org.about || 'No description provided',
+      contactPerson: org.contactPerson
+    }));
+
+    setOrganizers(transformedOrganizers);
+    setTotalPages(Math.ceil(response.length / itemsPerPage) || 1);
     
-    setOrganizers(response.organizers || []);
-    setTotalPages(response.totalPages || 1);
   } catch (error) {
     console.error('Error fetching organizers:', error);
   } finally {

@@ -18,82 +18,6 @@ const AllOrganizersPage = () => {
 
   const itemsPerPage = 12;
 
-  // Mock data for demonstration - replace with actual API data
-  const mockOrganizers = [
-    {
-      _id: '1',
-      organizerName: 'Event Masters Inc.',
-      email: 'contact@eventmasters.com',
-      profileImage: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=face',
-      location: 'Mumbai, Maharashtra',
-      organizerType: 'Corporate',
-      rating: 4.8,
-      eventsHosted: 156,
-      isVerified: true,
-      description: 'Professional event management company specializing in corporate events and conferences.'
-    },
-    {
-      _id: '2',
-      organizerName: 'Wedding Bliss Co.',
-      email: 'hello@weddingbliss.com',
-      profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=100&h=100&fit=crop&crop=face',
-      location: 'Delhi, India',
-      organizerType: 'Wedding',
-      rating: 4.9,
-      eventsHosted: 89,
-      isVerified: true,
-      description: 'Creating magical wedding experiences with attention to every detail.'
-    },
-    {
-      _id: '3',
-      organizerName: 'Music Festival Pros',
-      email: 'info@musicfestpros.com',
-      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-      location: 'Goa, India',
-      organizerType: 'Entertainment',
-      rating: 4.7,
-      eventsHosted: 234,
-      isVerified: true,
-      description: 'Organizing world-class music festivals and entertainment events across India.'
-    },
-    {
-      _id: '4',
-      organizerName: 'Tech Conference Hub',
-      email: 'contact@techconfhub.com',
-      profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-      location: 'Bangalore, Karnataka',
-      organizerType: 'Technology',
-      rating: 4.6,
-      eventsHosted: 67,
-      isVerified: false,
-      description: 'Bringing together tech enthusiasts and industry leaders through innovative conferences.'
-    },
-    {
-      _id: '5',
-      organizerName: 'Community Connect',
-      email: 'team@communityconnect.org',
-      profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-      location: 'Chennai, Tamil Nadu',
-      organizerType: 'Community',
-      rating: 4.5,
-      eventsHosted: 145,
-      isVerified: true,
-      description: 'Building stronger communities through engaging local events and activities.'
-    },
-    {
-      _id: '6',
-      organizerName: 'Sports Arena Events',
-      email: 'info@sportsarena.com',
-      profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-      location: 'Pune, Maharashtra',
-      organizerType: 'Sports',
-      rating: 4.4,
-      eventsHosted: 98,
-      isVerified: true,
-      description: 'Organizing exciting sports events and tournaments for all skill levels.'
-    }
-  ];
-
   useEffect(() => {
     fetchOrganizers();
   }, [currentPage, searchQuery, filters]);
@@ -102,48 +26,16 @@ const AllOrganizersPage = () => {
     try {
       setLoading(true);
       
-      // For demo purposes, using mock data
-      // In real implementation, use:
-      // const params = {
-      //   page: currentPage,
-      //   limit: itemsPerPage,
-      //   search: searchQuery,
-      //   ...filters
-      // };
-      // const response = await organizerService.getAllOrganizers(params);
-      // setOrganizers(response.organizers);
-      // setTotalPages(response.totalPages);
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchQuery,
+        ...filters
+      };
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      let filteredOrganizers = mockOrganizers;
-      
-      // Apply search filter
-      if (searchQuery) {
-        filteredOrganizers = filteredOrganizers.filter(org =>
-          org.organizerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          org.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          org.organizerType.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      
-      // Apply other filters
-      if (filters.organizerType) {
-        filteredOrganizers = filteredOrganizers.filter(org => 
-          org.organizerType === filters.organizerType
-        );
-      }
-      
-      if (filters.verified) {
-        const isVerified = filters.verified === 'true';
-        filteredOrganizers = filteredOrganizers.filter(org => 
-          org.isVerified === isVerified
-        );
-      }
-      
-      setOrganizers(filteredOrganizers);
-      setTotalPages(Math.ceil(filteredOrganizers.length / itemsPerPage));
+      const response = await organizerService.getAllOrganizers(params);
+      setOrganizers(response.organizers);
+      setTotalPages(response.totalPages);
       
     } catch (error) {
       console.error('Error fetching organizers:', error);
@@ -188,7 +80,7 @@ const AllOrganizersPage = () => {
         
         <div className="flex items-center space-x-4 mb-4">
           <img
-            src={organizer.profileImage}
+            src={organizer.profileImage || 'https://via.placeholder.com/100'}
             alt={organizer.organizerName}
             className="w-16 h-16 rounded-full object-cover"
           />
@@ -211,11 +103,11 @@ const AllOrganizersPage = () => {
           <div className="flex items-center space-x-4">
             <span className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
-              {organizer.eventsHosted} events
+              {organizer.eventsHosted || 0} events
             </span>
             <span className="flex items-center">
               <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-              {organizer.rating}
+              {organizer.rating || 'N/A'}
             </span>
           </div>
           <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
@@ -236,7 +128,7 @@ const AllOrganizersPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 flex-1">
             <img
-              src={organizer.profileImage}
+              src={organizer.profileImage || 'https://via.placeholder.com/100'}
               alt={organizer.organizerName}
               className="w-12 h-12 rounded-full object-cover"
             />
@@ -263,13 +155,13 @@ const AllOrganizersPage = () => {
           
           <div className="flex items-center space-x-6 ml-4">
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">{organizer.eventsHosted}</p>
+              <p className="text-sm font-medium text-gray-900">{organizer.eventsHosted || 0}</p>
               <p className="text-xs text-gray-500">Events</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-gray-900 flex items-center">
                 <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-                {organizer.rating}
+                {organizer.rating || 'N/A'}
               </p>
               <p className="text-xs text-gray-500">Rating</p>
             </div>

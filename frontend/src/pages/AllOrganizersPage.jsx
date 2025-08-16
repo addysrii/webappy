@@ -22,39 +22,29 @@ const AllOrganizersPage = () => {
     fetchOrganizers();
   }, [currentPage, searchQuery, filters]);
 
-  const fetchOrganizers = async () => {
-    try {
-      setLoading(true);
-      
-      // Prepare API params based on current state
-      const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchQuery,
-        ...filters
-      };
+ const fetchOrganizers = async () => {
+  try {
+    setLoading(true);
+    const params = {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchQuery,
+      ...filters
+    };
 
-      // Remove empty filters
-      Object.keys(params).forEach(key => {
-        if (params[key] === '') {
-          delete params[key];
-        }
-      });
-
-      // Call the organizer service
-      const response = await organizerService.getAllOrganizers(params);
-      
-      setOrganizers(response.organizers || []);
-      setTotalPages(response.totalPages || 1);
-      
-    } catch (error) {
-      console.error('Error fetching organizers:', error);
-      // You might want to add error state handling here
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    console.log("API Params:", params); // Add this line
+    
+    const response = await organizerService.getAllOrganizers(params);
+    console.log("API Response:", response); // Add this line
+    
+    setOrganizers(response.organizers || []);
+    setTotalPages(response.totalPages || 1);
+  } catch (error) {
+    console.error('Error fetching organizers:', error);
+  } finally {
+    setLoading(false);
+  }
+};
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);

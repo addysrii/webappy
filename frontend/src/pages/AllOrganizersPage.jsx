@@ -88,63 +88,109 @@ const AllOrganizersPage = () => {
     setSearchQuery('');
     setCurrentPage(1);
   };
-
-  const OrganizerCard = ({ organizer }) => (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100">
-      <div className="relative p-6">
-        {organizer.isVerified && (
-          <div className="absolute top-4 right-4">
-            <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-              Verified
-            </div>
-          </div>
-        )}
-        
-        <div className="flex items-center space-x-4 mb-4">
-          <img
-            src={organizer.profileImage || 'https://via.placeholder.com/100'}
-            alt={organizer.organizerName}
-            className="w-16 h-16 rounded-full object-cover"
-          />
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
-              {organizer.organizerName}
-            </h3>
-            <p className="text-sm text-gray-500 flex items-center mt-1">
-              <MapPin className="w-4 h-4 mr-1" />
-              {organizer.location || 'Location not specified'}
-            </p>
+const OrganizerCard = ({ organizer }) => (
+  <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100">
+    <div className="relative p-6">
+      {/* Verification Badge - using 'approved' field */}
+      {organizer.approved && (
+        <div className="absolute top-4 right-4">
+          <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+            Verified
           </div>
         </div>
+      )}
+
+      {/* Banned Notice */}
+      {organizer.banned && (
+        <div className="absolute top-4 left-4 bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+          Banned
+        </div>
+      )}
+
+      {/* Organizer Header */}
+      <div className="flex items-center space-x-4 mb-4">
+        <img
+          src={organizer.profileImage || 'https://via.placeholder.com/100?text=' + encodeURIComponent(organizer.organizerName.charAt(0))}
+          alt={organizer.organizerName}
+          className="w-16 h-16 rounded-full object-cover border border-gray-200"
+        />
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 truncate">
+            {organizer.organizerName}
+          </h3>
+          <p className="text-sm text-gray-500 flex items-center mt-1">
+            <MapPin className="w-4 h-4 mr-1" />
+            {organizer.address?.city ? `${organizer.address.city}, ${organizer.address.state}` : 'Location not specified'}
+          </p>
+        </div>
+      </div>
+
+      {/* Organizer Details */}
+      <div className="space-y-3 mb-4">
+        <div className="flex items-center text-sm text-gray-600">
+          <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span className="truncate">Contact: {organizer.contactPerson?.name || 'Not specified'}</span>
+        </div>
         
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {organizer.description || 'No description provided'}
-        </p>
-        
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center space-x-4">
-            <span className="flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
-              {organizer.eventsHosted || 0} events
-            </span>
-            <span className="flex items-center">
-              <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-              {organizer.rating || 'N/A'}
-            </span>
-          </div>
-          {organizer.organizerType && (
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-              {organizer.organizerType}
-            </span>
+        <div className="flex items-center text-sm text-gray-600">
+          <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+          <span>Events hosted: {organizer.eventsHosted?.length || 0}</span>
+        </div>
+
+        <div className="flex items-center text-sm text-gray-600">
+          <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <span>Type: {organizer.organizationType || 'Not specified'}</span>
+        </div>
+      </div>
+
+      {/* Social Links */}
+      {organizer.socialLinks && (
+        <div className="flex space-x-3 mb-4">
+          {organizer.socialLinks.website && (
+            <a href={organizer.socialLinks.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-2 17.5a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v11zm5.5-.5h-1a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v11a.5.5 0 01-.5.5z" />
+              </svg>
+            </a>
+          )}
+          {organizer.socialLinks.facebook && (
+            <a href={organizer.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+              </svg>
+            </a>
+          )}
+          {organizer.socialLinks.instagram && (
+            <a href={organizer.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-800">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+              </svg>
+            </a>
           )}
         </div>
-        
-        <button className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-          View Profile
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex space-x-2">
+        <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          View
+        </button>
+        <button className="flex-1 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Message
         </button>
       </div>
     </div>
-  );
+  </div>
+);
 
   const OrganizerListItem = ({ organizer }) => (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">

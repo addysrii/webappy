@@ -18,11 +18,6 @@ const AllOrganizersPage = () => {
 
   const itemsPerPage = 12;
 
-  // Mock data for demonstration - replace with actual API data
-  const mockOrganizers = [
-   
-  ];
-
   useEffect(() => {
     fetchOrganizers();
   }, [currentPage, searchQuery, filters]);
@@ -31,48 +26,16 @@ const AllOrganizersPage = () => {
     try {
       setLoading(true);
       
-      // For demo purposes, using mock data
-      // In real implementation, use:
-      // const params = {
-      //   page: currentPage,
-      //   limit: itemsPerPage,
-      //   search: searchQuery,
-      //   ...filters
-      // };
-      // const response = await organizerService.getAllOrganizers(params);
-      // setOrganizers(response.organizers);
-      // setTotalPages(response.totalPages);
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchQuery,
+        ...filters
+      };
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      let filteredOrganizers = mockOrganizers;
-      
-      // Apply search filter
-      if (searchQuery) {
-        filteredOrganizers = filteredOrganizers.filter(org =>
-          org.organizerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          org.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          org.organizerType.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      
-      // Apply other filters
-      if (filters.organizerType) {
-        filteredOrganizers = filteredOrganizers.filter(org => 
-          org.organizerType === filters.organizerType
-        );
-      }
-      
-      if (filters.verified) {
-        const isVerified = filters.verified === 'true';
-        filteredOrganizers = filteredOrganizers.filter(org => 
-          org.isVerified === isVerified
-        );
-      }
-      
-      setOrganizers(filteredOrganizers);
-      setTotalPages(Math.ceil(filteredOrganizers.length / itemsPerPage));
+      const response = await organizerService.getAllOrganizers(params);
+      setOrganizers(response.organizers);
+      setTotalPages(response.totalPages);
       
     } catch (error) {
       console.error('Error fetching organizers:', error);
@@ -117,7 +80,7 @@ const AllOrganizersPage = () => {
         
         <div className="flex items-center space-x-4 mb-4">
           <img
-            src={organizer.profileImage}
+            src={organizer.profileImage || 'https://via.placeholder.com/100'}
             alt={organizer.organizerName}
             className="w-16 h-16 rounded-full object-cover"
           />
@@ -140,11 +103,11 @@ const AllOrganizersPage = () => {
           <div className="flex items-center space-x-4">
             <span className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
-              {organizer.eventsHosted} events
+              {organizer.eventsHosted || 0} events
             </span>
             <span className="flex items-center">
               <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-              {organizer.rating}
+              {organizer.rating || 'N/A'}
             </span>
           </div>
           <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
@@ -165,7 +128,7 @@ const AllOrganizersPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 flex-1">
             <img
-              src={organizer.profileImage}
+              src={organizer.profileImage || 'https://via.placeholder.com/100'}
               alt={organizer.organizerName}
               className="w-12 h-12 rounded-full object-cover"
             />
@@ -192,13 +155,13 @@ const AllOrganizersPage = () => {
           
           <div className="flex items-center space-x-6 ml-4">
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">{organizer.eventsHosted}</p>
+              <p className="text-sm font-medium text-gray-900">{organizer.eventsHosted || 0}</p>
               <p className="text-xs text-gray-500">Events</p>
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-gray-900 flex items-center">
                 <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
-                {organizer.rating}
+                {organizer.rating || 'N/A'}
               </p>
               <p className="text-xs text-gray-500">Rating</p>
             </div>

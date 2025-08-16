@@ -22,6 +22,7 @@ import StoryViewPage from './pages/StoryViewPage';
 import CreatePost from './components/posts/CreatePost';
 import ProfilePage from './pages/ProfilePage';
 import PortfolioPage from './pages/PortfolioPage';
+import AllOrganizersPage from "./Pages/AllOrganizersPage
 import AddAchievementForm from './components/profile/AddAchievementForm';
 import AddProjectForm from './components/profile/AddProjectForm';
 import ProfileViewersPage from './pages/ProfileViewerPage';
@@ -138,6 +139,11 @@ const App = () => {
           <Route path="/profile/edit" element={
             <ProtectedRoute>
               <EditProfilePage />
+            </ProtectedRoute>
+          } />
+            <Route path="/allorganizers" element={
+            <ProtectedRoute>
+              <AllOrganizersPage />
             </ProtectedRoute>
           } />
           

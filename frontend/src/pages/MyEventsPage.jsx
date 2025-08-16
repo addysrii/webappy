@@ -13,7 +13,8 @@ import {
   Search,
   Filter,
   RefreshCw,
-  UserCheck
+  UserCheck,
+  Trash2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import eventService from '../services/eventService';
@@ -31,6 +32,10 @@ const MyEventsPage = () => {
   // Filtering and search state
   const [filter, setFilter] = useState('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Delete confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, eventId: null, eventTitle: '' });
+  const [deleting, setDeleting] = useState(false);
   
   // Fetch user's events
   useEffect(() => {
@@ -107,6 +112,45 @@ const MyEventsPage = () => {
   // Navigate to check-in page
   const navigateToCheckIn = (eventId) => {
     navigate(`/events/${eventId}/checkin`);
+  };
+
+  // Handle delete event confirmation
+  const handleDeleteClick = (event) => {
+    setDeleteConfirm({
+      isOpen: true,
+      eventId: event._id || event.id,
+      eventTitle: event.title || event.name
+    });
+  };
+
+  // Confirm delete event
+  const confirmDeleteEvent = async () => {
+    try {
+      setDeleting(true);
+      const response = await eventService.deleteEvent(deleteConfirm.eventId);
+      
+      if (response.success !== false) {
+        // Remove the deleted event from the local state
+        setEvents(prevEvents => prevEvents.filter(event => 
+          (event._id || event.id) !== deleteConfirm.eventId
+        ));
+        
+        // Close the confirmation dialog
+        setDeleteConfirm({ isOpen: false, eventId: null, eventTitle: '' });
+      } else {
+        setError(response.error || 'Failed to delete event');
+      }
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      setError('Failed to delete event. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteConfirm({ isOpen: false, eventId: null, eventTitle: '' });
   };
   
   return (
@@ -276,6 +320,14 @@ const MyEventsPage = () => {
                                 <Edit className="w-3.5 h-3.5 mr-1" />
                                 Edit
                               </Link>
+
+                              <button
+                                onClick={() => handleDeleteClick(event)}
+                                className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-md text-sm hover:bg-red-200"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 mr-1" />
+                                Delete
+                              </button>
                               
                               <button className="inline-flex items-center p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full">
                                 <MoreVertical className="w-4 h-4" />
@@ -283,8 +335,8 @@ const MyEventsPage = () => {
                             </div>
                           </div>
                           
-                          {/* Event Stats */}
-                          <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {/* Event Stats - Revenue option removed */}
+                          <div className="mt-2 grid grid-cols-2 gap-2">
                             <div className="bg-green-50 p-2 rounded-md">
                               <div className="text-xs text-gray-500">Attendees</div>
                               <div className="text-sm font-semibold">
@@ -296,13 +348,6 @@ const MyEventsPage = () => {
                               <div className="text-xs text-gray-500">Ticket Types</div>
                               <div className="text-sm font-semibold">
                                 {event.ticketTypesCount || '0'}
-                              </div>
-                            </div>
-                            
-                            <div className="hidden md:block bg-green-50 p-2 rounded-md">
-                              <div className="text-xs text-gray-500">Revenue</div>
-                              <div className="text-sm font-semibold">
-                                ${event.revenue || event.ticketStats?.revenue || '0'}
                               </div>
                             </div>
                           </div>
@@ -327,6 +372,52 @@ const MyEventsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Delete Event</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete "<strong>{deleteConfirm.eventTitle}</strong>"? 
+              This action cannot be undone and will permanently remove all event data, tickets, and attendee information.
+            </p>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={cancelDelete}
+                disabled={deleting}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteEvent}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 inline-flex items-center"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-t-2 border-white border-solid rounded-full animate-spin mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Event
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

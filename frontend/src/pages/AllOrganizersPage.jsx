@@ -25,16 +25,16 @@ const AllOrganizersPage = () => {
  const fetchOrganizers = async () => {
   try {
     setLoading(true);
-    const params = {
-      page: currentPage,
-      limit: itemsPerPage,
-      search: searchQuery,
-      ...filters
-    };
+    // const params = {
+    //   page: currentPage,
+    //   limit: itemsPerPage,
+    //   search: searchQuery,
+    //   ...filters
+    // };
 
-    console.log("API Params:", params); // Add this line
+    // console.log("API Params:", params); // Add this line
     
-    const response = await organizerService.getAllOrganizers(params);
+    const response = await organizerService.getAllOrganizers();
     console.log("API Response:", response); // Add this line
     
     setOrganizers(response.organizers || []);

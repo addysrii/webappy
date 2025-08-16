@@ -23,6 +23,7 @@ import CreatePost from './components/posts/CreatePost';
 import ProfilePage from './pages/ProfilePage';
 import PortfolioPage from './pages/PortfolioPage';
 import AllOrganizersPage from "./pages/AllOrganizersPage";
+import OrganizerRegistration from "./pages/OrganizerRegistrationPage.jsx";
 import AddAchievementForm from './components/profile/AddAchievementForm';
 import AddProjectForm from './components/profile/AddProjectForm';
 import ProfileViewersPage from './pages/ProfileViewerPage';

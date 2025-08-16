@@ -26,19 +26,30 @@ const AllOrganizersPage = () => {
     try {
       setLoading(true);
       
+      // Prepare API params based on current state
       const params = {
         page: currentPage,
         limit: itemsPerPage,
         search: searchQuery,
         ...filters
       };
-      
+
+      // Remove empty filters
+      Object.keys(params).forEach(key => {
+        if (params[key] === '') {
+          delete params[key];
+        }
+      });
+
+      // Call the organizer service
       const response = await organizerService.getAllOrganizers(params);
-      setOrganizers(response.organizers);
-      setTotalPages(response.totalPages);
+      
+      setOrganizers(response.organizers || []);
+      setTotalPages(response.totalPages || 1);
       
     } catch (error) {
       console.error('Error fetching organizers:', error);
+      // You might want to add error state handling here
     } finally {
       setLoading(false);
     }
@@ -90,13 +101,13 @@ const AllOrganizersPage = () => {
             </h3>
             <p className="text-sm text-gray-500 flex items-center mt-1">
               <MapPin className="w-4 h-4 mr-1" />
-              {organizer.location}
+              {organizer.location || 'Location not specified'}
             </p>
           </div>
         </div>
         
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {organizer.description}
+          {organizer.description || 'No description provided'}
         </p>
         
         <div className="flex items-center justify-between text-sm text-gray-500">
@@ -110,9 +121,11 @@ const AllOrganizersPage = () => {
               {organizer.rating || 'N/A'}
             </span>
           </div>
-          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-            {organizer.organizerType}
-          </span>
+          {organizer.organizerType && (
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+              {organizer.organizerType}
+            </span>
+          )}
         </div>
         
         <button className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200">
@@ -145,10 +158,10 @@ const AllOrganizersPage = () => {
               </div>
               <p className="text-sm text-gray-500 flex items-center mt-1">
                 <MapPin className="w-4 h-4 mr-1" />
-                {organizer.location}
+                {organizer.location || 'Location not specified'}
               </p>
               <p className="text-sm text-gray-600 mt-2 line-clamp-1">
-                {organizer.description}
+                {organizer.description || 'No description provided'}
               </p>
             </div>
           </div>
@@ -165,9 +178,11 @@ const AllOrganizersPage = () => {
               </p>
               <p className="text-xs text-gray-500">Rating</p>
             </div>
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-              {organizer.organizerType}
-            </span>
+            {organizer.organizerType && (
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                {organizer.organizerType}
+              </span>
+            )}
             <button className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200">
               View Profile
             </button>

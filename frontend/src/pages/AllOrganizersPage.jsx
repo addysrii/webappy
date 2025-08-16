@@ -19,7 +19,9 @@ const AllOrganizersPage = () => {
   const itemsPerPage = 12;
 
   // Mock data for demonstration - replace with actual API data
-
+  const mockOrganizers = [
+   
+  ];
 
   useEffect(() => {
     fetchOrganizers();

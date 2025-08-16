@@ -147,6 +147,11 @@ const App = () => {
               <AllOrganizersPage />
             </ProtectedRoute>
           } />
+            <Route path="/organizerregister" element={
+            <ProtectedRoute>
+              <OrganizationRegister />
+            </ProtectedRoute>
+          } />
           
           <Route path="/events/:eventId/form/create" element={
             <ProtectedRoute>

@@ -19,11 +19,10 @@ import SettingsPage from './pages/SettingsPage';
 import NetworkPage from './components/network/NearbyProfessional';
 import CreateStoryPage from './pages/CreateStroyPage';
 import StoryViewPage from './pages/StoryViewPage';
-import CreatePost from './components/posts/CreatePost';
 import ProfilePage from './pages/ProfilePage';
 import PortfolioPage from './pages/PortfolioPage';
-import AllOrganizersPage from "./pages/AllOrganizersPage";
-import OrganizerRegistration from "./pages/OrganizerRegistrationPage.jsx";
+import AllOrganizersPage from "./pages/Orgnanizers/AllOrganizersPage.jsx"
+import OrganizerRegistration from './pages/Orgnanizers/OrganizerRegistrationPage.jsx';
 import AddAchievementForm from './components/profile/AddAchievementForm';
 import AddProjectForm from './components/profile/AddProjectForm';
 import ProfileViewersPage from './pages/ProfileViewerPage';
@@ -244,7 +243,7 @@ const App = () => {
             </ProtectedRoute>
           } />
           
-          <Route path="/posts/create" element={
+          {/* <Route path="/posts/create" element={
             <ProtectedRoute>
               <CreatePost/>
             </ProtectedRoute>
@@ -254,7 +253,7 @@ const App = () => {
             <ProtectedRoute>
               <CreateStoryPage/>
             </ProtectedRoute>
-          } />
+          } /> */}
           
           <Route path="/stories/view" element={
             <ProtectedRoute>

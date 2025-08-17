@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Users, Calendar, Star, Filter, Grid, List, ChevronLeft, ChevronRight } from 'lucide-react';
-import organizerService from '../services/organizerService';
+import organizerService from '../../services/organizerService';
 
 const AllOrganizersPage = () => {
   const [organizers, setOrganizers] = useState([]);

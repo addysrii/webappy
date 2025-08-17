@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, Building2, Lock, Globe, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import organizerService from '../../services/organizerService';
 
 const OrganizerRegistration = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     organizerName: '',
     email: '',
@@ -35,6 +38,8 @@ const OrganizerRegistration = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -62,6 +67,7 @@ const OrganizerRegistration = () => {
     if (step === 1) {
       if (!formData.organizerName) newErrors.organizerName = 'Organization name is required';
       if (!formData.email) newErrors.email = 'Email is required';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
       if (!formData.phone) newErrors.phone = 'Phone number is required';
       if (!formData.organizationType) newErrors.organizationType = 'Organization type is required';
     }
@@ -72,11 +78,12 @@ const OrganizerRegistration = () => {
       if (!formData.address.state) newErrors['address.state'] = 'State is required';
       if (!formData.contactPerson.name) newErrors['contactPerson.name'] = 'Contact name is required';
       if (!formData.contactPerson.email) newErrors['contactPerson.email'] = 'Contact email is required';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactPerson.email)) newErrors['contactPerson.email'] = 'Invalid email format';
     }
     
     if (step === 3) {
       if (!formData.password) newErrors.password = 'Password is required';
-      if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+      else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
       if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
       if (!formData.termsAccepted) newErrors.termsAccepted = 'You must accept the terms';
     }
@@ -88,6 +95,7 @@ const OrganizerRegistration = () => {
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
+      setApiError(null);
     }
   };
 
@@ -95,12 +103,44 @@ const OrganizerRegistration = () => {
     setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError(null);
+    
     if (validateStep(currentStep)) {
-      console.log('Form submitted:', formData);
-      // Here you would typically send the data to your backend
-      alert('Registration submitted successfully!');
+      setIsSubmitting(true);
+      
+      try {
+        // Prepare the data for API submission
+        const registrationData = {
+          organizerName: formData.organizerName,
+          email: formData.email,
+          phone: formData.phone,
+          organizationType: formData.organizationType,
+          address: formData.address,
+          contactPerson: formData.contactPerson,
+          password: formData.password,
+          website: formData.website,
+          socialLinks: formData.socialLinks,
+          registrationNumber: formData.registrationNumber
+        };
+
+        // Call the organizer service
+        const response = await organizerService.createOrganizer(registrationData);
+        
+        // Redirect to success page
+        navigate('/registration-success', { 
+          state: { 
+            organizerName: response.organizerName, 
+            email: response.email 
+          } 
+        });
+      } catch (error) {
+        console.error('Registration failed:', error);
+        setApiError(error.response?.data?.message || 'Registration failed. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 

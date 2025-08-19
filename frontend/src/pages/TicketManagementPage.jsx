@@ -44,10 +44,15 @@ const TicketManagementPage = () => {
     
     try {
       setLoading(true);
-      const result = await ticketService.getEventTicketTypes(eventId);
+      
+      // Fix: Handle the service response correctly
+      const result = await ticketService.getEventTicketTypes(eventId, true); // Include inactive tickets for management
+      
       // Only update state if the component is still mounted
       if (isMounted.current) {
-        setTicketTypes(result || []);
+        // Fix: The service returns { data: [...] }, so extract the data property
+        const ticketTypesData = result?.data || result || [];
+        setTicketTypes(Array.isArray(ticketTypesData) ? ticketTypesData : []);
         setLoading(false);
         // Clear any existing error when fetch succeeds
         setError(null);
@@ -57,6 +62,7 @@ const TicketManagementPage = () => {
       // Only update state if the component is still mounted
       if (isMounted.current) {
         setError('Failed to load ticket types. Please try again.');
+        setTicketTypes([]); // Set empty array on error
         setLoading(false);
       }
     }
@@ -66,7 +72,7 @@ const TicketManagementPage = () => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? parseFloat(value) : value
+      [name]: type === 'checkbox' ? checked : type === 'number' ? (value === '' ? 0 : parseFloat(value)) : value
     }));
   };
 
@@ -86,22 +92,37 @@ const TicketManagementPage = () => {
 
   const handleAddTicket = async (e) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      setError('Ticket name is required');
+      return;
+    }
+    
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors
+      
       await ticketService.createTicketType(eventId, formData);
-      setShowAddModal(false);
-      resetForm();
-      await fetchTicketTypes();
+      
+      if (isMounted.current) {
+        setShowAddModal(false);
+        resetForm();
+        await fetchTicketTypes();
+      }
     } catch (err) {
       console.error('Failed to create ticket type:', err);
       if (isMounted.current) {
-        setError('Failed to create ticket type. Please try again.');
+        setError(err.message || 'Failed to create ticket type. Please try again.');
         setLoading(false);
       }
     }
   };
 
   const handleEditClick = (ticket) => {
+    // Ensure ticket object exists and has required properties
+    if (!ticket) return;
+    
     setCurrentTicket(ticket);
     setFormData({
       name: ticket.name || '',
@@ -118,34 +139,55 @@ const TicketManagementPage = () => {
 
   const handleUpdateTicket = async (e) => {
     e.preventDefault();
-    if (!currentTicket) return;
+    if (!currentTicket?.id) {
+      setError('No ticket selected for update');
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.name.trim()) {
+      setError('Ticket name is required');
+      return;
+    }
 
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors
+      
       await ticketService.updateTicketType(eventId, currentTicket.id, formData);
-      setShowEditModal(false);
-      resetForm();
-      await fetchTicketTypes();
+      
+      if (isMounted.current) {
+        setShowEditModal(false);
+        resetForm();
+        await fetchTicketTypes();
+      }
     } catch (err) {
       console.error('Failed to update ticket type:', err);
       if (isMounted.current) {
-        setError('Failed to update ticket type. Please try again.');
+        setError(err.message || 'Failed to update ticket type. Please try again.');
         setLoading(false);
       }
     }
   };
 
   const handleToggleActive = async (ticketId, isCurrentlyActive) => {
+    if (!ticketId) return;
+    
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors
+      
       await ticketService.updateTicketType(eventId, ticketId, {
         isActive: !isCurrentlyActive
       });
-      await fetchTicketTypes();
+      
+      if (isMounted.current) {
+        await fetchTicketTypes();
+      }
     } catch (err) {
       console.error('Failed to toggle ticket status:', err);
       if (isMounted.current) {
-        setError('Failed to update ticket status. Please try again.');
+        setError(err.message || 'Failed to update ticket status. Please try again.');
         setLoading(false);
       }
     }
@@ -153,15 +195,43 @@ const TicketManagementPage = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return 'Invalid Date';
+    }
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
+    try {
+      const numPrice = parseFloat(price) || 0;
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(numPrice);
+    } catch (err) {
+      console.error('Error formatting price:', err);
+      return '$0.00';
+    }
   };
+
+  // Validate eventId before rendering
+  if (!eventId) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+          <p>No event ID provided. Please navigate from a valid event.</p>
+          <button 
+            className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => navigate('/events')}
+          >
+            Go to Events
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // If there's an error, show it in a dismissible alert
   if (error) {
@@ -170,18 +240,19 @@ const TicketManagementPage = () => {
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
           <p>{error}</p>
           <button 
-            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+            className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded mr-2"
             onClick={() => setError(null)}
           >
             Dismiss
           </button>
+          <button 
+            onClick={fetchTicketTypes}
+            className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Retry'}
+          </button>
         </div>
-        <button 
-          onClick={fetchTicketTypes}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Retry Loading Tickets
-        </button>
       </div>
     );
   }
@@ -223,7 +294,7 @@ const TicketManagementPage = () => {
         
         {loading ? (
           <div className="text-center p-4">Loading ticket types...</div>
-        ) : ticketTypes.length === 0 ? (
+        ) : !Array.isArray(ticketTypes) || ticketTypes.length === 0 ? (
           <div className="text-center p-4">
             <p>No ticket types found. Create your first ticket type to start selling.</p>
           </div>
@@ -253,53 +324,58 @@ const TicketManagementPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {ticketTypes.map((ticket) => (
-                  <tr key={ticket.id}>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{ticket.name}</div>
-                      <div className="text-sm text-gray-500">{ticket.description || 'No description'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatPrice(ticket.price)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ticket.quantity === -1 ? 'Unlimited' : `${ticket.quantity} total`}
-                      {ticket.sold ? ` (${ticket.sold} sold)` : ''}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(ticket.startDate)} - {formatDate(ticket.endDate)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        ticket.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {ticket.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button 
-                        onClick={() => handleEditClick(ticket)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                        disabled={loading}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleToggleActive(ticket.id, ticket.isActive)}
-                        className={`${
+                {ticketTypes.map((ticket) => {
+                  // Safety check for ticket object
+                  if (!ticket || !ticket.id) return null;
+                  
+                  return (
+                    <tr key={ticket.id}>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{ticket.name || 'Unnamed Ticket'}</div>
+                        <div className="text-sm text-gray-500">{ticket.description || 'No description'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatPrice(ticket.price)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {ticket.quantity === -1 ? 'Unlimited' : `${ticket.quantity || 0} total`}
+                        {ticket.sold ? ` (${ticket.sold} sold)` : ''}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(ticket.startDate)} - {formatDate(ticket.endDate)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           ticket.isActive 
-                            ? 'text-red-600 hover:text-red-900' 
-                            : 'text-green-600 hover:text-green-900'
-                        }`}
-                        disabled={loading}
-                      >
-                        {ticket.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {ticket.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button 
+                          onClick={() => handleEditClick(ticket)}
+                          className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          disabled={loading}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleToggleActive(ticket.id, ticket.isActive)}
+                          className={`${
+                            ticket.isActive 
+                              ? 'text-red-600 hover:text-red-900' 
+                              : 'text-green-600 hover:text-green-900'
+                          }`}
+                          disabled={loading}
+                        >
+                          {ticket.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -326,7 +402,7 @@ const TicketManagementPage = () => {
             <form onSubmit={handleAddTicket}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                  Ticket Name
+                  Ticket Name *
                 </label>
                 <input
                   type="text"
@@ -356,7 +432,7 @@ const TicketManagementPage = () => {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
-                    Price
+                    Price *
                   </label>
                   <input
                     type="number"
@@ -372,7 +448,7 @@ const TicketManagementPage = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="quantity">
-                    Quantity (Use -1 for unlimited)
+                    Quantity (Use -1 for unlimited) *
                   </label>
                   <input
                     type="number"
@@ -412,7 +488,7 @@ const TicketManagementPage = () => {
       )}
       
       {/* Edit Ticket Modal */}
-      {showEditModal && (
+      {showEditModal && currentTicket && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
@@ -431,7 +507,7 @@ const TicketManagementPage = () => {
             <form onSubmit={handleUpdateTicket}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-name">
-                  Ticket Name
+                  Ticket Name *
                 </label>
                 <input
                   type="text"
@@ -461,7 +537,7 @@ const TicketManagementPage = () => {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-price">
-                    Price
+                    Price *
                   </label>
                   <input
                     type="number"
@@ -477,7 +553,7 @@ const TicketManagementPage = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-quantity">
-                    Quantity (Use -1 for unlimited)
+                    Quantity (Use -1 for unlimited) *
                   </label>
                   <input
                     type="number"
@@ -522,7 +598,7 @@ const TicketManagementPage = () => {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-maxPerOrder">
-                    Max Per Order
+                    Max Per Order *
                   </label>
                   <input
                     type="number"

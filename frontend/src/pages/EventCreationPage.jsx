@@ -284,7 +284,7 @@ const EventCreationPage = ({ user, onLogout }) => {
       
       // Navigate to the new event page
       setTimeout(() => {
-        navigate(`/events/${response.data._id || response.data.id}/form/create`);
+        navigate(`/events/${response.data._id || response.data.id}/tickets/create`);
       }, 2000);
       
     } catch (err) {

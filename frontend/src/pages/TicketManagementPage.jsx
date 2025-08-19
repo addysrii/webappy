@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ticketService from '../services/ticketService';
+import eventService from '../services/eventService';
 
 const TicketManagementPage = () => {
   const { eventId } = useParams();
@@ -45,14 +45,25 @@ const TicketManagementPage = () => {
     try {
       setLoading(true);
       
-      // Fix: Handle the service response correctly
-      const result = await ticketService.getEventTicketTypes(eventId, true); // Include inactive tickets for management
+      // Use the eventService method that matches the eventService pattern
+      const result = await eventService.getEventTicketTypes(eventId, true); // Include inactive tickets for management
       
       // Only update state if the component is still mounted
       if (isMounted.current) {
-        // Fix: The service returns { data: [...] }, so extract the data property
-        const ticketTypesData = result?.data || result || [];
-        setTicketTypes(Array.isArray(ticketTypesData) ? ticketTypesData : []);
+        // Handle the response structure from eventService.getEventTicketTypes
+        // It returns { data: [...] } format like eventService methods
+        let ticketTypesData = [];
+        
+        if (result && result.data) {
+          // If result.data is the wrapped response
+          ticketTypesData = Array.isArray(result.data) ? result.data : [];
+        } else if (Array.isArray(result)) {
+          // If result is directly an array
+          ticketTypesData = result;
+        }
+        
+        console.log('Fetched ticket types:', ticketTypesData);
+        setTicketTypes(ticketTypesData);
         setLoading(false);
         // Clear any existing error when fetch succeeds
         setError(null);
@@ -103,9 +114,11 @@ const TicketManagementPage = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      await ticketService.createTicketType(eventId, formData);
+      // Call eventService.createTicketType
+      const result = await eventService.createTicketType(eventId, formData);
       
       if (isMounted.current) {
+        console.log('Created ticket type:', result);
         setShowAddModal(false);
         resetForm();
         await fetchTicketTypes();
@@ -154,9 +167,11 @@ const TicketManagementPage = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      await ticketService.updateTicketType(eventId, currentTicket.id, formData);
+      // Call eventService.updateTicketType
+      const result = await eventService.updateTicketType(eventId, currentTicket.id, formData);
       
       if (isMounted.current) {
+        console.log('Updated ticket type:', result);
         setShowEditModal(false);
         resetForm();
         await fetchTicketTypes();
@@ -177,11 +192,13 @@ const TicketManagementPage = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      await ticketService.updateTicketType(eventId, ticketId, {
+      // Call eventService.updateTicketType with just the isActive field
+      const result = await eventService.updateTicketType(eventId, ticketId, {
         isActive: !isCurrentlyActive
       });
       
       if (isMounted.current) {
+        console.log('Toggled ticket status:', result);
         await fetchTicketTypes();
       }
     } catch (err) {
@@ -326,7 +343,10 @@ const TicketManagementPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {ticketTypes.map((ticket) => {
                   // Safety check for ticket object
-                  if (!ticket || !ticket.id) return null;
+                  if (!ticket || !ticket.id) {
+                    console.warn('Invalid ticket object:', ticket);
+                    return null;
+                  }
                   
                   return (
                     <tr key={ticket.id}>

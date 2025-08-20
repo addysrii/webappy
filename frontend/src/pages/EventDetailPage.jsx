@@ -618,10 +618,7 @@ const EventDetailPage = ({ user, onLogout }) => {
                           <p className="text-gray-600 text-sm">No tickets available for this event.</p>
                           
                           {/* Show attendee count instead */}
-                          <div className="mt-3 flex items-center">
-                            <Users size={16} className="text-gray-500 mr-2" />
-                            <span className="text-gray-700">{goingCount} attending</span>
-                          </div>
+                         
                           
                           {/* Add to calendar button */}
                           <button 
@@ -648,51 +645,9 @@ const EventDetailPage = ({ user, onLogout }) => {
                       </button>
                     )}
                     
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleResponseClick('going')}
-                        className={`flex items-center space-x-1 py-2 px-3 rounded-lg border transition ${
-                          userResponse === 'going' 
-                            ? 'bg-green-100 border-green-600 text-green-700' 
-                            : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        <Check size={16} className={userResponse === 'going' ? 'text-green-600' : 'text-gray-500'} />
-                        <span>Going</span>
-                      </button>
-                      
-                      <button 
-                        onClick={() => handleResponseClick('maybe')}
-                        className={`flex items-center space-x-1 py-2 px-3 rounded-lg border transition ${
-                          userResponse === 'maybe' 
-                            ? 'bg-orange-100 border-orange-600 text-orange-700' 
-                            : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        <Calendar size={16} className={userResponse === 'maybe' ? 'text-orange-600' : 'text-gray-500'} />
-                        <span>Maybe</span>
-                      </button>
-                      
-                      <button 
-                        onClick={() => handleResponseClick('declined')}
-                        className={`flex items-center space-x-1 py-2 px-3 rounded-lg border transition ${
-                          userResponse === 'declined' 
-                            ? 'bg-red-100 border-red-600 text-red-700' 
-                            : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        <X size={16} className={userResponse === 'declined' ? 'text-red-600' : 'text-gray-500'} />
-                        <span>Can't Go</span>
-                      </button>
-                    </div>
+                  
                     
-                    <button 
-                      onClick={handleAddToCalendar}
-                      className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center space-x-2 transition"
-                    >
-                      <CalendarPlus size={18} />
-                      <span>Add to Calendar</span>
-                    </button>
+                 
                   </div>
                 </div>
               </div>

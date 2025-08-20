@@ -13,7 +13,7 @@ import {
   Mail
 } from 'lucide-react';
 import eventService from '../services/eventService';
-import ticketService from '../services/ticketService'; // Import ticketService
+import ticketService from '../services/ticketService';
 
 const TicketConfirmationPage = () => {
   const { bookingId } = useParams();
@@ -23,6 +23,7 @@ const TicketConfirmationPage = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
   
   // Format date for display
   const formatDate = (dateString) => {
@@ -97,7 +98,50 @@ const TicketConfirmationPage = () => {
     
     fetchBookingDetails();
   }, [bookingId]);
-  
+
+  // Check for registration form and redirect if exists
+  useEffect(() => {
+    const checkAndRedirectToRegistration = async () => {
+      if (!event || !booking || booking.status !== 'confirmed') return;
+      
+      try {
+        setRedirecting(true);
+        
+        const eventId = event.id || event._id;
+        const bookingIdValue = booking.id || booking._id;
+        
+        if (!eventId || !bookingIdValue) {
+          console.error('Missing eventId or bookingId for registration redirect');
+          setRedirecting(false);
+          return;
+        }
+        
+        // Use the existing getCustomForm function from eventService
+        const formResponse = await eventService.getCustomForm(eventId);
+        
+        console.log('Registration form check response:', formResponse);
+        
+        // Check if form exists (success and data present, not 404)
+        if (formResponse.success && formResponse.data && !formResponse.notFound) {
+          console.log('Registration form found, redirecting...');
+          // Immediately redirect to registration form
+          navigate(`/events/${eventId}/registration/${bookingIdValue}`);
+        } else {
+          console.log('No registration form found, showing confirmation page');
+        }
+      } catch (err) {
+        console.error('Error checking registration form:', err);
+        // If there's an error checking the form, just show the confirmation page
+      } finally {
+        setRedirecting(false);
+      }
+    };
+
+    if (booking && event) {
+      checkAndRedirectToRegistration();
+    }
+  }, [booking, event, navigate]);
+
   // Function to handle downloading tickets
   const handleDownloadTickets = async () => {
     try {
@@ -231,6 +275,18 @@ const TicketConfirmationPage = () => {
   const displayEvent = event || (bookingId === 'success' ? demoEvent : null);
   const displayBooking = booking || (bookingId === 'success' ? demoBooking : null);
   
+  // Show loading while checking for registration form
+  if (redirecting) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center">
+          <div className="w-16 h-16 border-t-4 border-orange-500 border-solid rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Payment successful! Redirecting to registration form...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

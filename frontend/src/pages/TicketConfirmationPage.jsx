@@ -125,7 +125,7 @@ const TicketConfirmationPage = () => {
         if (formResponse.success && formResponse.data && !formResponse.notFound) {
           console.log('Registration form found, redirecting...');
           // Immediately redirect to registration form
-          navigate(`/events/${eventId}/registration/${bookingIdValue}`);
+          navigate(`/events/${eventId}/from`);
         } else {
           console.log('No registration form found, showing confirmation page');
         }

@@ -62,7 +62,7 @@ import PaymentResponsePage from './pages/PaymentResponsePage';
 import EditEventForm from './pages/EditEventPage';
 import EditFormPage from './pages/EditFormPage';
 import CouponManagementPage from './pages/CouponManagementPage';
-import QRCertificateGenerator from "./pages/CertificateCreation.jsx"
+import QRCertificateGenerator from "./pages/EventSoldTicket.jsx
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -166,6 +166,11 @@ const App = () => {
           <Route path="/events/:eventId/edit" element={
             <ProtectedRoute>
               <EditEventForm />
+            </ProtectedRoute>
+          } />
+           <Route path="/events/:eventId/soldticket" element={
+            <ProtectedRoute>
+              <EventSoldTicketsPage />
             </ProtectedRoute>
           } />
             <Route path="/events/:eventId/coupons" element={<CouponManagementPage />} />

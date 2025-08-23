@@ -517,7 +517,7 @@ const EventSoldTicketsPage = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {ticket.priceFormatted || formatCurrency(ticket.booking.totalAmount)}
+                        {ticket.priceFormatted || formatCurrency(ticket.bookingInfo.totalAmount)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(ticket.bookingInfo?.bookedAt || ticket.createdAt)}

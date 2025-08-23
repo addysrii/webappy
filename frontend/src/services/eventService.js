@@ -336,7 +336,6 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       return {
         success: true,
         data: response.data,
-        console.log(data),
         tickets: response.data?.data?.tickets || [],
         pagination: response.data?.data?.pagination || {},
         statistics: response.data?.data?.statistics || {},
@@ -344,7 +343,7 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       };
     } catch (error) {
       console.error(`Error fetching sold tickets for event ${eventId}:`, error);
-
+        console.log(data)
       let errorMessage = 'Failed to fetch sold tickets';
       if (error.response) {
         if (error.response.status === 403) {

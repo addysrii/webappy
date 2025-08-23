@@ -91,7 +91,7 @@ const EventSoldTicketsPage = () => {
   const fetchSoldTickets = async () => {
     try {
       const result = await eventService.getEventSoldTickets(eventId, filters);
-      console.log(result.tickets.bookingInfo.totalAmount)
+      
       if (result.success) {
         setTickets(result.tickets);
         setStatistics(result.statistics);
@@ -162,9 +162,24 @@ const EventSoldTicketsPage = () => {
     }
   };
 
-  // Format currency
+  // Format currency - updated to use booking amount
   const formatCurrency = (amount, currency = '₹') => {
+    if (amount === 0) return 'Free';
     return `${currency} ${parseFloat(amount).toFixed(2)}`;
+  };
+
+  // Get booking amount for a ticket - NEW FUNCTION
+  const getBookingAmount = (ticket) => {
+    // Use booking amount if available, otherwise fall back to ticket price
+    return ticket.bookingInfo?.totalAmount !== undefined 
+      ? ticket.bookingInfo.totalAmount 
+      : ticket.price;
+  };
+
+  // Get currency for a ticket - NEW FUNCTION
+  const getCurrency = (ticket) => {
+    // Use booking currency if available, otherwise fall back to ticket currency
+    return ticket.bookingInfo?.currency || ticket.currency || '₹';
   };
 
   // Pagination controls
@@ -395,7 +410,7 @@ const EventSoldTicketsPage = () => {
                   <option value="createdAt">Purchase Date</option>
                   <option value="checkedInAt">Check-in Date</option>
                   <option value="ticketNumber">Ticket Number</option>
-                  <option value="price">Price</option>
+                  <option value="bookingAmount">Booking Amount</option>
                 </select>
               </div>
 
@@ -448,7 +463,7 @@ const EventSoldTicketsPage = () => {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
+                    Booking Amount
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Purchased
@@ -471,74 +486,80 @@ const EventSoldTicketsPage = () => {
                     </td>
                   </tr>
                 ) : (
-                  tickets.map((ticket) => (
-                    <tr key={ticket._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <Ticket className="h-5 w-5 text-orange-600" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {ticket.ticketNumber}
+                  tickets.map((ticket) => {
+                    const bookingAmount = getBookingAmount(ticket);
+                    const currency = getCurrency(ticket);
+                    
+                    return (
+                      <tr key={ticket._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                              <Ticket className="h-5 w-5 text-orange-600" />
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {ticket.ticketType?.name || 'Unknown Type'}
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {ticket.ticketNumber}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {ticket.ticketType?.name || 'Unknown Type'}
+                                {ticket.isGroupTicket && ` (Group - ${ticket.totalTickets} tickets)`}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {ticket.ownerInfo?.name || 'Unknown'}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {ticket.ownerInfo?.email || ''}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          ticket.status === 'used'
-                            ? 'bg-green-100 text-green-800'
-                            : ticket.status === 'active'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {ticket.status === 'used' ? (
-                            <>
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Used
-                            </>
-                          ) : ticket.status === 'active' ? (
-                            'Active'
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {ticket.ownerInfo?.name || 'Unknown'}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {ticket.ownerInfo?.email || ''}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            ticket.status === 'used'
+                              ? 'bg-green-100 text-green-800'
+                              : ticket.status === 'active'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {ticket.status === 'used' ? (
+                              <>
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Used
+                              </>
+                            ) : ticket.status === 'active' ? (
+                              'Active'
+                            ) : (
+                              ticket.status
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatCurrency(bookingAmount, currency)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(ticket.bookingInfo?.bookedAt || ticket.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {ticket.checkedInInfo ? (
+                            <div>
+                              <div>{ticket.checkedInInfo.formatted}</div>
+                              <div className="text-xs text-gray-400">by {ticket.checkedInInfo.by}</div>
+                            </div>
                           ) : (
-                            ticket.status
+                            '-'
                           )}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {ticket.priceFormatted || formatCurrency(ticket.bookingInfo.totalAmount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(ticket.bookingInfo?.bookedAt || ticket.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {ticket.checkedInInfo ? (
-                          <div>
-                            <div>{ticket.checkedInInfo.formatted}</div>
-                            <div className="text-xs text-gray-400">by {ticket.checkedInInfo.by}</div>
-                          </div>
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-orange-600 hover:text-orange-900">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button className="text-orange-600 hover:text-orange-900">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

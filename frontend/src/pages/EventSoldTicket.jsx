@@ -91,7 +91,7 @@ const EventSoldTicketsPage = () => {
   const fetchSoldTickets = async () => {
     try {
       const result = await eventService.getEventSoldTickets(eventId, filters);
-      
+      console.log(result.tickets.bookingInfo.totalAmount)
       if (result.success) {
         setTickets(result.tickets);
         setStatistics(result.statistics);

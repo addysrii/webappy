@@ -332,7 +332,7 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       const response = await api.get(`/api/bookings/events/${eventId}/sold-tickets`, {
         params: filters
       });
-
+    console.log(response.data)
       return {
         success: true,
         data: response.data,
@@ -343,7 +343,7 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       };
     } catch (error) {
       console.error(`Error fetching sold tickets for event ${eventId}:`, error);
-        console.log(response.data)
+    
       let errorMessage = 'Failed to fetch sold tickets';
       if (error.response) {
         if (error.response.status === 403) {

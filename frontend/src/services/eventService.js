@@ -321,7 +321,50 @@ getUserBookings: async (filters = {}) => {
       };
     }
   },
+getEventSoldTickets: async (eventId, filters = {}) => {
+    try {
+      if (!eventId) {
+        throw new Error('Invalid event ID');
+      }
 
+      console.log('Fetching sold tickets for event:', eventId, 'with filters:', filters);
+
+      const response = await api.get(`/api/bookings/events/${eventId}/sold-tickets`, {
+        params: filters
+      });
+
+      return {
+        success: true,
+        data: response.data,
+        tickets: response.data?.data?.tickets || [],
+        pagination: response.data?.data?.pagination || {},
+        statistics: response.data?.data?.statistics || {},
+        event: response.data?.data?.event || {}
+      };
+    } catch (error) {
+      console.error(`Error fetching sold tickets for event ${eventId}:`, error);
+
+      let errorMessage = 'Failed to fetch sold tickets';
+      if (error.response) {
+        if (error.response.status === 403) {
+          errorMessage = 'Only event organizers can view sold tickets';
+        } else if (error.response.status === 404) {
+          errorMessage = 'Event not found';
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+        tickets: [],
+        pagination: {},
+        statistics: {},
+        event: null
+      };
+    }
+  },
   // Respond to an event (going, maybe, declined)
   respondToEvent: async (eventId, status, message = '') => {
     try {

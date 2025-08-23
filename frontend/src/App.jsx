@@ -63,6 +63,7 @@ import EditEventForm from './pages/EditEventPage';
 import EditFormPage from './pages/EditFormPage';
 import CouponManagementPage from './pages/CouponManagementPage';
 import EventSoldTicketsPage from "./pages/EventSoldTicket.jsx";
+import QRCertificateGenerator from "./pages/CertificateCreation.jsx"
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();

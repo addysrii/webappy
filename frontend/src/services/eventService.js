@@ -336,6 +336,7 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       return {
         success: true,
         data: response.data,
+        console.log(data)
         tickets: response.data?.data?.tickets || [],
         pagination: response.data?.data?.pagination || {},
         statistics: response.data?.data?.statistics || {},

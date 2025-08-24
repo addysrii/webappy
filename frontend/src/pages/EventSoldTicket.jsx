@@ -15,7 +15,8 @@ import {
   EyeOff,
   MoreHorizontal,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  RefreshCw
 } from 'lucide-react';
 import eventService from '../services/eventService';
 import { useAuth } from '../context/AuthContext';
@@ -34,6 +35,7 @@ const EventSoldTicketsPage = () => {
   const [statistics, setStatistics] = useState({});
   const [pagination, setPagination] = useState({});
   const [error, setError] = useState(null);
+  const [calculatingRevenue, setCalculatingRevenue] = useState(false);
   
   // Filters state
   const [filters, setFilters] = useState({
@@ -87,6 +89,26 @@ const EventSoldTicketsPage = () => {
     }
   }, [eventId, toast]);
 
+  // Calculate actual revenue from tickets data
+  const calculateActualRevenue = (tickets) => {
+    let totalRevenue = 0;
+    let paidTicketsCount = 0;
+    
+    tickets.forEach(ticket => {
+      const bookingAmount = getBookingAmount(ticket);
+      if (bookingAmount > 0) {
+        totalRevenue += bookingAmount;
+        paidTicketsCount++;
+      }
+    });
+    
+    return {
+      totalRevenue,
+      paidTicketsCount,
+      freeTicketsCount: tickets.length - paidTicketsCount
+    };
+  };
+
   // Fetch sold tickets with current filters
   const fetchSoldTickets = async () => {
     try {
@@ -94,8 +116,23 @@ const EventSoldTicketsPage = () => {
       
       if (result.success) {
         setTickets(result.tickets);
-        setStatistics(result.statistics);
         setPagination(result.pagination);
+        
+        // Calculate actual revenue from tickets data (fix for backend issue)
+        const actualRevenueData = calculateActualRevenue(result.tickets);
+        
+        // Merge backend statistics with our calculated revenue
+        setStatistics({
+          ...result.statistics,
+          totalRevenue: actualRevenueData.totalRevenue,
+          paidTicketsCount: actualRevenueData.paidTicketsCount,
+          freeTicketsCount: actualRevenueData.freeTicketsCount,
+          // Keep other stats from backend
+          totalSold: result.statistics.totalSold,
+          totalCheckedIn: result.statistics.totalCheckedIn,
+          totalActive: result.statistics.totalActive,
+          totalUsed: result.statistics.totalUsed
+        });
       } else {
         throw new Error(result.error);
       }
@@ -112,6 +149,43 @@ const EventSoldTicketsPage = () => {
           isClosable: true,
         });
       }
+    }
+  };
+
+  // Recalculate revenue manually
+  const recalculateRevenue = async () => {
+    setCalculatingRevenue(true);
+    try {
+      // Re-fetch tickets to get latest data
+      const result = await eventService.getEventSoldTickets(eventId, {
+        ...filters,
+        limit: 1000 // Get more tickets for accurate calculation
+      });
+      
+      if (result.success) {
+        const actualRevenueData = calculateActualRevenue(result.tickets);
+        
+        setStatistics(prev => ({
+          ...prev,
+          totalRevenue: actualRevenueData.totalRevenue,
+          paidTicketsCount: actualRevenueData.paidTicketsCount,
+          freeTicketsCount: actualRevenueData.freeTicketsCount
+        }));
+        
+        if (toast) {
+          toast({
+            title: "Revenue Updated",
+            description: `Revenue recalculated: ${formatCurrency(actualRevenueData.totalRevenue)}`,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error recalculating revenue:', err);
+    } finally {
+      setCalculatingRevenue(false);
     }
   };
 
@@ -162,24 +236,30 @@ const EventSoldTicketsPage = () => {
     }
   };
 
-  // Format currency - updated to use booking amount
+  // Format currency
   const formatCurrency = (amount, currency = '₹') => {
-    if (amount === 0) return 'Free';
+    if (amount === 0 || amount === null || amount === undefined) return 'Free';
     return `${currency} ${parseFloat(amount).toFixed(2)}`;
   };
 
-  // Get booking amount for a ticket - NEW FUNCTION
+  // Get booking amount for a ticket
   const getBookingAmount = (ticket) => {
     // Use booking amount if available, otherwise fall back to ticket price
     return ticket.bookingInfo?.totalAmount !== undefined 
       ? ticket.bookingInfo.totalAmount 
-      : ticket.price;
+      : ticket.price || 0;
   };
 
-  // Get currency for a ticket - NEW FUNCTION
+  // Get currency for a ticket
   const getCurrency = (ticket) => {
     // Use booking currency if available, otherwise fall back to ticket currency
     return ticket.bookingInfo?.currency || ticket.currency || '₹';
+  };
+
+  // Check if ticket is paid
+  const isPaidTicket = (ticket) => {
+    const amount = getBookingAmount(ticket);
+    return amount > 0;
   };
 
   // Pagination controls
@@ -275,6 +355,14 @@ const EventSoldTicketsPage = () => {
             <h1 className="text-xl font-semibold text-gray-900">Sold Tickets</h1>
             <div className="flex space-x-2">
               <button
+                onClick={recalculateRevenue}
+                disabled={calculatingRevenue}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${calculatingRevenue ? 'animate-spin' : ''}`} />
+                Recalculate Revenue
+              </button>
+              <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
@@ -312,7 +400,7 @@ const EventSoldTicketsPage = () => {
         )}
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -355,10 +443,29 @@ const EventSoldTicketsPage = () => {
                 <DollarSign className="w-5 h-5 text-purple-600" />
               </div>
               <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Paid Tickets</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {statistics.paidTicketsCount || 0}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="flex items-center">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <DollarSign className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency(statistics.totalRevenue || 0)}
                 </p>
+                {statistics.freeTicketsCount > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    + {statistics.freeTicketsCount} free tickets
+                  </p>
+                )}
               </div>
             </div>
           </div>

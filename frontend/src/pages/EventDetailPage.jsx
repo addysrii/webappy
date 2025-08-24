@@ -709,73 +709,101 @@ const EventDetailPage = ({ user, onLogout }) => {
           
             
             {/* Host controls - only visible to event hosts/organizers */}
-            {isHost && (
-              <div className="bg-white rounded-lg shadow-sm p-6 mt-8 border-l-4 border-orange-500">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Host Controls</h2>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* Manage form */}
-                  <div 
-                    onClick={() => navigate(`/events/${eventId}/form/edit`)}
-                    className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">Registration Form</h3>
-                      <FileText size={18} className="text-orange-600" />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {hasForm ? 'Edit registration form' : 'Create registration form'}
-                    </p>
-                  </div>
-                  
-                  {/* Manage tickets */}
-                  <div 
-                    onClick={() => navigate(`/events/${eventId}/tickets/manage`)}
-                    className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">Tickets</h3>
-                      <Ticket size={18} className="text-orange-600" />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {ticketTypes && ticketTypes.length > 0 
-                        ? `Manage ${ticketTypes.length} ticket types` 
-                        : 'Create tickets'}
-                    </p>
-                  </div>
-                  
-                  {/* Manage attendees */}
-                  <div 
-                    onClick={() => navigate(`/events/${eventId}/attendees`)}
-                    className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">Attendees</h3>
-                      <Users size={18} className="text-orange-600" />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {goingCount > 0 
-                        ? `Manage ${goingCount} attendees` 
-                        : 'No attendees yet'}
-                    </p>
-                  </div>
-                  
-                  {/* Edit event */}
-                  <div 
-                    onClick={() => navigate(`/events/${eventId}/edit`)}
-                    className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">Edit Event</h3>
-                      <Edit size={18} className="text-orange-600" />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Update event details
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+           {isHost && (
+  <div className="bg-white rounded-lg shadow-sm p-6 mt-8 border-l-4 border-orange-500">
+    <h2 className="text-xl font-bold text-gray-900 mb-4">Host Controls</h2>
+    
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {/* Manage form */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/form/edit`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Registration Form</h3>
+          <FileText size={18} className="text-orange-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          {hasForm ? 'Edit registration form' : 'Create registration form'}
+        </p>
+      </div>
+      
+      {/* Manage tickets */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/tickets/manage`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Tickets</h3>
+          <Ticket size={18} className="text-orange-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          {ticketTypes && ticketTypes.length > 0 
+            ? `Manage ${ticketTypes.length} ticket types` 
+            : 'Create tickets'}
+        </p>
+      </div>
+      
+      {/* Manage coupons */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/coupons`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Coupons</h3>
+          <Tag size={18} className="text-orange-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          Create and manage discount codes
+        </p>
+      </div>
+      
+      {/* View sold tickets */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/sold-tickets`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Sold Tickets</h3>
+          <Check size={18} className="text-green-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          View and manage ticket sales
+        </p>
+      </div>
+      
+      {/* Manage attendees */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/attendees`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Attendees</h3>
+          <Users size={18} className="text-orange-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          {goingCount > 0 
+            ? `Manage ${goingCount} attendees` 
+            : 'No attendees yet'}
+        </p>
+      </div>
+      
+      {/* Edit event */}
+      <div 
+        onClick={() => navigate(`/events/${eventId}/edit`)}
+        className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium">Edit Event</h3>
+          <Edit size={18} className="text-orange-600" />
+        </div>
+        <p className="text-sm text-gray-600">
+          Update event details
+        </p>
+      </div>
+    </div>
+  </div>
+)}
           </div>
         )}
       </div>

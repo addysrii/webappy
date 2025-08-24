@@ -587,7 +587,7 @@ getEventSoldTickets: async (eventId, filters = {}) => {
       
       // Try to use the public endpoint first
       try {
-        const response = await api.get(`/api/events/${eventId}/ticket-types`);
+        const response = await api.get(`/api/bookings/events/${eventId}/ticket-types`);
         return {
           data: response.data,
           success: true

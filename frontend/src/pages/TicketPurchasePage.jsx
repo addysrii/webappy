@@ -962,18 +962,19 @@ const TicketPurchasePage = () => {
     <div>{formatCurrency(totalAmount)}</div>
   </div>
 </div>
-              {paymentMethod === 'cashfree_sdk' && (
-                <Suspense fallback={<div className="flex justify-center my-8"><div className="w-10 h-10 border-t-4 border-b-4 border-orange-500 rounded-full animate-spin"></div></div>}>
-                  <CashfreePayment
-                    amount={totalAmount}
-                    bookingId={bookingId || 'pending'}
-                    eventName={event?.name || 'Event Tickets'}
-                    onSuccess={handlePaymentSuccess}
-                    onFailure={handlePaymentFailure}
-                    onCancel={handlePaymentCancel}
-                  />
-                </Suspense>
-              )}
+          {paymentMethod === 'cashfree_sdk' && (
+  <Suspense fallback={<div className="flex justify-center my-8"><div className="w-10 h-10 border-t-4 border-b-4 border-orange-500 rounded-full animate-spin"></div></div>}>
+    <CashfreePayment
+      amount={totalAmount}
+      bookingId={bookingId || 'pending'}
+      eventName={event?.name || 'Event Tickets'}
+      customerInfo={customerInfo} // Pass the customer info
+      onSuccess={handlePaymentSuccess}
+      onFailure={handlePaymentFailure}
+      onCancel={handlePaymentCancel}
+    />
+  </Suspense>
+)}
               
               {paymentMethod === 'upi' && (
                 <div className="bg-white border border-gray-200 rounded-md p-6">

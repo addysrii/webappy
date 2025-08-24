@@ -6,6 +6,7 @@ const CashfreePayment = ({
   bookingId,
   eventName,
   onSuccess,
+  customerInfo,
   onFailure,
   onCancel
 }) => {
@@ -62,22 +63,18 @@ const CashfreePayment = ({
       return;
     }
 
-    try {
-      setProcessing(true);
+  try {
+    setProcessing(true);
 
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : {};
-
-      const response = await api.post('/api/payments/cashfree/initiate', {
-        amount,
-        bookingId,
-        eventName: eventName || 'Event Booking',
-        customerName: user.firstName
-          ? `${user.firstName} ${user.lastName || ''}`.trim()
-          : 'Customer',
-        customerEmail: user.email || 'customer@example.com',
-        customerPhone: user.phone || '9999999999'
-      });
+    // Use the customerInfo passed from props instead of localStorage
+    const response = await api.post('/api/payments/cashfree/initiate', {
+      amount,
+      bookingId,
+      eventName: eventName || 'Event Booking',
+      customerName: customerInfo.name || 'Customer',
+      customerEmail: customerInfo.email || 'customer@example.com',
+      customerPhone: customerInfo.phone || '9999999999'
+    });
 
       if (!response.data.orderToken) {
         throw new Error('No payment session received');

@@ -760,7 +760,7 @@ const EventDetailPage = ({ user, onLogout }) => {
       
       {/* View sold tickets */}
       <div 
-        onClick={() => navigate(`/events/${eventId}/sold-tickets`)}
+        onClick={() => navigate(`/events/${eventId}/soldticket`)}
         className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg cursor-pointer transition border border-gray-200"
       >
         <div className="flex items-center justify-between mb-2">

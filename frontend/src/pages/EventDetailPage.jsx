@@ -460,7 +460,7 @@ const EventDetailPage = ({ user, onLogout }) => {
                   </div>
                   
                   {/* Form Registration Section */}
-                  {hasForm && (
+{/*                   {hasForm && (
                     <div className="mt-4 bg-orange-50 p-4 rounded-lg border border-orange-200">
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="font-semibold text-gray-900">Registration Required</h3>
@@ -478,7 +478,7 @@ const EventDetailPage = ({ user, onLogout }) => {
                           : 'This event requires additional registration information.'}
                       </p>
                     </div>
-                  )}
+                  )} */}
                   
                   {event.description && event.description.length > 150 && (
                     <button 

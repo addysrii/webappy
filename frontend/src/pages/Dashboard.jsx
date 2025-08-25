@@ -285,61 +285,69 @@ const MergedDashboard = () => {
   };
 
   // Handle phone number submission
-  const handlePhoneSubmit = async (e) => {
-    e.preventDefault();
+ // Handle phone number submission
+const handlePhoneSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!phoneNumber.trim()) {
+    if (toast) {
+      toast({
+        title: "Phone number required",
+        description: "Please enter a valid phone number",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+    return;
+  }
+  
+  setUpdatingPhone(true);
+  
+  try {
+    // Update phone number via API using userService
+    const updatedUser = await userService.updateProfile({ phone: phoneNumber });
     
-    if (!phoneNumber.trim()) {
-      if (toast) {
-        toast({
-          title: "Phone number required",
-          description: "Please enter a valid phone number",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-      return;
+    // Update user in auth context
+    if (updateUser) {
+      updateUser(updatedUser);
     }
     
-    setUpdatingPhone(true);
+    // Close modal
+    setShowPhoneModal(false);
     
-    try {
-      // Update phone number via API
-      const updatedUser = await userService.updateProfile({ phone: phoneNumber });
-      
-      // Update user in auth context
-      if (updateUser) {
-        updateUser(updatedUser);
-      }
-      
-      // Close modal
-      setShowPhoneModal(false);
-      
-      if (toast) {
-        toast({
-          title: "Phone number updated",
-          description: "Your phone number has been successfully added",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error updating phone number:', error);
-      
-      if (toast) {
-        toast({
-          title: "Failed to update phone number",
-          description: error.message || "Please try again later",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    } finally {
-      setUpdatingPhone(false);
+    if (toast) {
+      toast({
+        title: "Phone number updated",
+        description: "Your phone number has been successfully added",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error updating phone number:', error);
+    
+    let errorMessage = "Please try again later";
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    if (toast) {
+      toast({
+        title: "Failed to update phone number",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  } finally {
+    setUpdatingPhone(false);
+  }
+};
 
   // Task management functions
   const addTask = () => {

@@ -24,8 +24,7 @@ export const AuthProvider = ({ children }) => {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           // Try to get user data from localStorage first
-          const usd = fetchUserDataFromToken();
-          console.log(usd);
+       
           const userData = localStorage.getItem('@user_data');
           console.log(userData);
           if (userData) {

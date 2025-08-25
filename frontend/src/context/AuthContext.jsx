@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       try {
         // Extract user info from token
         const payload = authService.parseJwt(token);
-        console.log(payload.phone)
+        console.log(payload.phone);
         if (payload && payload.id) {
           // Create a basic user object from the token
           const basicUserData = {

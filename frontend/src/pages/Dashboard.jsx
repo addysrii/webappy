@@ -25,7 +25,7 @@ const MergedDashboard = () => {
   const toastContext = useToast();
   const toast = toastContext?.toast;
   const [loadings, setLoadings] = useState(true);
-      const [loading, setLoading] = useState(true);
+ 
   // State management
   const [activeSection, setActiveSection] = useState('overview');
   const [pendingRequests, setPendingRequests] = useState(0);
@@ -112,7 +112,7 @@ const MergedDashboard = () => {
       const fetchUserData = useCallback(async () => {
       try {
         console.log("Starting to fetch profile data...");
-        setLoading(true);
+        setLoadings(true);
         setError(null); 
         console.log("Fetching current user info...");
        
@@ -121,7 +121,7 @@ const MergedDashboard = () => {
       } catch (err) {
         console.error('Unexpected error in fetchUserData:', err);
         setError('An unexpected error occurred');
-        setLoading(false);
+        setLoadings(false);
       }
     });
 

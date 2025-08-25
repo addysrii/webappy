@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
           
           // Try to get user data from localStorage first
           const userData = localStorage.getItem('@user_data');
+          console.log(userData);
           if (userData) {
             try {
               const parsedUserData = JSON.parse(userData);

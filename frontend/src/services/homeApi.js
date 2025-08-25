@@ -41,6 +41,7 @@ const homeApi = {
         username: response.data.username || '',
         profileImage: response.data.profileImage || null,
         headline: response.data.headline || '',
+        phone  : response.data.phone || '',
         // Use mkWallet for points as per your backend model (User.js)
         points: response.data.mkWallet || 0,
         // Use streak directly or default to 0

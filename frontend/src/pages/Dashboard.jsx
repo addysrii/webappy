@@ -13,6 +13,7 @@ import defaultProfilePic from '../assets/default-avatar.png';
 import eventService from '../services/eventService';
 import networkService from '../services/networkService';
 import nearbyUsersService from '../services/nearbyUsersService';
+import homeApi from '../services/homeApi';
 import LocationPermissionIcon from '../components/LocationPermissionIcon';
 import Footer from '../components/footer/Footer';
 

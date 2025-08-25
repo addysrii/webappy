@@ -6,7 +6,7 @@ import api from '../services/api';
 import { 
   PlusCircle, Check, Calendar, X, User, AlertTriangle, MapPin,
   Users, ChevronRight, Search, Filter, UserPlus, Rss, 
-  Home, ArrowUpDown, RefreshCw
+  Home, ArrowUpDown, RefreshCw, Phone
 } from 'lucide-react';
 import { useToast } from '../components/common/Toast';
 import defaultProfilePic from '../assets/default-avatar.png';
@@ -20,7 +20,7 @@ import Footer from '../components/footer/Footer';
 
 const MergedDashboard = () => {
   // Auth and navigation
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const toastContext = useToast();
   const toast = toastContext?.toast;
@@ -39,28 +39,34 @@ const MergedDashboard = () => {
     "All", "Business", "Technology", "Social", "Education", "Health"
   ]);
   const [professionals, setProfessionals] = useState([]);
-    const [error, setError] = useState(null);
-    const [distance, setDistance] = useState(10); // Default 10km radius
-    const [currentLocation, setCurrentLocation] = useState(null);
-    const [locationError, setLocationError] = useState(false);
-    const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [mapLoaded, setMapLoaded] = useState(false);
-    const [unit, setUnit] = useState('km');
-    const [filters, setFilters] = useState({
-      industry: null,
-      skills: [],
-      interests: [],
-      connectionStatus: 'all',
-      lastActive: null
-    });
-    const [filterModalVisible, setFilterModalVisible] = useState(false);
-    const [notificationPrefs, setNotificationPrefs] = useState({
-      enabled: false,
-      radius: 1,
-      unit: 'km'
-    });
-    const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [distance, setDistance] = useState(10); // Default 10km radius
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [locationError, setLocationError] = useState(false);
+  const [viewMode, setViewMode] = useState('map'); // 'map' or 'list'
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [unit, setUnit] = useState('km');
+  const [filters, setFilters] = useState({
+    industry: null,
+    skills: [],
+    interests: [],
+    connectionStatus: 'all',
+    lastActive: null
+  });
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    enabled: false,
+    radius: 1,
+    unit: 'km'
+  });
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // Phone verification state
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [updatingPhone, setUpdatingPhone] = useState(false);
+  
   // Location state
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [nearbyUsers, setNearbyUsers] = useState([]);
@@ -91,6 +97,38 @@ const MergedDashboard = () => {
     }
   }, []);
 
+  // Fetch user data and check for phone number
+  const fetchUserData = useCallback(async () => {
+    try {
+      console.log("Starting to fetch profile data...");
+      setLoadings(true);
+      setError(null); 
+      console.log("Fetching current user info...");
+  
+      const userInfo = await userService.getCurrentUser();
+      console.log("Current user info fetched:", userInfo);
+      
+      // Check if phone number exists
+      if (!userInfo.phone) {
+        console.log("Phone number not provided");
+        setShowPhoneModal(true);
+      }
+      
+      setLoadings(false);
+    } catch (err) {
+      console.error('Unexpected error in fetchUserData:', err);
+      setError('An unexpected error occurred');
+      setLoadings(false);
+    }
+  }, []);
+
+  // Call fetchUserData on component mount
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user, fetchUserData]);
+
   // Fetch connection requests
   useEffect(() => {
     const fetchConnectionRequests = async () => {
@@ -109,26 +147,6 @@ const MergedDashboard = () => {
     
     fetchConnectionRequests();
   }, [user]);
-      const fetchUserData = useCallback(async () => {
-      try {
-        console.log("Starting to fetch profile data...");
-        setLoadings(true);
-        setError(null); 
-        console.log("Fetching current user info...");
-    
-          const userInfo = await userService.getCurrentUser();
-        if(!userInfo.phone)
-          console.log("phone number not provided");
-          
-          console.log("Current user info fetched:", userInfo);
-      } catch (err) {
-        console.error('Unexpected error in fetchUserData:', err);
-        setError('An unexpected error occurred');
-        setLoadings(false);
-      }
-        fetchUserData();
-    });
-
 
   // Fetch events
   useEffect(() => {
@@ -213,59 +231,115 @@ const MergedDashboard = () => {
   }, [user]);
 
   // Fetch nearby users function
-  // Updated fetchNearbyUsers function
-const fetchNearbyUsers = async (latitude, longitude, distance) => {
-  try {
-    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-      throw new Error("Invalid coordinates provided");
-    }
-    
-    const nearbyResponse = await nearbyUsersService.getNearbyUsers({
-      latitude,
-      longitude,
-      distance
-    });
-    
-    // Extract the users array from the response
-    const nearbyUsersArray = nearbyResponse.users || nearbyResponse || [];
-    
-    if (!Array.isArray(nearbyUsersArray)) {
-      throw new Error("Invalid response format from server");
-    }
-    
-    // Get connections to exclude them from results
-    let connections = [];
+  const fetchNearbyUsers = async (latitude, longitude, distance) => {
     try {
-      connections = await networkService.getConnections('all');
-    } catch (connectionError) {
-      console.error('Error fetching connections:', connectionError);
-      connections = [];
+      if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+        throw new Error("Invalid coordinates provided");
+      }
+      
+      const nearbyResponse = await nearbyUsersService.getNearbyUsers({
+        latitude,
+        longitude,
+        distance
+      });
+      
+      // Extract the users array from the response
+      const nearbyUsersArray = nearbyResponse.users || nearbyResponse || [];
+      
+      if (!Array.isArray(nearbyUsersArray)) {
+        throw new Error("Invalid response format from server");
+      }
+      
+      // Get connections to exclude them from results
+      let connections = [];
+      try {
+        connections = await networkService.getConnections('all');
+      } catch (connectionError) {
+        console.error('Error fetching connections:', connectionError);
+        connections = [];
+      }
+      
+      // Create a Set of connection IDs for faster lookup
+      const connectionIds = new Set(
+        Array.isArray(connections) ? connections.map(conn => conn._id || conn.id) : []
+      );
+      
+      // Filter out users who are already connections
+      const filteredUsers = nearbyUsersArray.filter(user => 
+        user._id && !connectionIds.has(user._id) && !connectionIds.has(user.id)
+      );
+      
+      // Enhance user objects with more info
+      const enhancedUsers = filteredUsers.map(user => ({
+        ...user,
+        distanceFormatted: formatDistance(user.distance)
+      }));
+      
+      // Keep only the closest 3 users
+      setNearbyUsers(enhancedUsers.slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching nearby professionals:', error);
+      setLocationError(error.message || "Failed to fetch nearby professionals");
+      setNearbyUsers([]);
+    }
+  };
+
+  // Handle phone number submission
+  const handlePhoneSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!phoneNumber.trim()) {
+      if (toast) {
+        toast({
+          title: "Phone number required",
+          description: "Please enter a valid phone number",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+      return;
     }
     
-    // Create a Set of connection IDs for faster lookup
-    const connectionIds = new Set(
-      Array.isArray(connections) ? connections.map(conn => conn._id || conn.id) : []
-    );
+    setUpdatingPhone(true);
     
-    // Filter out users who are already connections
-    const filteredUsers = nearbyUsersArray.filter(user => 
-      user._id && !connectionIds.has(user._id) && !connectionIds.has(user.id)
-    );
-    
-    // Enhance user objects with more info
-    const enhancedUsers = filteredUsers.map(user => ({
-      ...user,
-      distanceFormatted: formatDistance(user.distance)
-    }));
-    
-    // Keep only the closest 3 users
-    setNearbyUsers(enhancedUsers.slice(0, 3));
-  } catch (error) {
-    console.error('Error fetching nearby professionals:', error);
-    setLocationError(error.message || "Failed to fetch nearby professionals");
-    setNearbyUsers([]);
-  }
-};
+    try {
+      // Update phone number via API
+      const updatedUser = await userService.updateProfile({ phone: phoneNumber });
+      
+      // Update user in auth context
+      if (updateUser) {
+        updateUser(updatedUser);
+      }
+      
+      // Close modal
+      setShowPhoneModal(false);
+      
+      if (toast) {
+        toast({
+          title: "Phone number updated",
+          description: "Your phone number has been successfully added",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating phone number:', error);
+      
+      if (toast) {
+        toast({
+          title: "Failed to update phone number",
+          description: error.message || "Please try again later",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } finally {
+      setUpdatingPhone(false);
+    }
+  };
 
   // Task management functions
   const addTask = () => {
@@ -472,6 +546,59 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
   
   return (
     <div className="flex flex-col md:flex-row h-screen bg-green-50">
+      {/* Phone Number Modal */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <div className="bg-blue-100 p-3 rounded-full mr-3">
+                <Phone className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800">Phone Number Required</h3>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Please add your phone number to continue using our services. This helps us keep your account secure.
+            </p>
+            
+            <form onSubmit={handlePhoneSubmit}>
+              <div className="mb-4">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter your phone number"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPhoneModal(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  disabled={updatingPhone}
+                >
+                  Maybe Later
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                  disabled={updatingPhone}
+                >
+                  {updatingPhone ? 'Updating...' : 'Save Phone Number'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      
       {/* Sidebar - hidden on mobile, visible on md and up */}
       <div className="hidden md:block">
         <Sidebar user={user} onLogout={logout} />
@@ -488,11 +615,11 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
             <span className="text-xs">Home</span>
           </button>
           <button 
-                                  onClick={() => fetchUserData()}
-                                  className="bg-gray-200 text-gray-700 px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-gray-300"
-                                >
-                                  Ignore
-                                </button>
+            onClick={() => fetchUserData()}
+            className="bg-gray-200 text-gray-700 px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-gray-300"
+          >
+            Ignore
+          </button>
           <button 
             onClick={() => setActiveSection('events')}
             className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-green-500' : 'text-gray-500'}`}

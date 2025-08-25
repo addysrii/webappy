@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
             firstName: payload.firstName || '',
             lastName: payload.lastName || '',
             role: payload.role || 'user',
-            phone:payload.phone || '',
+            phone: payload.phone || '',
           };
           
           // Store this basic user data

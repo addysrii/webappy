@@ -288,8 +288,9 @@ const MergedDashboard = () => {
  // Handle phone number submission
 const handlePhoneSubmit = async (e) => {
   e.preventDefault();
-  
+  console.log("method")
   if (!phoneNumber.trim()) {
+    console.log("wrong")
     if (toast) {
       toast({
         title: "Phone number required",

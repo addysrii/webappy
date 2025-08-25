@@ -993,7 +993,7 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
                                   Accept
                                 </button>
                                 <button 
-                                  onClick={() => handleDeclineConnection(request._id)}
+                                  onClick={() => fetchUserData()}
                                   className="bg-gray-200 text-gray-700 px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-gray-300"
                                 >
                                   Ignore

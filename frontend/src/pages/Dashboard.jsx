@@ -25,6 +25,7 @@ const MergedDashboard = () => {
   const toastContext = useToast();
   const toast = toastContext?.toast;
   const [loadings, setLoadings] = useState(true);
+      const [loading, setLoading] = useState(true);
   // State management
   const [activeSection, setActiveSection] = useState('overview');
   const [pendingRequests, setPendingRequests] = useState(0);

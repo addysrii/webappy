@@ -312,6 +312,8 @@ const handlePhoneSubmit = async (e) => {
     if (updateUser) {
       updateUser(updatedUser);
     }
+    else
+      console.log("user not updated");
     
     // Close modal
     setShowPhoneModal(false);

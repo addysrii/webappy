@@ -483,6 +483,12 @@ const fetchNearbyUsers = async (latitude, longitude, distance) => {
             <span className="text-xs">Home</span>
           </button>
           <button 
+                                  onClick={() => fetchUserData()}
+                                  className="bg-gray-200 text-gray-700 px-2 md:px-3 py-1 rounded-md text-xs md:text-sm hover:bg-gray-300"
+                                >
+                                  Ignore
+                                </button>
+          <button 
             onClick={() => setActiveSection('events')}
             className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-green-500' : 'text-gray-500'}`}
           >

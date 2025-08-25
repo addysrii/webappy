@@ -307,7 +307,7 @@ const handlePhoneSubmit = async (e) => {
   try {
     // Update phone number via API using userService
     const updatedUser = await userService.updateProfile({ phone: phoneNumber });
-    
+    console.log(updatedUser);
     // Update user in auth context
     if (updateUser) {
       updateUser(updatedUser);

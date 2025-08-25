@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
             role: payload.role || 'user',
             phone: payload.phone || '',
           };
-          
+          console.log(basicUserData);
           // Store this basic user data
           localStorage.setItem('@user_data', JSON.stringify(basicUserData));
           setUser(basicUserData);

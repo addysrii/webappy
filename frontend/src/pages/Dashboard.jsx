@@ -100,13 +100,13 @@ const MergedDashboard = () => {
   // Fetch user data and check for phone number
   const fetchUserData = useCallback(async () => {
     try {
-      console.log("Starting to fetch profile data...");
+      // console.log("Starting to fetch profile data...");
       setLoadings(true);
       setError(null); 
-      console.log("Fetching current user info...");
+      // console.log("Fetching current user info...");
   
       const userInfo = await userService.getCurrentUser();
-      console.log("Current user info fetched:", userInfo);
+      // console.log("Current user info fetched:", userInfo);
       
       // Check if phone number exists
       if (!userInfo.phone) {
@@ -287,7 +287,6 @@ const MergedDashboard = () => {
   // Handle phone number submission
  // Handle phone number submission
 const handlePhoneSubmit = async (e) => {
-  console.log("new metohod");
   e.preventDefault();
   
   if (!phoneNumber.trim()) {

@@ -126,6 +126,7 @@ const MergedDashboard = () => {
         setError('An unexpected error occurred');
         setLoadings(false);
       }
+        fetchUserData();
     });
 
 

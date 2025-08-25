@@ -117,8 +117,9 @@ const MergedDashboard = () => {
         console.log("Fetching current user info...");
     
           const userInfo = await userService.getCurrentUser();
-        if(!userInfo.phone){
+        if(!userInfo.phone)
           console.log("phone number not provided");
+          
           console.log("Current user info fetched:", userInfo);
       } catch (err) {
         console.error('Unexpected error in fetchUserData:', err);

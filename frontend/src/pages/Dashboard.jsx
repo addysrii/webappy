@@ -13,7 +13,8 @@ import defaultProfilePic from '../assets/default-avatar.png';
 import eventService from '../services/eventService';
 import networkService from '../services/networkService';
 import nearbyUsersService from '../services/nearbyUsersService';
-import homeApi from '../services/homeApi';
+import userService from '../services/userService';
+
 import LocationPermissionIcon from '../components/LocationPermissionIcon';
 import Footer from '../components/footer/Footer';
 
@@ -111,106 +112,17 @@ const MergedDashboard = () => {
       try {
         console.log("Starting to fetch profile data...");
         setLoading(true);
-        setError(null); // Reset any previous errors
-        
-        // If we're on the edit route, skip profile fetch
-        if (location.pathname.endsWith('/edit')) {
-          console.log("Edit route detected, skipping profile fetch");
-          if (user) {
-            setCurrentUserInfo(user);
-          }
-          setLoading(false);
-          return;
-        }
-        
-        // First, get the current user's info using getCurrentUser
+        setError(null); 
         console.log("Fetching current user info...");
-        try {
+       
           const userInfo = await userService.getCurrentUser();
           console.log("Current user info fetched:", userInfo);
-          setCurrentUserInfo(userInfo);
-       
-          // If no userId is provided in URL, redirect to current user's profile
-          if (!userId || userId === 'undefined') {
-            console.log("No userId provided, redirecting to current user profile");
-            if (userInfo && userInfo.id) {
-              navigate(`/profile/${userInfo.id}`, { replace: true });
-              return; // Exit early as we're redirecting
-            } else {
-              setError('Could not determine your user ID');
-              setLoading(false);
-              return;
-            }
-          }
-          
-          // Check if we're viewing our own profile
-          const isSelf = userInfo.id === userId;
-          console.log(`Viewing profile ${userId}, is self: ${isSelf}`);
-          setIsCurrentUser(isSelf);
-          
-          // Now fetch the requested profile
-          console.log(`Fetching profile data for user ${userId}...`);
-          const profileData = await userService.getUserProfile(userId);
-          console.log("Profile data fetched:", profileData);
-          
-          // Handle the API response correctly
-          if (profileData) {
-            setProfile(profileData);
-            // Get portfolio data if available
-            try {
-              const portfolioData = await portfolioService.getPortfolioSummary(userId);
-              setPortfolio(portfolioData || {});
-            } catch (portfolioError) {
-              console.error('Failed to fetch portfolio:', portfolioError);
-              setPortfolio({});
-            }
-            
-            // Get recommendations if available
-            try {
-              const recommendationsData = await api.getUserRecommendations(userId);
-              setRecommendations(recommendationsData || []);
-            } catch (recommendationsError) {
-              console.error('Failed to fetch recommendations:', recommendationsError);
-              setRecommendations([]);
-            }
-          } else {
-            // Invalid data received
-            console.error("Invalid profile data received:", profileData);
-            setError('Received invalid profile data');
-            setLoading(false);
-            return;
-          }
-                 
-          // Record view if not our own profile
-          if (!isSelf) {
-            try {
-              await api.recordProfileView(userId);
-            } catch (viewError) {
-              console.error('Failed to record profile view:', viewError);
-            }
-          } else {
-            // Get our own view analytics
-            try {
-              const analytics = await api.getProfileViewAnalytics('month');
-              setViewsAnalytics(analytics);
-            } catch (analyticsError) {
-              console.error('Failed to get view analytics:', analyticsError);
-            }
-          }
-          
-          setLoading(false);
-          
-        } catch (err) {
-          console.error('Error fetching profile:', err);
-          setError('Failed to load profile data. Please ensure you have a valid user ID.');
-          setLoading(false);
-        }
       } catch (err) {
         console.error('Unexpected error in fetchUserData:', err);
         setError('An unexpected error occurred');
         setLoading(false);
       }
-    }, [userId, navigate, location.pathname, user]);
+    });
 
 
   // Fetch events

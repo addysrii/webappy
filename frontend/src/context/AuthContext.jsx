@@ -24,14 +24,15 @@ export const AuthProvider = ({ children }) => {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           // Try to get user data from localStorage first
-       
+          // const usd = fetchUserDataFromToken();
+          // console.log(usd);
           const userData = localStorage.getItem('@user_data');
-          console.log(userData);
+          // console.log(userData);
           if (userData) {
             try {
               const parsedUserData = JSON.parse(userData);
               setUser(parsedUserData);
-              console.log('User data loaded from localStorage:', parsedUserData);
+              // console.log('User data loaded from localStorage:', parsedUserData);
             } catch (parseError) {
               console.error('Error parsing user data from localStorage:', parseError);
               await fetchUserDataFromToken();

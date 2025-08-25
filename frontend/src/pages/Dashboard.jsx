@@ -287,6 +287,7 @@ const MergedDashboard = () => {
   // Handle phone number submission
  // Handle phone number submission
 const handlePhoneSubmit = async (e) => {
+  console.log("new metohod");
   e.preventDefault();
   
   if (!phoneNumber.trim()) {

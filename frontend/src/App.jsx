@@ -12,6 +12,7 @@ import OrganizerManagementSystem from './pages/OrganizerManagementService.jsx';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import Dashboard from './pages/Dashboard';
 import Robots from "./robots.txt"
+import ResetPasswordPage from './pages/ResetPassword';
 import ChatPage from './pages/ChatPage';
 import NearbyProfessionals from './pages/NetworkPage';
 import NotFoundPage from './pages/NotFoundPage';

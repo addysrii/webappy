@@ -347,7 +347,7 @@ const TicketManagementPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {ticketTypes.map((ticket) => {
                   // Safety check for ticket object
-                  if (!ticket || !ticket.id) {
+                  if (!ticket || !ticket._id) {
                     console.warn('Invalid ticket object:', ticket);
                     return null;
                   }

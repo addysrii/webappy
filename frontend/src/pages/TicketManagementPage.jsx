@@ -59,6 +59,7 @@ const TicketManagementPage = () => {
         if (result && result.data) {
           // If result.data is the wrapped response
           ticketTypesData = Array.isArray(result.data) ? result.data : [];
+             console.log(ticketTypesData[0]);
         } else if (Array.isArray(result)) {
           // If result is directly an array
           ticketTypesData = result;
@@ -66,6 +67,7 @@ const TicketManagementPage = () => {
         
         console.log('Fetched ticket types:', ticketTypesData);
         setTicketTypes(ticketTypesData);
+     
         setLoading(false);
         // Clear any existing error when fetch succeeds
         setError(null);

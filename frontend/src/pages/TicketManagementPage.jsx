@@ -156,7 +156,7 @@ const TicketManagementPage = () => {
 
   const handleUpdateTicket = async (e) => {
     e.preventDefault();
-    if (!currentTicket?.id) {
+    if (!currentTicket?._id) {
       setError('No ticket selected for update');
       return;
     }

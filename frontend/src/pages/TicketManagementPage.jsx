@@ -334,7 +334,7 @@ const TicketManagementPage = () => {
                     Quantity
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sales Period
+            Quantity Sold
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -366,7 +366,7 @@ const TicketManagementPage = () => {
                         {ticket.sold ? ` (${ticket.sold} sold)` : ''}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(ticket.startDate)} - {formatDate(ticket.endDate)}
+                        {ticket.quantitySold};
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${

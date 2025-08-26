@@ -229,7 +229,7 @@ const TicketManagementPage = () => {
       const numPrice = parseFloat(price) || 0;
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'INR'
       }).format(numPrice);
     } catch (err) {
       console.error('Error formatting price:', err);

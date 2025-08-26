@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import eventService from '../services/eventService';
-
+import ticketService from "./services/ticketService";
 const TicketManagementPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -172,7 +172,7 @@ const TicketManagementPage = () => {
       setError(null); // Clear any previous errors
       
       // Call eventService.updateTicketType
-      const result = await eventService.updateTicketType(eventId, currentTicket.id, formData);
+      const result = await ticketService.updateTicketType(eventId, currentTicket.id, formData);
       
       if (isMounted.current) {
         console.log('Updated ticket type:', result);

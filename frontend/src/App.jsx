@@ -103,6 +103,7 @@ const App = () => {
           <Route path="/phone-login" element={<AuthPage type="phone-login" />} />
           <Route path="/auth/callback" element={<AuthPage />} />
           <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/termsandconditons" element={<TermsAndConditions/>} />
           <Route path="/refundpolicy" element={<Refundpolicy/>} />
           <Route path="/auth/linkedin-callback" element={<LinkCall />} />

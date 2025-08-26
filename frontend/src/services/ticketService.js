@@ -541,7 +541,7 @@ verifyTicketByCode: async (eventId, code) => {
     try {
       const response = await api.put(`/api/bookings/ticket-types/${ticketTypeId}`, ticketData);
       return normalizeData(response.data);
-      console.log("datafromeservice",response.data");
+      console.log("datafromeservice",response.data);
     } catch (error) {
       console.error(`Error updating ticket type ${ticketTypeId} for event ${eventId}:`, error);
       throw error;

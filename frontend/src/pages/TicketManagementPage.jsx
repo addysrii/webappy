@@ -119,7 +119,7 @@ const TicketManagementPage = () => {
       setError(null); // Clear any previous errors
       
       // Call eventService.createTicketType
-      const result = await eventService.createTicketType(eventId, formData);
+      const result = await ticketService.createTicketType(eventId, formData);
       
       if (isMounted.current) {
         console.log('Created ticket type:', result);

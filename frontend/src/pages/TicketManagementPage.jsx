@@ -59,7 +59,7 @@ const TicketManagementPage = () => {
         if (result && result.data) {
           // If result.data is the wrapped response
           ticketTypesData = Array.isArray(result.data) ? result.data : [];
-             console.log(ticketTypesData[0].id);
+             console.log(ticketTypesData[0]._id);
         } else if (Array.isArray(result)) {
           // If result is directly an array
           ticketTypesData = result;

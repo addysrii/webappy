@@ -172,7 +172,7 @@ const TicketManagementPage = () => {
       setError(null); // Clear any previous errors
       
       // Call eventService.updateTicketType
-      const result = await ticketService.updateTicketType(eventId, currentTicket.id, formData);
+      const result = await ticketService.updateTicketType(eventId, currentTicket._id, formData);
       
       if (isMounted.current) {
         console.log('Updated ticket type:', result);

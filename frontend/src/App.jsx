@@ -37,6 +37,7 @@ import PostsFetcher from './pages/PostFetcher';
 import LinkCall from './pages/LinkCall';
 import LandPage from './pages/LandingPage.jsx';
 import { BhoomiLandingPage } from './pages/BhoomiLandingPage/BhoomiLandingPage';
+import ForgotPasswordPage from './pages/ForgotPassword';
 // Event Management Pages
 import EventListingPage from './pages/EventsListingPage';
 import EventDetailPage from './pages/EventDetailPage';
@@ -98,6 +99,7 @@ const App = () => {
           <Route path="/landingpage" element={<LandPage/>} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage type="signup" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/phone-login" element={<AuthPage type="phone-login" />} />
           <Route path="/auth/callback" element={<AuthPage />} />
           <Route path="/privacypolicy" element={<PrivacyPolicy />} />

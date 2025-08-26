@@ -47,7 +47,7 @@ const TicketManagementPage = () => {
       
       // Use the eventService method that matches the eventService pattern
       const result = await eventService.getEventTicketTypes(eventId, true); // Include inactive tickets for management
-      consle.log("result", result);
+      console.log("result", result);
       // Only update state if the component is still mounted
       if (isMounted.current) {
         // Handle the response structure from eventService.getEventTicketTypes

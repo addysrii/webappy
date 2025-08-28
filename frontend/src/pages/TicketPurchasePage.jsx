@@ -125,7 +125,38 @@ const TicketPurchasePage = () => {
     
     fetchEventData();
   }, [eventId]);
+ const fetchUserData = useCallback(async () => {
+    try {
+      // console.log("Starting to fetch profile data...");
+      setLoadings(true);
+      setError(null); 
+      // console.log("Fetching current user info...");
+  
+      const userInfo = await userService.getCurrentUser();
+      // console.log("Current user info fetched:", userInfo);
+      
+      // Check if phone number exists
+      if (!userInfo.phone) {
+        console.log("Phone number not provided");
+        setShowPhoneModal(true);
+      }
+      
+      setLoadings(false);
+    } catch (err) {
+      console.error('Unexpected error in fetchUserData:', err);
+      setError('An unexpected error occurred');
+      setLoadings(false);
+    }
+  }, []);
 
+  // Call fetchUserData on component mount
+  useEffect(() => {
+    if (user) {
+    
+    const ress=  fetchUserData();
+    setCustomerInfo(ress);
+    }
+  }, [user, fetchUserData]);
   useEffect(() => {
     let subtotal = 0;
     

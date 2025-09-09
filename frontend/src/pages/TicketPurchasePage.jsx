@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -25,13 +25,13 @@ import {
 } from 'lucide-react';
 import eventService from '../services/eventService';
 import ticketService from '../services/ticketService';
-import { useAuth } from '../context/AuthContext';
+
 const CashfreePayment = React.lazy(() => import('../components/payment/CashfreeButton'));
 
 const TicketPurchasePage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
-    const { user } = useAuth();
+  
   const [event, setEvent] = useState(null);
   const [ticketTypes, setTicketTypes] = useState([]);
   const [selectedTickets, setSelectedTickets] = useState([]);
@@ -125,38 +125,7 @@ const TicketPurchasePage = () => {
     
     fetchEventData();
   }, [eventId]);
- const fetchUserData = useCallback(async () => {
-    try {
-      // console.log("Starting to fetch profile data...");
-      setLoadings(true);
-      setError(null); 
-      // console.log("Fetching current user info...");
-  
-      const userInfo = await userService.getCurrentUser();
-      // console.log("Current user info fetched:", userInfo);
-      
-      // Check if phone number exists
-      if (!userInfo.phone) {
-        console.log("Phone number not provided");
-        setShowPhoneModal(true);
-      }
-      
-      setLoadings(false);
-    } catch (err) {
-      console.error('Unexpected error in fetchUserData:', err);
-      setError('An unexpected error occurred');
-      setLoadings(false);
-    }
-  }, []);
 
-  // Call fetchUserData on component mount
-  useEffect(() => {
-    if (user) {
-    
-    const ress=  fetchUserData();
-    setCustomerInfo(ress);
-    }
-  }, [user, fetchUserData]);
   useEffect(() => {
     let subtotal = 0;
     

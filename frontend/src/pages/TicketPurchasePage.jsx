@@ -31,7 +31,7 @@ const CashfreePayment = React.lazy(() => import('../components/payment/CashfreeB
 const TicketPurchasePage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
-  
+    const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [ticketTypes, setTicketTypes] = useState([]);
   const [selectedTickets, setSelectedTickets] = useState([]);

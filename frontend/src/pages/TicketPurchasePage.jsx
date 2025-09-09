@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import eventService from '../services/eventService';
 import ticketService from '../services/ticketService';
-
+import { useAuth } from '../context/AuthContext';
 const CashfreePayment = React.lazy(() => import('../components/payment/CashfreeButton'));
 
 const TicketPurchasePage = () => {

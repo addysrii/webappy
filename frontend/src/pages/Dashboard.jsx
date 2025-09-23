@@ -676,14 +676,14 @@ const handlePhoneSubmit = async (e) => {
                 
                 <div className="mt-4 md:mt-0 w-full md:w-auto">
                   <div className="flex flex-wrap gap-2">
-                    <Link to={`/connections`}>
+                    {/* <Link to={`/connections`}>
                       <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm font-medium">
                         {pendingRequests} connection requests
                       </span>
                     </Link>
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm font-medium">
                       {planner.filter(task => !task.completed).length} pending tasks
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>

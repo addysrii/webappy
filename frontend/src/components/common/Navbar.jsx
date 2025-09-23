@@ -183,6 +183,14 @@ const Sidebar = ({ user, onLogout }) => {
             {/* Right Section - Actions & Profile */}
             <div className="flex items-center space-x-2">
              
+<Link
+to = "https://docs.google.com/forms/d/e/1FAIpQLSf_s9jW_I9H9WkFr0cPMV7IU6qEpUoSjpfveZGx8B6_UHhI6g/viewform?usp=dialog"
+ >
+               <span>
+                Become an organize
+               </span>
+            
+            </Link>
               {/* Notifications Dropdown */}
               <div ref={notificationsRef} className="relative hidden lg:block">
                 <button

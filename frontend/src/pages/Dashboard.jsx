@@ -712,7 +712,7 @@ const handlePhoneSubmit = async (e) => {
                 >
                   Events
                 </button>
-                <button
+                {/* <button
                   onClick={() => setActiveSection('network')}
                   className={`flex-none text-center py-4 px-4 font-medium text-sm focus:outline-none transition-colors duration-200 ${
                     activeSection === 'network'
@@ -721,7 +721,7 @@ const handlePhoneSubmit = async (e) => {
                   }`}
                 >
                   Network
-                </button>
+                </button> */}
               </div>
             </div>
 

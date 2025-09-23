@@ -185,9 +185,10 @@ const Sidebar = ({ user, onLogout }) => {
              
 <Link
 to = "https://docs.google.com/forms/d/e/1FAIpQLSf_s9jW_I9H9WkFr0cPMV7IU6qEpUoSjpfveZGx8B6_UHhI6g/viewform?usp=dialog"
- >
-               <span>
-                Become an organize
+
+>
+               <span className="p-2.5 rounded-xl text-gray-600 hover:text-green-500 hover:bg-green-50 transition-all duration-200 relative ">
+                Become an organizer
                </span>
             
             </Link>

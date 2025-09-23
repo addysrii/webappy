@@ -195,9 +195,9 @@ const Sidebar = ({ user, onLogout }) => {
 
             {/* Center Section - Navigation & Search */}
           
-    <div className="hidden lg:flex items-center space-x-8">
+    <div className="hidden lg:flex  space-x-8">
               {/* Navigation Links */}
-              <div className="flex items-center space-x-1">
+              <div className="flex space-x-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}

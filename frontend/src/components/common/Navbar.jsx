@@ -150,26 +150,7 @@ const Sidebar = ({ user, onLogout }) => {
   }
 
   const navItems = [
-    {
-      name: "Home",
-      href: "/dashboard",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
-      ),
-    },
+    
    
   ]
 
@@ -208,97 +189,11 @@ const Sidebar = ({ user, onLogout }) => {
               </div>
 
               {/* Search Bar */}
-              <div className="relative">
-                <form onSubmit={handleSearch} className="w-full">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg
-                        className={`h-4 w-4 transition-colors duration-200 ${searchFocused ? "text-green-500" : "text-green-400"}`}
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      type="search"
-                      name="search"
-                      id="search"
-                      className="w-80 bg-green-50 border border-green-100 rounded-full py-2.5 pl-10 pr-4 text-sm placeholder-green-300 focus:outline-none focus:bg-white focus:border-green-300 focus:ring-2 focus:ring-green-200 transition-all duration-200"
-                      placeholder="Search people, posts, companies..."
-                      onFocus={() => setSearchFocused(true)}
-                      onBlur={() => setSearchFocused(false)}
-                    />
-                  </div>
-                </form>
-              </div>
-            </div>
-
+              
             {/* Right Section - Actions & Profile */}
             <div className="flex items-center space-x-2">
               {/* Messages Dropdown */}
-              <div ref={messagesRef} className="relative hidden lg:block">
-                <button
-                  onClick={toggleMessages}
-                  className="p-2.5 rounded-xl text-gray-600 hover:text-green-500 hover:bg-green-50 transition-all duration-200 relative"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                    />
-                  </svg>
-                </button>
-
-                {messages && (
-                  <div className="absolute right-0 top-full mt-2 w-96 rounded-2xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 overflow-hidden z-50">
-                    <div className="px-6 py-4 bg-gradient-to-r from-green-500 to-green-400">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-semibold text-white">Messages</h3>
-                        <Link
-                          to="/chat"
-                          className="text-xs font-medium text-white hover:text-green-100 transition-colors"
-                        >
-                          View all
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      <div className="px-6 py-8 text-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-12 w-12 mx-auto text-gray-300 mb-3"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1}
-                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                          />
-                        </svg>
-                        <p className="text-sm font-medium text-gray-900 mb-1">No messages yet</p>
-                        <p className="text-xs text-gray-500">Connect with others to start messaging</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+             
 
               {/* Notifications Dropdown */}
               <div ref={notificationsRef} className="relative hidden lg:block">

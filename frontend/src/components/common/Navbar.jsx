@@ -150,7 +150,12 @@ const Sidebar = ({ user, onLogout }) => {
   }
 
   const navItems = [
-  
+     {
+      name: "Become an Organixer",
+      href: "https://docs.google.com/forms/d/e/1FAIpQLSf_s9jW_I9H9WkFr0cPMV7IU6qEpUoSjpfveZGx8B6_UHhI6g/viewform?usp=dialog",
+      
+      ),
+    },
    
   ]
 

@@ -13,7 +13,7 @@ import axios from 'axios';
 // };
 
 // const API_URL = getApiUrl();
-const API_URL ='https://new-backend-1-t1pb.onrender.com';
+const API_URL ='https://new-backend-aocx.onrender.com';
 console.log(`API URL: ${API_URL}`);
 
 // Axios instance

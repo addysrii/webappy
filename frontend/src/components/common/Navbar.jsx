@@ -195,7 +195,21 @@ const Sidebar = ({ user, onLogout }) => {
 
             {/* Center Section - Navigation & Search */}
           
-
+    <div className="hidden lg:flex items-center space-x-8">
+              {/* Navigation Links */}
+              <div className="flex items-center space-x-1">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-xl text-gray-600 hover:text-green-500 hover:bg-green-50 transition-all duration-200 group"
+                  >
+                    <span className="md:hidden w-7 group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
+                    <span className="text-sm font-medium">{item.name}</span>
+                  </Link>
+                ))}
+              </div>
+              </div>
             {/* Right Section - Actions & Profile */}
             <div className="flex items-center space-x-2">
              

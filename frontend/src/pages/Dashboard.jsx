@@ -437,7 +437,7 @@ const MergedDashboard = () => {
           {/* Hero Section with Carousel */}
           <div className="relative h-96 flex items-center justify-center">
             <div 
-              className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+              className="absolute inset-0 bg-cover bg-center transition-all duration-1000 m-4"
               style={{ 
                 backgroundImage: `url("${carouselImages[currentImageIndex]}")`,
               }}

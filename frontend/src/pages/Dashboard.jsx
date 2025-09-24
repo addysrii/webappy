@@ -601,7 +601,7 @@ const MergedDashboard = () => {
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 overflow-auto pb-16 md:pb-0 md:mt-16">
+      <div className="flex-1 overflow-auto pb-16 md:pb-0 ">
         <div className="md:pl-0 pl-0">
           {/* Hero Section */}
           <div className="relative h-screen flex items-center justify-center">
@@ -640,24 +640,7 @@ const MergedDashboard = () => {
                 </div>
                 
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-purple-400">{pendingRequests}</div>
-                    <div className="text-sm text-white/80">Connection Requests</div>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-pink-400">{events.length}</div>
-                    <div className="text-sm text-white/80">Upcoming Events</div>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-orange-400">{planner.filter(task => !task.completed).length}</div>
-                    <div className="text-sm text-white/80">Pending Tasks</div>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-green-400">{nearbyUsers.length}</div>
-                    <div className="text-sm text-white/80">Nearby Pros</div>
-                  </div>
-                </div>
+             
               </div>
             </div>
           </div>
@@ -842,133 +825,7 @@ const MergedDashboard = () => {
                     {/* Quick Actions & Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Connection Requests */}
-                      <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-semibold text-white flex items-center">
-                            <Users className="h-5 w-5 mr-2 text-purple-400" />
-                            Connections
-                          </h4>
-                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded-full">{pendingRequests}</span>
-                        </div>
-                        {pendingRequests > 0 ? (
-                          <div className="space-y-3">
-                            {connectionRequests.slice(0, 2).map(request => (
-                              <div key={request._id} className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                  <div className="h-8 w-8 rounded-full overflow-hidden bg-purple-100 mr-2">
-                                    <img 
-                                      src={getProfilePicture(request)} 
-                                      alt={`${request?.firstName || 'User'}`} 
-                                      className="h-full w-full object-cover"
-                                    />
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-white font-medium">{request?.firstName || 'User'}</p>
-                                    <p className="text-xs text-gray-400">{request?.headline || 'Professional'}</p>
-                                  </div>
-                                </div>
-                                <div className="flex space-x-1">
-                                  <button 
-                                    onClick={() => handleAcceptConnection(request._id)}
-                                    className="bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700 transition-colors"
-                                  >
-                                    ✓
-                                  </button>
-                                  <button 
-                                    onClick={() => handleDeclineConnection(request._id)}
-                                    className="bg-gray-600 text-white px-2 py-1 rounded text-xs hover:bg-gray-700 transition-colors"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                            {connectionRequests.length > 2 && (
-                              <Link to="/network" className="block w-full text-center text-purple-400 font-medium mt-2 text-xs hover:text-purple-300 transition-colors">
-                                View All ({connectionRequests.length}) →
-                              </Link>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="text-center py-4">
-                            <div className="w-12 h-12 bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                              <Users className="w-6 h-6 text-purple-400" />
-                            </div>
-                            <p className="text-gray-400 text-sm mb-2">No pending requests</p>
-                            <Link to="/network" className="text-purple-400 text-xs hover:text-purple-300 transition-colors">
-                              Discover connections →
-                            </Link>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Nearby Users */}
-                      <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-semibold text-white flex items-center">
-                            <MapPin className="h-5 w-5 mr-2 text-purple-400" />
-                            Nearby
-                          </h4>
-                          <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded-full">{nearbyUsers.length}</span>
-                        </div>
-                        {locationError ? (
-                          <div className="text-center py-4">
-                            <div className="w-12 h-12 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                              <AlertTriangle className="w-6 h-6 text-red-400" />
-                            </div>
-                            <p className="text-gray-400 text-xs mb-2">Location access needed</p>
-                            <button
-                              onClick={() => window.location.reload()}
-                              className="text-purple-400 text-xs hover:text-purple-300 transition-colors"
-                            >
-                              Enable location →
-                            </button>
-                          </div>
-                        ) : nearbyUsers.length > 0 ? (
-                          <div className="space-y-3">
-                            {nearbyUsers.slice(0, 2).map(user => (
-                              <div key={user._id} className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                  <div className="h-8 w-8 rounded-full overflow-hidden bg-purple-100 mr-2">
-                                    <img 
-                                      src={getProfilePicture(user)} 
-                                      alt={`${user.firstName}`}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  </div>
-                                  <div>
-                                    <p className="text-sm text-white font-medium">{user.firstName}</p>
-                                    <p className="text-xs text-gray-400">{user.distanceFormatted}</p>
-                                  </div>
-                                </div>
-                                <button
-                                  onClick={() => handleConnect(user._id)}
-                                  disabled={user.connectionStatus === 'pending'}
-                                  className="bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700 transition-colors disabled:opacity-50"
-                                >
-                                  {user.connectionStatus === 'pending' ? 'Sent' : 'Connect'}
-                                </button>
-                              </div>
-                            ))}
-                            <Link to="/network/nearby" className="block w-full text-center text-purple-400 font-medium mt-2 text-xs hover:text-purple-300 transition-colors">
-                              View All Nearby →
-                            </Link>
-                          </div>
-                        ) : (
-                          <div className="text-center py-4">
-                            <div className="w-12 h-12 bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                              <MapPin className="w-6 h-6 text-purple-400" />
-                            </div>
-                            <p className="text-gray-400 text-xs mb-2">No nearby users</p>
-                            <button 
-                              onClick={() => fetchNearbyUsers(userLocation?.latitude, userLocation?.longitude, 10)}
-                              className="text-purple-400 text-xs hover:text-purple-300 transition-colors"
-                            >
-                              Refresh →
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      
                     </div>
                   </div>
                 </div>

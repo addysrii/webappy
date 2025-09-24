@@ -286,7 +286,7 @@ const MergedDashboard = () => {
 
   // Event Card Component
   const EventCard = ({ event, size = 'normal' }) => (
-    <div className={`bg-gray-800/40 rounded-lg overflow-hidden shadow-md hover:shadow-xl border border-gray-600 hover:border-purple-500/50 transition-all duration-300 transform hover:scale-105 ${size === 'small' ? 'h-64' : 'h-80'}`}>
+    <div className={`bg-white/40 rounded-lg overflow-hidden shadow-md hover:shadow-xl border border-gray-600 hover:border-purple-500/50 transition-all duration-300 transform hover:scale-105 ${size === 'small' ? 'h-64' : 'h-80'}`}>
       <div className="relative">
         <img 
           src={event.coverImage?.url || "/api/placeholder/400/200"} 

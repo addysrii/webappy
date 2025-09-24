@@ -22,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "2.1.1",
     "dotenv": "^16.4.7",
+    "framer-motion": "^12.23.21",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^3.0.1",

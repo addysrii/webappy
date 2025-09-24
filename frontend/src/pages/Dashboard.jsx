@@ -71,7 +71,7 @@ const MergedDashboard = () => {
       setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [carouselImages.length]);
+  }, []);
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -345,25 +345,25 @@ const MergedDashboard = () => {
   }
   
   return (
-    <div className="min-h-screen text-gray-800 overflow-x-hidden bg-gray-50">
+    <div className="min-h-screen text-white overflow-x-hidden bg-black">
       {/* Phone Number Modal */}
       {showPhoneModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-gray-200 rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-center mb-4">
               <div className="bg-purple-100 p-3 rounded-full mr-3">
                 <Phone className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800">Phone Number Required</h3>
+              <h3 className="text-xl font-semibold text-white">Phone Number Required</h3>
             </div>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-300 mb-6">
               Please add your phone number to continue using our services. This helps us keep your account secure.
             </p>
             
             <form onSubmit={handlePhoneSubmit}>
               <div className="mb-4">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -372,7 +372,7 @@ const MergedDashboard = () => {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="Enter your phone number"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
                   required
                 />
               </div>
@@ -381,7 +381,7 @@ const MergedDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setShowPhoneModal(false)}
-                  className="px-4 py-2 text-gray-500 hover:text-gray-700"
+                  className="px-4 py-2 text-gray-400 hover:text-white"
                   disabled={updatingPhone}
                 >
                   Maybe Later
@@ -405,25 +405,25 @@ const MergedDashboard = () => {
       </div>
       
       {/* Mobile Navbar - visible only on small screens */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 shadow-lg z-10">
         <div className="flex justify-around items-center h-16 px-2">
           <button 
             onClick={() => setActiveSection('overview')}
-            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'overview' ? 'text-purple-600' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'overview' ? 'text-purple-400' : 'text-gray-400'}`}
           >
             <Home className="h-6 w-6" />
             <span className="text-xs">Home</span>
           </button>
           <button 
             onClick={() => setActiveSection('events')}
-            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-purple-600' : 'text-gray-500'}`}
+            className={`flex flex-col items-center justify-center p-2 ${activeSection === 'events' ? 'text-purple-400' : 'text-gray-400'}`}
           >
             <Calendar className="h-6 w-6" />
             <span className="text-xs">Events</span>
           </button>
           <Link
             to="/profile"
-            className="flex flex-col items-center justify-center p-2 text-gray-500"
+            className="flex flex-col items-center justify-center p-2 text-gray-400"
           >
             <User className="h-6 w-6" />
             <span className="text-xs">Profile</span>
@@ -432,7 +432,7 @@ const MergedDashboard = () => {
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 overflow-auto pb-16 md:pb-0">
+      <div className="flex-1 overflow-auto pb-16 md:pb-0 ">
         <div className="md:pl-0 pl-0">
           {/* Hero Section with Carousel */}
           <div className="relative h-96 flex items-center justify-center">
@@ -447,13 +447,13 @@ const MergedDashboard = () => {
             {/* Carousel Controls */}
             <button
               onClick={prevImage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full transition-all duration-300 z-10 shadow-lg"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-all duration-300 z-10"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full transition-all duration-300 z-10 shadow-lg"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/75 text-white p-2 rounded-full transition-all duration-300 z-10"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
@@ -465,7 +465,7 @@ const MergedDashboard = () => {
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentImageIndex ? 'bg-white' : 'bg-white/60'
+                    index === currentImageIndex ? 'bg-white' : 'bg-white/50'
                   }`}
                 />
               ))}
@@ -491,7 +491,7 @@ const MergedDashboard = () => {
                     <ArrowRight className="inline-block ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   
-                  <Link to="/events" className="group flex items-center justify-center bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-full hover:bg-white transition-all duration-300 shadow-lg">
+                  <Link to="/events" className="group flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold py-3 px-6 rounded-full hover:bg-white/20 transition-all duration-300">
                     <Calendar className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
                     Browse Events
                   </Link>
@@ -502,14 +502,14 @@ const MergedDashboard = () => {
 
           <main className="max-w-7xl mx-auto p-4 md:p-6">
             {/* Content Tabs Navigation */}
-            <div className="mb-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div className="mb-6 bg-transparent backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
               <div className="flex overflow-x-auto scrollbar-hide">
                 <button
                   onClick={() => setActiveSection('overview')}
                   className={`flex-none text-center py-4 px-6 font-medium text-sm focus:outline-none transition-all duration-300 ${
                     activeSection === 'overview'
-                      ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                      : 'text-gray-600 hover:text-purple-600 hover:bg-purple-25'
+                      ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-500/10'
+                      : 'text-gray-300 hover:text-purple-400 hover:bg-purple-500/5'
                   }`}
                 >
                   <Sparkles className="h-4 w-4 mx-auto mb-1" />
@@ -519,8 +519,8 @@ const MergedDashboard = () => {
                   onClick={() => setActiveSection('events')}
                   className={`flex-none text-center py-4 px-6 font-medium text-sm focus:outline-none transition-all duration-300 ${
                     activeSection === 'events'
-                      ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                      : 'text-gray-600 hover:text-purple-600 hover:bg-purple-25'
+                      ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-500/10'
+                      : 'text-gray-300 hover:text-purple-400 hover:bg-purple-500/5'
                   }`}
                 >
                   <Calendar className="h-4 w-4 mx-auto mb-1" />
@@ -533,19 +533,19 @@ const MergedDashboard = () => {
             {activeSection === 'overview' && (
               <div className="space-y-8">
                 {/* Recommended Events Section */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-800 flex items-center">
-                      <Star className="h-5 w-5 mr-2 text-purple-600" />
+                <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
+                  <div className="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+                    <h3 className="font-semibold text-white flex items-center">
+                      <Star className="h-5 w-5 mr-2 text-purple-400" />
                       Recommended for You
                     </h3>
-                    <Link to="/events" className="text-purple-600 hover:text-purple-700 text-sm">View All</Link>
+                    <Link to="/events" className="text-purple-400 hover:text-purple-300 text-sm">View All</Link>
                   </div>
                   <div className="p-6">
                     {loadingData ? (
                       <div className="text-center py-6">
                         <div className="w-8 h-8 border-t-2 border-purple-500 border-solid rounded-full animate-spin mx-auto mb-2"></div>
-                        <p className="text-gray-500 text-sm">Loading recommendations...</p>
+                        <p className="text-gray-400 text-sm">Loading recommendations...</p>
                       </div>
                     ) : recommendedEvents.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -555,11 +555,11 @@ const MergedDashboard = () => {
                       </div>
                     ) : (
                       <div className="text-center py-6">
-                        <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Star className="w-8 h-8 text-purple-600" />
+                        <div className="w-16 h-16 bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Star className="w-8 h-8 text-purple-400" />
                         </div>
-                        <p className="text-gray-500 text-sm mb-2">No recommendations available yet.</p>
-                        <Link to="/events" className="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                        <p className="text-gray-400 text-sm mb-2">No recommendations available yet.</p>
+                        <Link to="/events" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
                           Browse All Events →
                         </Link>
                       </div>
@@ -571,13 +571,13 @@ const MergedDashboard = () => {
                 {Object.keys(categorizedEvents).length > 0 && (
                   <div className="space-y-6">
                     {Object.entries(categorizedEvents).slice(0, 3).map(([category, categoryEvents]) => (
-                      <div key={category} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                        <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                          <h3 className="font-semibold text-gray-800 flex items-center">
-                            <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+                      <div key={category} className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
+                        <div className="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+                          <h3 className="font-semibold text-white flex items-center">
+                            <TrendingUp className="h-5 w-5 mr-2 text-purple-400" />
                             {category} Events
                           </h3>
-                          <Link to={`/events?category=${category}`} className="text-purple-600 hover:text-purple-700 text-sm">
+                          <Link to={`/events?category=${category}`} className="text-purple-400 hover:text-purple-300 text-sm">
                             View All {category}
                           </Link>
                         </div>
@@ -594,10 +594,10 @@ const MergedDashboard = () => {
                 )}
 
                 {/* Task Planner */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-800 flex items-center">
-                      <Clock className="h-5 w-5 mr-2 text-purple-600" />
+                <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
+                  <div className="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+                    <h3 className="font-semibold text-white flex items-center">
+                      <Clock className="h-5 w-5 mr-2 text-purple-400" />
                       My Planner
                     </h3>
                   </div>
@@ -609,7 +609,7 @@ const MergedDashboard = () => {
                         value={newTask}
                         onChange={(e) => setNewTask(e.target.value)}
                         placeholder="Add a new task..."
-                        className="flex-1 bg-white border border-gray-300 rounded-l-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800"
+                        className="flex-1 bg-gray-800 border border-gray-600 rounded-l-md py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
                         onKeyPress={(e) => e.key === 'Enter' && addTask()}
                       />
                       <button
@@ -624,7 +624,7 @@ const MergedDashboard = () => {
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {planner.length === 0 ? (
                         <div className="text-center py-6">
-                          <p className="text-gray-500 text-sm">No tasks yet. Add your first task above.</p>
+                          <p className="text-gray-400 text-sm">No tasks yet. Add your first task above.</p>
                         </div>
                       ) : (
                         planner.map(task => (
@@ -632,31 +632,31 @@ const MergedDashboard = () => {
                             key={task.id} 
                             className={`flex items-center justify-between p-3 border rounded-md transition-all duration-200 ${
                               task.completed 
-                                ? 'bg-purple-50 border-purple-200' 
-                                : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                                ? 'bg-purple-900/20 border-purple-700/50' 
+                                : 'bg-gray-800/50 border-gray-600 hover:bg-gray-800/80'
                             }`}
                           >
                             <div className="flex items-center flex-1 min-w-0">
                               <button
                                 onClick={() => toggleTaskCompletion(task.id)}
                                 className={`flex-shrink-0 h-5 w-5 rounded-full border ${
-                                  task.completed ? 'bg-purple-500 border-purple-500' : 'border-gray-400 hover:border-purple-400'
+                                  task.completed ? 'bg-purple-500 border-purple-500' : 'border-gray-500 hover:border-purple-400'
                                 } mr-3 flex items-center justify-center transition-all duration-200`}
                               >
                                 {task.completed && <Check className="h-3 w-3 text-white" />}
                               </button>
                               <div className="flex-1 min-w-0">
-                                <p className={`text-sm truncate ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
+                                <p className={`text-sm truncate ${task.completed ? 'line-through text-gray-500' : 'text-gray-200'}`}>
                                   {task.text}
                                 </p>
-                                <p className="text-xs text-gray-400 truncate">
+                                <p className="text-xs text-gray-500 truncate">
                                   Added {formatDate(task.date)}
                                 </p>
                               </div>
                             </div>
                             <button
                               onClick={() => deleteTask(task.id)}
-                              className="ml-2 text-gray-400 hover:text-red-500 flex-shrink-0 transition-colors duration-200"
+                              className="ml-2 text-gray-500 hover:text-red-400 flex-shrink-0 transition-colors duration-200"
                             >
                               <X className="h-4 w-4" />
                             </button>
@@ -736,7 +736,7 @@ const MergedDashboard = () => {
                           value={categoryFilter}
                           onChange={(e) => setCategoryFilter(e.target.value)}
                         >
-                          <option value="All">All Categories</option>
+                          <option value="">Category</option>
                           {categories.map((category, index) => (
                             <option key={`category-${index}`} value={category}>{category}</option>
                           ))}
@@ -825,7 +825,6 @@ const MergedDashboard = () => {
                     </div>
                   )}
                   
-
                   <div className="mt-8 text-center">
                     <Link to="/events" className="inline-block text-purple-400 font-medium hover:text-purple-300 transition-colors">
                       View All Events →

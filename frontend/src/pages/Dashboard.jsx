@@ -602,7 +602,7 @@ const MergedDashboard = () => {
       
       {/* Main Content */}
       <div className="flex-1 overflow-auto pb-16 md:pb-0 md:mt-16">
-        <div className="md:pl-0 pl-0 md:pt-0 pt-4">
+        <div className="md:pl-0 pl-0">
           {/* Hero Section */}
           <div className="relative h-screen flex items-center justify-center">
             <div 

@@ -502,7 +502,7 @@ const MergedDashboard = () => {
 
           <main className="max-w-7xl mx-auto p-4 md:p-6">
             {/* Content Tabs Navigation */}
-            <div className="mb-6 bg-gray-900/80 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
+            <div className="mb-6 bg-transparent backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-700">
               <div className="flex overflow-x-auto scrollbar-hide">
                 <button
                   onClick={() => setActiveSection('overview')}

@@ -286,7 +286,7 @@ const MergedDashboard = () => {
 
   // Event Card Component
   const EventCard = ({ event, size = 'normal' }) => (
-    <div className={`bg-white/40 rounded-lg overflow-hidden shadow-md hover:shadow-xl border border-gray-600 hover:border-purple-500/50 transition-all duration-300 transform hover:scale-105 ${size === 'small' ? 'h-64' : 'h-80'}`}>
+    <div className={`bg-gray-800/40 rounded-lg overflow-hidden shadow-md hover:shadow-xl border border-gray-600 hover:border-purple-500/50 transition-all duration-300 transform hover:scale-105 ${size === 'small' ? 'h-64' : 'h-80'}`}>
       <div className="relative">
         <img 
           src={event.coverImage?.url || "/api/placeholder/400/200"} 
@@ -338,14 +338,14 @@ const MergedDashboard = () => {
   // Loading state for main dashboard
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="flex justify-center items-center min-h-screen bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen text-white overflow-x-hidden bg-black">
+    <div className="min-h-screen text-white overflow-x-hidden bg-white">
       {/* Phone Number Modal */}
       {showPhoneModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">

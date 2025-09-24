@@ -29,8 +29,6 @@ const MergedDashboard = () => {
  
   // State management
   const [activeSection, setActiveSection] = useState('overview');
-  const [pendingRequests, setPendingRequests] = useState(0);
-  const [connectionRequests, setConnectionRequests] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('upcoming');
@@ -39,40 +37,14 @@ const MergedDashboard = () => {
   const [categories, setCategories] = useState([
     "All", "Business", "Technology", "Social", "Education", "Health"
   ]);
-  const [professionals, setProfessionals] = useState([]);
-  const [error, setError] = useState(null);
-  const [distance, setDistance] = useState(10);
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [locationError, setLocationError] = useState(false);
-  const [viewMode, setViewMode] = useState('map');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [unit, setUnit] = useState('km');
-  const [filters, setFilters] = useState({
-    industry: null,
-    skills: [],
-    interests: [],
-    connectionStatus: 'all',
-    lastActive: null
-  });
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
-  const [notificationPrefs, setNotificationPrefs] = useState({
-    enabled: false,
-    radius: 1,
-    unit: 'km'
-  });
-  const [refreshing, setRefreshing] = useState(false);
+
+
   
   // Phone verification state
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [updatingPhone, setUpdatingPhone] = useState(false);
-  
-  // Location state
-  const [locationEnabled, setLocationEnabled] = useState(false);
-  const [nearbyUsers, setNearbyUsers] = useState([]);
-  const [userLocation, setUserLocation] = useState(null);
-  const locationControlRef = useRef(null);
+
   
   // Tasks state
   const [planner, setPlanner] = useState([]);
@@ -113,24 +85,7 @@ const MergedDashboard = () => {
     }
   }, [user, fetchUserData]);
 
-  // Fetch connection requests
-  useEffect(() => {
-    const fetchConnectionRequests = async () => {
-      if (!user) return;
-      
-      try {
-        const requests = await networkService.getConnectionRequests();
-        setPendingRequests(requests.length || 0);
-        setConnectionRequests(requests || []);
-      } catch (error) {
-        console.error('Error fetching connection requests:', error);
-        setPendingRequests(0);
-        setConnectionRequests([]);
-      }
-    };
-    
-    fetchConnectionRequests();
-  }, [user]);
+  
 
   // Fetch events
   useEffect(() => {
@@ -214,52 +169,7 @@ const MergedDashboard = () => {
     }
   }, [user]);
 
-  const fetchNearbyUsers = async (latitude, longitude, distance) => {
-    try {
-      if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-        throw new Error("Invalid coordinates provided");
-      }
-      
-      const nearbyResponse = await nearbyUsersService.getNearbyUsers({
-        latitude,
-        longitude,
-        distance
-      });
-      
-      const nearbyUsersArray = nearbyResponse.users || nearbyResponse || [];
-      
-      if (!Array.isArray(nearbyUsersArray)) {
-        throw new Error("Invalid response format from server");
-      }
-      
-      let connections = [];
-      try {
-        connections = await networkService.getConnections('all');
-      } catch (connectionError) {
-        console.error('Error fetching connections:', connectionError);
-        connections = [];
-      }
-      
-      const connectionIds = new Set(
-        Array.isArray(connections) ? connections.map(conn => conn._id || conn.id) : []
-      );
-      
-      const filteredUsers = nearbyUsersArray.filter(user => 
-        user._id && !connectionIds.has(user._id) && !connectionIds.has(user.id)
-      );
-      
-      const enhancedUsers = filteredUsers.map(user => ({
-        ...user,
-        distanceFormatted: formatDistance(user.distance)
-      }));
-      
-      setNearbyUsers(enhancedUsers.slice(0, 3));
-    } catch (error) {
-      console.error('Error fetching nearby professionals:', error);
-      setLocationError(error.message || "Failed to fetch nearby professionals");
-      setNearbyUsers([]);
-    }
-  };
+
 
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
@@ -368,98 +278,12 @@ const MergedDashboard = () => {
   };
 
   // Connection management functions
-  const handleAcceptConnection = async (userId) => {
-    try {
-      await networkService.acceptConnection(userId);
-      setPendingRequests(prev => prev - 1);
-      setConnectionRequests(prev => prev.filter(req => req._id !== userId));
-      
-      if (toast) {
-        toast({
-          title: "Connection Accepted",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error accepting connection request:', error);
-      
-      if (toast) {
-        toast({
-          title: "Failed to accept connection",
-          description: error.message || "Please try again later",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    }
-  };
 
-  const handleDeclineConnection = async (userId) => {
-    try {
-      await networkService.declineConnection(userId);
-      setPendingRequests(prev => prev - 1);
-      setConnectionRequests(prev => prev.filter(req => req._id !== userId));
-      
-      if (toast) {
-        toast({
-          title: "Connection Request Declined",
-          status: "info",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error declining connection request:', error);
-      
-      if (toast) {
-        toast({
-          title: "Failed to decline connection",
-          description: error.message || "Please try again later",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    }
-  };
+
+ 
 
   // Handle connecting with a nearby user
-  const handleConnect = async (userId) => {
-    try {
-      await networkService.requestConnection(userId);
-      setNearbyUsers(prev => 
-        prev.map(user => 
-          user._id === userId 
-            ? { ...user, connectionStatus: 'pending' } 
-            : user
-        )
-      );
-      
-      if (toast) {
-        toast({
-          title: "Connection Request Sent",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error sending connection request:', error);
-      
-      if (toast) {
-        toast({
-          title: "Failed to send request",
-          description: error.message || "Please try again later",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    }
-  };
+
 
   // Utility functions
   const formatDate = (dateString) => {
@@ -479,26 +303,7 @@ const MergedDashboard = () => {
     }
   };
 
-  const formatDistance = (distance) => {
-    if (distance === null || distance === undefined) return 'Unknown distance';
-    
-    if (distance < 0.1) {
-      return `${Math.round(distance * 1000)}m away`;
-    }
-    
-    if (distance < 10) {
-      return `${distance.toFixed(1)}km away`;
-    }
-    
-    return `${Math.round(distance)}km away`;
-  };
 
-  const getProfilePicture = (userObj) => {
-    if (userObj?.profilePicture) {
-      return userObj.profilePicture;
-    }
-    return defaultProfilePic;
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();

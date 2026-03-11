@@ -6,6 +6,7 @@ import { useAuth } from './context/AuthContext';
 // Pages
 import AuthPage from './pages/AuthPage';
 import ChildAbuse from './pages/ChildAbuse';
+import Delete from "./pages/Delete"
 import CertificateVerificationPage from './pages/CertificateVerificationPage.jsx';
 import Discover from './pages/DiscoverPage';
 import OrganizerManagementSystem from './pages/OrganizerManagementService.jsx';
@@ -105,7 +106,7 @@ const App = () => {
           <Route path="/auth/callback" element={<AuthPage />} />
           <Route path="/privacypolicy" element={<PrivacyPolicy />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          
+           <Route path="/delete" element={<Delete />} />
           <Route path="/childabuse" element={<ChildAbuse />} />
           <Route path="/termsandconditons" element={<TermsAndConditions/>} />
           <Route path="/refundpolicy" element={<Refundpolicy/>} />

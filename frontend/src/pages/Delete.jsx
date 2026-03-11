@@ -9,4 +9,4 @@ const Delete= () => {
   )
 }
 
-export default ChildAbuse
+export default Delete
